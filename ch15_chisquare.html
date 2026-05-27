@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15　卡方檢定（Chi-Square Tests）</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false,
+                strict: "ignore"
+            });
+        });
+    </script>
+
+    <style>
+        :root {
+            --navy:       #1a3a6b;
+            --blue:       #2e6cb8;
+            --blue-light: #4a90d9;
+            --purple:     #7b4fa6;
+            --accent:     #c0392b;
+            --gold:       #d4a017;
+            --green:      #27ae60;
+            --bg:         #f7f9fc;
+            --card:       #ffffff;
+            --border:     #d0dcea;
+            --text:       #2c3e50;
+            --muted:      #5a6a7a;
+            --math-bg:    #eaf3ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans TC', 'Source Serif 4', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+        }
+
+        h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            border-bottom: 4px solid var(--blue-light);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-top: 48px;
+            margin-bottom: 14px;
+            border-left: 5px solid var(--blue-light);
+            padding-left: 12px;
+        }
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin-top: 26px;
+            margin-bottom: 10px;
+        }
+        p  { margin-bottom: 12px; }
+        ul, ol { margin-left: 24px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+        /* ── intro / goals ── */
+        .chapter-intro {
+            font-size: 1.05rem; color: var(--muted);
+            border-left: 3px solid var(--blue-light);
+            padding: 10px 16px; background: #eef4fb;
+            border-radius: 0 6px 6px 0; margin-bottom: 24px;
+        }
+        .learning-goals {
+            background: #fffbea; border: 1.5px solid var(--gold);
+            border-radius: 8px; padding: 18px 22px; margin: 24px 0;
+        }
+        .learning-goals h3 { color: #8a6000; margin-top: 0; }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 8px; padding: 18px 24px; margin: 24px 0;
+            box-shadow: 0 2px 8px rgba(30,60,110,.06);
+        }
+        .toc h3 { color: var(--navy); margin-top: 0; }
+        .toc a  { color: var(--blue); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* ── highlight / scenario / note ── */
+        .highlight {
+            background: #fffbe6; border-left: 4px solid var(--gold);
+            padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+        }
+        .scenario {
+            background: #f8f4ff; border: 1.5px dashed #9b7fd4;
+            border-radius: 8px; padding: 12px 18px; margin-bottom: 14px;
+            font-size: .97em; color: #3d2070;
+        }
+        .scenario strong { color: #6a3fbf; }
+
+        /* ── formula card ── */
+        .formula-card {
+            background: var(--card); border: 2px solid var(--blue-light);
+            border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(74,144,217,.1);
+        }
+        .formula-card h3 { margin-top: 0; color: var(--navy); }
+        .formula-card .note {
+            font-size: .9em; color: var(--muted); background: #f0f6ff;
+            border-left: 3px solid #aac4ee; padding: 8px 12px;
+            margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+
+        /* ── math block ── */
+        .math-block {
+            background: var(--math-bg); border-radius: 6px;
+            padding: 14px 18px; margin: 14px 0;
+            overflow-x: auto; font-size: 1.05em; text-align: center;
+        }
+
+        /* ── steps box ── */
+        .steps-box {
+            background: #f4f6ff; border: 1px solid #b0bce8;
+            border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        }
+        .steps-box h3  { color: var(--navy); margin-top: 0; }
+        .steps-box ol  { margin-bottom: 0; }
+        .steps-box li  { margin-bottom: 10px; }
+
+        /* ── example block ── */
+        .example-block {
+            background: #f0faff; border-left: 5px solid var(--blue-light);
+            border-radius: 0 8px 8px 0; padding: 18px 22px; margin: 20px 0;
+        }
+        .example-block h3 { color: var(--navy); margin-top: 0; }
+        .example-block .note {
+            font-size: .92em; background: #e6f7e6;
+            border-left: 3px solid var(--green);
+            padding: 10px 14px; margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+        .example-block .warn {
+            font-size: .92em; background: #fff3cd;
+            border-left: 3px solid var(--gold);
+            padding: 10px 14px; margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+
+        /* ── tables ── */
+        table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .95em; }
+        th, td { border: 1px solid #c8d8ec; padding: 8px 12px; text-align: center; }
+        th { background: #ddeeff; color: var(--navy); font-weight: 600; }
+        tr:nth-child(even) { background: #f5f8ff; }
+        .chi-table th  { background: #1a3a6b; color: white; }
+        .chi-table td  { font-family: 'JetBrains Mono', monospace; font-size: .9em; }
+        .expected td   { color: #1a6b1a; font-style: italic; }
+
+        /* ── two-col ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .col-box { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fafbff; }
+        .col-box h3 { font-size: .98em; margin-top: 0; text-align: center; }
+
+        /* ── comparison summary ── */
+        .compare-box {
+            background: #faf0ff; border: 2px solid #c49be0;
+            border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+        }
+        .compare-box h3 { color: var(--purple); margin-top: 0; }
+        .compare-box table th { background: #8a5abf; color: white; }
+
+        /* ── calculator ── */
+        .calc-box {
+            background: #f4fff4; border: 1.5px solid #7ec87e;
+            border-radius: 8px; padding: 18px 22px; margin: 20px 0;
+        }
+        .calc-box h3 { color: #1a6b1a; margin-top: 0; }
+        .calc-box label { font-size: .92em; display: inline-block; margin-right: 12px; margin-bottom: 8px; }
+        .calc-box input, .calc-box textarea {
+            display: block; padding: 5px 8px; border: 1px solid #aaa;
+            border-radius: 4px; margin-top: 3px; font-size: .9em;
+        }
+        .calc-box input[type=number] { width: 100px; }
+        .calc-box textarea { width: 100%; font-family: 'JetBrains Mono', monospace; }
+        .calc-box .inputs-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+        .calc-box button {
+            background: #3a9a5c; color: white; border: none;
+            border-radius: 5px; padding: 9px 22px; cursor: pointer;
+            font-size: .95em; margin-top: 10px;
+        }
+        .calc-box button:hover { background: #2a7a4a; }
+        .calc-result {
+            margin-top: 12px; padding: 12px 16px;
+            background: #efffef; border: 1px solid #88cc88;
+            border-radius: 6px; font-family: 'JetBrains Mono', monospace;
+            font-size: .85em; display: none; white-space: pre-line;
+        }
+
+        /* ── quiz ── */
+        .quiz-section {
+            background: #fff8f0; border: 1.5px solid #f5c518;
+            border-radius: 8px; padding: 20px 24px; margin: 28px 0;
+        }
+        .quiz-section h3 { color: #8a5000; margin-top: 0; }
+        .quiz-q  { margin-bottom: 26px; padding-bottom: 20px; border-bottom: 1px dashed #e0c87a; }
+        .quiz-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .quiz-q p  { margin-bottom: 10px; }
+        .quiz-q label { display: block; margin: 6px 0; cursor: pointer; }
+        .quiz-q label:hover { color: var(--blue); }
+        .quiz-q button {
+            background: var(--blue-light); color: white; border: none;
+            border-radius: 5px; padding: 7px 18px; cursor: pointer;
+            font-size: .92em; margin-top: 10px;
+        }
+        .quiz-q button:hover { background: var(--blue); }
+        .quiz-feedback {
+            margin-top: 10px; padding: 8px 12px;
+            border-radius: 5px; font-weight: 600; display: none;
+        }
+        .correct   { background: #d4edda; color: #155724; }
+        .incorrect { background: #f8d7da; color: #721c24; }
+
+        /* ── exercises ── */
+        .exercises-list { list-style: none; padding: 0; }
+        .exercises-list > li {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px 20px; margin-bottom: 16px;
+        }
+        .exercises-list > li strong { color: var(--navy); }
+        details summary {
+            cursor: pointer; color: var(--blue); font-weight: 700;
+            margin-top: 12px; user-select: none;
+        }
+        details summary:hover { color: var(--navy); }
+        details > div { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+        /* ── summary ── */
+        .summary {
+            background: var(--navy); color: #e8f0fc;
+            border-radius: 10px; padding: 22px 26px; margin-top: 40px;
+        }
+        .summary h2 { color: #c8dcf8; border-left-color: #6aaae8; margin-top: 0; }
+        .summary li { margin-bottom: 10px; color: #d8e8f8; }
+        .summary strong { color: #a8d0f8; }
+        .summary table { font-size: .87em; color: #d8e8f8; }
+        .summary table th { background: #0a2040; color: #a8d0f8; }
+
+        @media (max-width: 640px) {
+            .two-col { grid-template-columns: 1fr; }
+            body { padding: 20px 14px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Chapter 15　卡方檢定（Chi-Square Tests）</h1>
+
+<p class="chapter-intro">
+本章介紹以<strong>卡方分配（$\chi^2$ distribution）</strong>為基礎的兩種檢定方法。第一種是<strong>配適度檢定（Goodness-of-Fit Test）</strong>，用於驗證觀察到的次數分配是否符合某個理論（假設）比例；第二種是<strong>獨立性檢定（Test of Independence）</strong>，用於判斷兩個類別變數之間是否相互獨立。兩者的核心邏輯相同：計算「實際次數（$f_{ij}$）」與「預期次數（$e_{ij}$）」的差距，差距越大則越有理由拒絕虛無假設。
+</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>理解卡方統計量的結構：$\chi^2 = \sum \dfrac{(f_{ij} - e_{ij})^2}{e_{ij}}$，並直觀解釋其意義。</li>
+    <li>能執行<strong>配適度檢定</strong>：給定理論比例，計算預期次數，進行假設檢定，判斷樣本分配是否符合假設。</li>
+    <li>能執行<strong>獨立性檢定</strong>：從列聯表計算預期次數，判斷兩個類別變數是否相關。</li>
+    <li>能正確判斷兩種檢定的自由度公式，並知道預期次數的最低要求（$e_{ij} \geq 5$）。</li>
+    <li>能區分兩種卡方檢定的適用時機與假設差異。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#s151">Section 15.1　配適度檢定（Goodness-of-Fit Test）</a></li>
+    <li><a href="#s152">Section 15.2　獨立性檢定（Test of Independence）</a></li>
+    <li><a href="#compare">兩種卡方檢定比較</a></li>
+    <li><a href="#calc">互動計算機</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#exercises">Exercises</a></li>
+    <li><a href="#summary">Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     Section 15.1  配適度檢定
+══════════════════════════════════════════════ -->
+<h2 id="s151">Section 15.1　配適度檢定（Goodness-of-Fit Test）</h2>
+
+<p>配適度檢定回答的問題是：<strong>「觀察到的次數分配，是否符合某個理論（假設）比例？」</strong></p>
+<p>例如：骰子真的是公正的嗎？血型的比例是否符合母體理論值？</p>
+
+<div class="formula-card">
+<h3>📐 核心公式</h3>
+
+<p><strong>預期次數（Expected Count）：</strong></p>
+<div class="math-block">
+$$e_i = n \cdot p_i$$
+</div>
+<p>其中 $n$ 為總樣本數，$p_i$ 為第 $i$ 個類別在 $H_0$ 下的理論比例。</p>
+
+<p><strong>卡方檢定統計量：</strong></p>
+<div class="math-block">
+$$\chi^2 = \sum_{i=1}^{k} \frac{(f_i - e_i)^2}{e_i} \sim \chi^2_{k-1}$$
+</div>
+
+<p>其中 $f_i$ = 觀察次數，$e_i$ = 預期次數，$k$ = 類別數。</p>
+<p class="note">
+<strong>直覺：</strong>若每個類別的實際次數 $f_i$ 都非常接近預期次數 $e_i$，則每項 $\dfrac{(f_i-e_i)^2}{e_i}$ 都很小，$\chi^2$ 很小 → 沒有理由拒絕 $H_0$。<br>
+若某些類別偏差很大，$\chi^2$ 很大 → 拒絕 $H_0$。卡方檢定<strong>永遠是右尾檢定</strong>。
+</p>
+</div>
+
+<div class="steps-box">
+<h3>📋 配適度檢定步驟</h3>
+<ol>
+    <li><strong>Step 1 — 假設</strong><br>
+        $H_0$：各類別比例符合理論值（$p_1 = p_1^0,\; p_2 = p_2^0,\;\ldots,\; p_k = p_k^0$）<br>
+        $H_1$：至少一個類別比例不符合理論值</li>
+    <li><strong>Step 2 — 計算預期次數</strong>　$e_i = n \cdot p_i^0$，確認所有 $e_i \geq 5$</li>
+    <li><strong>Step 3 — 計算統計量</strong>　$\chi^2 = \sum \dfrac{(f_i - e_i)^2}{e_i}$，自由度 $df = k - 1$</li>
+    <li><strong>Step 4 — 做決策</strong>　若 p 值 $< \alpha$，拒絕 $H_0$；或比較 $\chi^2 > \chi^2_{\alpha, k-1}$</li>
+    <li><strong>Step 5 — 解釋結論</strong>　說明資料是否符合理論分配</li>
+</ol>
+</div>
+
+<div class="highlight">
+<strong>⚠️ 使用條件：</strong>所有類別的預期次數 $e_i \geq 5$。若有類別不滿足，應合併相鄰類別。
+</div>
+
+<!-- ── 範例 A：血型（一般形式，不等比例）── -->
+<div class="example-block">
+<h3>📝 範例 A　血型比例是否符合理論值？（一般形式）</h3>
+<div class="scenario">
+<strong>問題：</strong>已知某母體的血型理論比例為：A型 25%、B型 25%、AB型 10%、O型 40%。現從該母體隨機抽取 <strong>60 人</strong>，觀察血型分佈如下。請在 $\alpha = 0.05$ 下，檢定此樣本的血型比例是否符合理論值。
+</div>
+
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0: p_A = 0.25,\; p_B = 0.25,\; p_{AB} = 0.10,\; p_O = 0.40$</p>
+<p>$H_1$：至少一種血型的比例不符合理論值</p>
+
+<p><strong>Step 2 & 3 — 計算</strong></p>
+<table class="chi-table">
+    <thead><tr><th>血型</th><th>A</th><th>B</th><th>AB</th><th>O</th><th>合計</th></tr></thead>
+    <tbody>
+        <tr><td>理論比例 $p_i$</td><td>0.25</td><td>0.25</td><td>0.10</td><td>0.40</td><td>1.00</td></tr>
+        <tr><td>觀察次數 $f_i$</td><td>13</td><td>16</td><td>3</td><td>28</td><td>60</td></tr>
+        <tr class="expected"><td>預期次數 $e_i = 60 \times p_i$</td><td>15</td><td>15</td><td>6</td><td>24</td><td>60</td></tr>
+        <tr><td>$f_i - e_i$</td><td>−2</td><td>+1</td><td>−3</td><td>+4</td><td>0</td></tr>
+        <tr><td>$\dfrac{(f_i-e_i)^2}{e_i}$</td><td>0.267</td><td>0.067</td><td>1.500</td><td>0.667</td><td><strong>2.501</strong></td></tr>
+    </tbody>
+</table>
+
+<div class="math-block">
+$$\chi^2 = 2.501,\quad df = 4 - 1 = 3,\quad \chi^2_{0.05,3} = 7.815$$
+</div>
+<p>p 值 $= P(\chi^2_3 > 2.501) \approx 0.475$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 2.501 < 7.815$，p 值 $\approx 0.475 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<div class="warn">
+⚠️ <strong>注意：AB 型的預期次數 $e_{AB} = 6$，剛好符合 $\geq 5$ 的最低要求。</strong>若理論比例更小（如 5% 以下）或樣本更少，AB 型的預期次數可能低於 5，此時應考慮合併類別（如將 AB 型與其他血型合併）。
+</div>
+
+<p class="note">
+✅ 沒有充分的統計證據推論此樣本的血型分佈與理論比例不符。偏差最大的是 AB 型（觀察 3 人，預期 6 人）和 O 型（觀察 28 人，預期 24 人），但整體仍在統計可接受的隨機波動範圍內。<br><br>
+💡 <strong>這是配適度檢定的一般形式：</strong>各類別的理論比例 $p_i^0$ 可以<strong>各不相同</strong>，由研究者根據理論或過去資料事先指定。此例中 0.25 / 0.25 / 0.10 / 0.40 即為一組不等的理論分配。
+</p>
+</div>
+
+<!-- ── 範例 B：骰子（特殊形式，均等比例）── -->
+<div class="example-block">
+<h3>📝 範例 B　這顆骰子是公正的嗎？（均等比例特例）</h3>
+<div class="scenario">
+<strong>問題：</strong>某人擲了一顆骰子共 <strong>900 次</strong>，想知道這顆骰子是否公正（每面出現的機率是否各為 $\dfrac{1}{6}$）。請在 $\alpha = 0.05$ 下進行配適度檢定。
+</div>
+
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0: p_1 = p_2 = p_3 = p_4 = p_5 = p_6 = \dfrac{1}{6}$（骰子公正）</p>
+<p>$H_1$：至少一個點數的機率不等於 $\dfrac{1}{6}$（骰子不公正）</p>
+
+<p><strong>Step 2 — 預期次數</strong></p>
+<p>若骰子公正，每面預期次數：$e_i = 900 \times \dfrac{1}{6} = 150$（六面均相等）</p>
+
+<p><strong>Step 3 — 計算統計量</strong>（假設觀察次數如下）</p>
+<table class="chi-table">
+    <thead><tr><th>點數</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>合計</th></tr></thead>
+    <tbody>
+        <tr><td>觀察次數 $f_i$</td><td>160</td><td>145</td><td>155</td><td>130</td><td>170</td><td>140</td><td>900</td></tr>
+        <tr class="expected"><td>預期次數 $e_i$</td><td>150</td><td>150</td><td>150</td><td>150</td><td>150</td><td>150</td><td>900</td></tr>
+        <tr><td>$f_i - e_i$</td><td>+10</td><td>−5</td><td>+5</td><td>−20</td><td>+20</td><td>−10</td><td>0</td></tr>
+        <tr><td>$\dfrac{(f_i-e_i)^2}{e_i}$</td><td>0.667</td><td>0.167</td><td>0.167</td><td>2.667</td><td>2.667</td><td>0.667</td><td><strong>7.001</strong></td></tr>
+    </tbody>
+</table>
+<div class="math-block">
+$$\chi^2 = 7.001,\quad df = 6 - 1 = 5,\quad \chi^2_{0.05,5} = 11.07$$
+</div>
+<p>p 值 $= P(\chi^2_5 > 7.001) \approx 0.221$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 7.001 < 11.07$，p 值 $= 0.221 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p class="note">
+✅ 沒有充分的統計證據推論這顆骰子不公正。各面出現次數雖有些微偏差（最大偏差出現在點數 4 少了 20 次、點數 5 多了 20 次），但在隨機抽樣下這樣的波動屬合理範圍。<br><br>
+💡 <strong>這是配適度檢定的特殊形式：</strong>當所有理論比例均相等（$p_i^0 = 1/k$）時，配適度檢定等同於<strong>「檢定多個比例是否相等」</strong>。此時每個預期次數相同（$e_i = n/k$），是範例 A 一般形式的特例。<br>
+換句話說：「骰子是否公正」其實就是在問「六個面的出現比例是否完全一致」。
+</p>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     Section 15.2  獨立性檢定
+══════════════════════════════════════════════ -->
+<h2 id="s152">Section 15.2　獨立性檢定（Test of Independence）</h2>
+
+<p>獨立性檢定回答的問題是：<strong>「兩個類別變數之間是否相互獨立（無關）？」</strong></p>
+<p>例如：性別與科系選擇有關聯嗎？性別與購物偏好有關係嗎？</p>
+
+<div class="formula-card">
+<h3>📐 核心公式</h3>
+
+<p><strong>列聯表（Contingency Table）：</strong>$r$ 列（row）× $c$ 行（column）</p>
+<p><strong>預期次數：</strong>若兩變數獨立，則</p>
+<div class="math-block">
+$$e_{ij} = \frac{(\text{第 }i\text{ 列總和}) \times (\text{第 }j\text{ 行總和})}{\text{總樣本數}} = \frac{R_i \times C_j}{n}$$
+</div>
+
+<p><strong>卡方統計量：</strong></p>
+<div class="math-block">
+$$\chi^2 = \sum_{i=1}^{r}\sum_{j=1}^{c} \frac{(f_{ij} - e_{ij})^2}{e_{ij}} \sim \chi^2_{(r-1)(c-1)}$$
+</div>
+<p class="note">
+<strong>直覺：</strong>若兩變數真的獨立，每個格子的實際次數應接近「如果完全按比例分配」的預期次數。格子偏差越大，$\chi^2$ 越大，越有證據說兩者有關聯。
+</p>
+</div>
+
+<div class="steps-box">
+<h3>📋 獨立性檢定步驟</h3>
+<ol>
+    <li><strong>Step 1 — 假設</strong><br>
+        $H_0$：兩個類別變數相互獨立（無關聯）<br>
+        $H_1$：兩個類別變數不相互獨立（有關聯）</li>
+    <li><strong>Step 2 — 建立列聯表，計算預期次數</strong><br>
+        $e_{ij} = \dfrac{R_i \times C_j}{n}$，確認所有 $e_{ij} \geq 5$</li>
+    <li><strong>Step 3 — 計算統計量</strong><br>
+        $\chi^2 = \sum_{i,j}\dfrac{(f_{ij}-e_{ij})^2}{e_{ij}}$，自由度 $df = (r-1)(c-1)$</li>
+    <li><strong>Step 4 — 做決策</strong>　若 p 值 $< \alpha$，拒絕 $H_0$，推論兩變數有顯著關聯</li>
+    <li><strong>Step 5 — 解釋結論</strong>　觀察哪些格子偏差最大，說明關聯的方向</li>
+</ol>
+</div>
+
+<div class="highlight">
+<strong>預期次數的直覺：</strong>若「性別」與「科系」完全無關，那麼每個科系的男女比例應和整體樣本的男女比例相同。預期次數就是「如果完全依照整體比例分配」所得到的理論格子次數。
+</div>
+
+<!-- ── 範例 C：性別 vs 科系 ── -->
+<div class="example-block">
+<h3>📝 範例 C　性別與科系選擇是否有關聯？</h3>
+<div class="scenario">
+<strong>問題：</strong>某大學隨機抽取 200 名學生，記錄其性別（男/女）與就讀科系（理工科學/文法商/醫藥護理）。請在 $\alpha = 0.05$ 下，檢定性別與科系選擇是否相互獨立。
+</div>
+
+<h3>① 建立列聯表（觀察次數）</h3>
+<table class="chi-table">
+    <thead>
+        <tr><th>科系 \ 性別</th><th>男性</th><th>女性</th><th>列總和 $R_i$</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>理工科學</strong></td><td>65</td><td>15</td><td>80</td></tr>
+        <tr><td><strong>文法商</strong></td><td>40</td><td>60</td><td>100</td></tr>
+        <tr><td><strong>醫藥護理</strong></td><td>15</td><td>5</td><td>20</td></tr>
+        <tr><td><strong>行總和 $C_j$</strong></td><td>120</td><td>80</td><td><strong>200</strong></td></tr>
+    </tbody>
+</table>
+
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：性別與科系選擇相互獨立；$H_1$：性別與科系選擇不相互獨立，$\alpha = 0.05$</p>
+
+<h3>② 計算預期次數 $e_{ij} = R_i \times C_j / n$</h3>
+<table class="chi-table expected">
+    <thead>
+        <tr><th>科系 \ 性別</th><th>男性（預期）</th><th>女性（預期）</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>理工科學</td>
+            <td>$80 \times 120 / 200 = 48$</td>
+            <td>$80 \times 80 / 200 = 32$</td></tr>
+        <tr><td>文法商</td>
+            <td>$100 \times 120 / 200 = 60$</td>
+            <td>$100 \times 80 / 200 = 40$</td></tr>
+        <tr><td>醫藥護理</td>
+            <td>$20 \times 120 / 200 = 12$</td>
+            <td>$20 \times 80 / 200 = 8$</td></tr>
+    </tbody>
+</table>
+<p>✅ 所有預期次數均 $\geq 5$，可進行卡方檢定。</p>
+
+<h3>③ 計算各格子 $\dfrac{(f_{ij}-e_{ij})^2}{e_{ij}}$</h3>
+<table class="chi-table">
+    <thead>
+        <tr><th>科系 \ 性別</th><th>男性</th><th>女性</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>理工科學</td>
+            <td>$\dfrac{(65-48)^2}{48} = \dfrac{289}{48} = 6.021$</td>
+            <td>$\dfrac{(15-32)^2}{32} = \dfrac{289}{32} = 9.031$</td></tr>
+        <tr><td>文法商</td>
+            <td>$\dfrac{(40-60)^2}{60} = \dfrac{400}{60} = 6.667$</td>
+            <td>$\dfrac{(60-40)^2}{40} = \dfrac{400}{40} = 10.000$</td></tr>
+        <tr><td>醫藥護理</td>
+            <td>$\dfrac{(15-12)^2}{12} = \dfrac{9}{12} = 0.750$</td>
+            <td>$\dfrac{(5-8)^2}{8} = \dfrac{9}{8} = 1.125$</td></tr>
+    </tbody>
+</table>
+
+<div class="math-block">
+$$\chi^2 = 6.021 + 9.031 + 6.667 + 10.000 + 0.750 + 1.125 = 33.594$$
+</div>
+<div class="math-block">
+$$df = (r-1)(c-1) = (3-1)(2-1) = 2,\quad \chi^2_{0.05,2} = 5.991$$
+</div>
+<p>p 值 $= P(\chi^2_2 > 33.594) \approx 0.000$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 33.594 \gg 5.991$，p 值 $\approx 0 < 0.05$ → <strong>強力拒絕 $H_0$</strong></p>
+
+<p class="note">
+✅ 有非常強的統計證據推論<strong>性別與科系選擇有顯著關聯</strong>。<br><br>
+🔍 <strong>觀察哪些格子偏差最大？</strong>
+<ul style="margin-top:8px;">
+    <li>文法商的<strong>女性</strong>：實際 60，預期 40（$\chi^2$ 貢獻 = 10.000）→ 女性比例<strong>遠超預期</strong></li>
+    <li>理工科學的<strong>女性</strong>：實際 15，預期 32（$\chi^2$ 貢獻 = 9.031）→ 女性比例<strong>遠低於預期</strong></li>
+    <li>文法商的<strong>男性</strong>：實際 40，預期 60（$\chi^2$ 貢獻 = 6.667）→ 男性比例<strong>低於預期</strong></li>
+    <li>理工科學的<strong>男性</strong>：實際 65，預期 48（$\chi^2$ 貢獻 = 6.021）→ 男性比例<strong>高於預期</strong></li>
+</ul>
+結論：男性更傾向就讀<strong>理工科學</strong>，女性更傾向就讀<strong>文法商</strong>；兩者在科系選擇上的模式明顯不同。
+</p>
+</div>
+
+<hr>
+
+<!-- ── 比較兩種卡方檢定 ── -->
+<div class="compare-box" id="compare">
+<h3>📊 兩種卡方檢定快速比較</h3>
+<table>
+    <thead>
+        <tr><th>比較項目</th><th>配適度檢定（15.1）</th><th>獨立性檢定（15.2）</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>問題</strong></td><td>樣本分配是否符合理論比例？</td><td>兩個類別變數是否相互獨立？</td></tr>
+        <tr><td><strong>$H_0$</strong></td><td>$p_i = p_i^0$（各類別符合理論值）</td><td>兩變數相互獨立</td></tr>
+        <tr><td><strong>資料形式</strong></td><td>一維次數分配（$k$ 個類別）</td><td>二維列聯表（$r \times c$）</td></tr>
+        <tr><td><strong>預期次數</strong></td><td>$e_i = n \cdot p_i^0$</td><td>$e_{ij} = R_i \times C_j / n$</td></tr>
+        <tr><td><strong>自由度</strong></td><td>$df = k - 1$</td><td>$df = (r-1)(c-1)$</td></tr>
+        <tr><td><strong>共同條件</strong></td><td colspan="2">所有 $e_i$（或 $e_{ij}$）$\geq 5$；<br>永遠是<strong>右尾檢定</strong>（$\chi^2 \geq 0$，越大越顯著）</td></tr>
+    </tbody>
+</table>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     互動計算機
+══════════════════════════════════════════════ -->
+<h2 id="calc">🔢 Interactive Calculators</h2>
+
+<div class="calc-box">
+<h3>🔢 Calculator A　配適度檢定計算機</h3>
+<p style="font-size:.9em; margin-bottom:10px;">以逗號分隔輸入觀察次數與理論比例，自動計算 $\chi^2$ 與 p 值。</p>
+<div class="inputs-row">
+    <label>觀察次數（逗號分隔）<br>
+        <input type="text" id="gof-obs" value="160,145,155,130,170,140" style="width:280px;">
+    </label>
+    <label>理論比例（逗號分隔，可不等）<br>
+        <input type="text" id="gof-prob" value="1/6,1/6,1/6,1/6,1/6,1/6" style="width:280px;">
+    </label>
+    <label>$\alpha$<br>
+        <input type="number" id="gof-alpha" value="0.05" step="0.01" min="0.01" style="width:80px;">
+    </label>
+</div>
+<button onclick="calcGOF()">Calculate</button>
+<div class="calc-result" id="gof-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 Calculator B　獨立性檢定計算機（$r \times c$ 列聯表）</h3>
+<p style="font-size:.9em; margin-bottom:10px;">每列輸入一行，欄位以逗號分隔（即各行的觀察次數，<strong>不含合計列/欄</strong>）。</p>
+<div class="inputs-row">
+    <label style="width:100%;">列聯表（例：2×3，每行一列）<br>
+        <textarea id="ind-table" rows="4" style="width:100%; max-width:400px;">65,15
+40,60
+15,5</textarea>
+    </label>
+    <label>$\alpha$<br>
+        <input type="number" id="ind-alpha" value="0.05" step="0.01" min="0.01" style="width:80px;">
+    </label>
+</div>
+<button onclick="calcIndep()">Calculate</button>
+<div class="calc-result" id="ind-result"></div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     Quiz
+══════════════════════════════════════════════ -->
+<div class="quiz-section" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+    <p>Q1. 配適度檢定與獨立性檢定的自由度公式分別為何？（$k$ = 類別數，$r$ = 列數，$c$ = 行數）</p>
+    <label><input type="radio" name="q1" value="a"> A. 配適度：$k$；獨立性：$rc$</label>
+    <label><input type="radio" name="q1" value="b"> B. 配適度：$k-1$；獨立性：$(r-1)(c-1)$</label>
+    <label><input type="radio" name="q1" value="c"> C. 配適度：$k-1$；獨立性：$rc - 1$</label>
+    <label><input type="radio" name="q1" value="d"> D. 兩者均為 $n - 1$</label>
+    <button onclick="checkQ('q1','b','✅ 正確！配適度檢定 df = k−1（因為比例加總為1，只有 k−1 個自由類別）；獨立性檢定 df = (r−1)(c−1)（列邊際與行邊際各固定，扣掉相應自由度）。')">Submit</button>
+    <div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q2. 在獨立性檢定中，$e_{ij} = R_i \times C_j / n$ 的意義是什麼？</p>
+    <label><input type="radio" name="q2" value="a"> A. 第 $i$ 列第 $j$ 行的樣本平均數</label>
+    <label><input type="radio" name="q2" value="b"> B. 若兩變數完全獨立，第 $(i,j)$ 格子應有的次數</label>
+    <label><input type="radio" name="q2" value="c"> C. 第 $i$ 列和第 $j$ 行的交集比例</label>
+    <label><input type="radio" name="q2" value="d"> D. 觀察次數的平均值</label>
+    <button onclick="checkQ('q2','b','✅ 正確！若兩變數獨立，P(A∩B) = P(A)×P(B)。$e_{ij} = n × (R_i/n) × (C_j/n) = R_i×C_j/n$ 就是「如果完全按比例獨立分配」的理論格子次數。')">Submit</button>
+    <div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q3. 若某血型配適度檢定中，AB型的預期次數 $e_{AB} = 3$，應如何處理？</p>
+    <label><input type="radio" name="q3" value="a"> A. 繼續計算，不影響結果</label>
+    <label><input type="radio" name="q3" value="b"> B. 將 AB 型與另一類別合併（如 A+AB），使合併後預期次數 $\geq 5$</label>
+    <label><input type="radio" name="q3" value="c"> C. 改用 t 檢定</label>
+    <label><input type="radio" name="q3" value="d"> D. 直接忽略 AB 型這個類別</label>
+    <button onclick="checkQ('q3','b','✅ 正確！卡方檢定要求所有預期次數 ≥ 5。若某類別預期次數太小，應合併相鄰類別（注意合理性），使合併後的預期次數滿足條件，再重新計算統計量。')">Submit</button>
+    <div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q4. 卡方檢定永遠是「右尾檢定」，原因為何？</p>
+    <label><input type="radio" name="q4" value="a"> A. 因為 $\chi^2$ 統計量一定大於 1</label>
+    <label><input type="radio" name="q4" value="b"> B. 因為 $\chi^2 = \sum\frac{(f-e)^2}{e} \geq 0$，值越大代表實際與預期差距越大，越應拒絕 $H_0$</label>
+    <label><input type="radio" name="q4" value="c"> C. 因為卡方分配是對稱的</label>
+    <label><input type="radio" name="q4" value="d"> D. 因為樣本數量大</label>
+    <button onclick="checkQ('q4','b','✅ 正確！由於是平方和的形式，$\\chi^2 \\geq 0$ 恆成立。當 H₀ 成立時 $\\chi^2 \\approx 0$（實際接近預期）；H₀ 不成立時 $\\chi^2$ 很大。因此只需看右尾（大值）的拒絕域。')">Submit</button>
+    <div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q5. 在範例 C（性別 vs 科系）中，哪個格子對 $\chi^2$ 貢獻最大，代表什麼含義？</p>
+    <label><input type="radio" name="q5" value="a"> A. 醫藥護理女性（貢獻 1.125），代表醫藥護理差異最大</label>
+    <label><input type="radio" name="q5" value="b"> B. 文法商女性（貢獻 10.000），代表文法商的女性比例遠超期望，是關聯的主要來源之一</label>
+    <label><input type="radio" name="q5" value="c"> C. 理工科學男性（貢獻 6.021），代表男性都去讀理工</label>
+    <label><input type="radio" name="q5" value="d"> D. 所有格子貢獻一樣</label>
+    <button onclick="checkQ('q5','b','✅ 正確！文法商女性格子（實際 60，預期 40）的 $\\chi^2$ 貢獻為 10.000，是六個格子中最大的，代表女性選擇文法商的人數「遠超過如果獨立分配的預期」，是性別與科系關聯最強的體現之一。')">Submit</button>
+    <div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div><!-- end quiz -->
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     Exercises
+══════════════════════════════════════════════ -->
+<h2 id="exercises">📚 Exercises</h2>
+
+<ol class="exercises-list">
+
+<!-- ── Ex 1: 配適度 - 串流平台 ── -->
+<li>
+<strong>Ex 1　串流平台使用偏好（配適度檢定）</strong>
+<p>某串流平台公司宣稱旗下用戶在四種內容類型的觀看比例分別為：戲劇 45%、電影 30%、紀錄片 15%、動畫 10%。現隨機抽取 <strong>400 位用戶</strong>，觀察其最近一次觀看的內容類型如下：</p>
+<table>
+    <thead><tr><th>類型</th><th>戲劇</th><th>電影</th><th>紀錄片</th><th>動畫</th><th>合計</th></tr></thead>
+    <tbody><tr><td>觀察次數</td><td>165</td><td>125</td><td>72</td><td>38</td><td>400</td></tr></tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請進行卡方配適度檢定，判斷實際觀看比例是否與公司宣稱的比例相符。（計算至小數點後三位）</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0: p_\text{戲劇}=0.45,\; p_\text{電影}=0.30,\; p_\text{紀錄片}=0.15,\; p_\text{動畫}=0.10$</p>
+<p>$H_1$：至少一種類型的實際比例與宣稱不符</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$n = 400$）</p>
+<table class="chi-table">
+    <thead><tr><th>類型</th><th>戲劇</th><th>電影</th><th>紀錄片</th><th>動畫</th></tr></thead>
+    <tbody>
+        <tr><td>$p_i$</td><td>0.45</td><td>0.30</td><td>0.15</td><td>0.10</td></tr>
+        <tr><td>$f_i$（觀察）</td><td>165</td><td>125</td><td>72</td><td>38</td></tr>
+        <tr class="expected"><td>$e_i = 400 \times p_i$</td><td>180</td><td>120</td><td>60</td><td>40</td></tr>
+        <tr><td>$f_i - e_i$</td><td>−15</td><td>+5</td><td>+12</td><td>−2</td></tr>
+        <tr><td>$\frac{(f_i-e_i)^2}{e_i}$</td><td>$\frac{225}{180}=1.250$</td><td>$\frac{25}{120}=0.208$</td><td>$\frac{144}{60}=2.400$</td><td>$\frac{4}{40}=0.100$</td></tr>
+    </tbody>
+</table>
+<p>所有預期次數均 $\geq 5$ ✅</p>
+
+<p><strong>Step 3 — 統計量</strong></p>
+<div class="math-block">
+$$\chi^2 = 1.250 + 0.208 + 2.400 + 0.100 = 3.958,\quad df = 4 - 1 = 3$$
+</div>
+<p>$\chi^2_{0.05, 3} = 7.815$；p 值 $= P(\chi^2_3 > 3.958) \approx 0.266$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 3.958 < 7.815$，p 值 $= 0.266 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p class="note">✅ 沒有充分的統計證據推論實際觀看比例與公司宣稱比例不符。偏差最大的是「紀錄片」（實際 72，預期 60），但整體仍在隨機波動的可接受範圍內。</p>
+</div>
+</details>
+</li>
+
+<!-- ── Ex 2: 配適度 - 修改版咖啡 ── -->
+<li>
+<strong>Ex 2　連鎖咖啡店飲品銷售比例（配適度檢定）</strong>
+<p>某連鎖咖啡店宣稱其四種飲品（拿鐵、美式、卡布奇諾、抹茶）的銷售比例分別為 <strong>35%、25%、25%、15%</strong>。現隨機抽取 <strong>240 杯</strong>，觀測次數如下：</p>
+<table>
+    <thead><tr><th>飲品</th><th>拿鐵</th><th>美式</th><th>卡布奇諾</th><th>抹茶</th><th>合計</th></tr></thead>
+    <tbody><tr><td>觀察次數</td><td>92</td><td>68</td><td>54</td><td>26</td><td>240</td></tr></tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請以卡方配適度檢定判斷實際銷售比例是否與宣稱比例相符。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0: p_\text{拿鐵}=0.35,\; p_\text{美式}=0.25,\; p_\text{卡布}=0.25,\; p_\text{抹茶}=0.15$</p>
+<p>$H_1$：至少一種飲品的實際銷售比例與宣稱不符</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$n = 240$）</p>
+<table class="chi-table">
+    <thead><tr><th>飲品</th><th>拿鐵</th><th>美式</th><th>卡布奇諾</th><th>抹茶</th></tr></thead>
+    <tbody>
+        <tr><td>$p_i$</td><td>0.35</td><td>0.25</td><td>0.25</td><td>0.15</td></tr>
+        <tr><td>$f_i$</td><td>92</td><td>68</td><td>54</td><td>26</td></tr>
+        <tr class="expected"><td>$e_i = 240 \times p_i$</td><td>84</td><td>60</td><td>60</td><td>36</td></tr>
+        <tr><td>$f_i - e_i$</td><td>+8</td><td>+8</td><td>−6</td><td>−10</td></tr>
+        <tr><td>$\frac{(f_i-e_i)^2}{e_i}$</td><td>$\frac{64}{84}=0.762$</td><td>$\frac{64}{60}=1.067$</td><td>$\frac{36}{60}=0.600$</td><td>$\frac{100}{36}=2.778$</td></tr>
+    </tbody>
+</table>
+
+<p><strong>Step 3 — 統計量</strong></p>
+<div class="math-block">
+$$\chi^2 = 0.762 + 1.067 + 0.600 + 2.778 = 5.207,\quad df = 3$$
+</div>
+<p>$\chi^2_{0.05, 3} = 7.815$；p 值 $\approx 0.157$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 5.207 < 7.815$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p class="note">✅ 沒有充分的統計證據推論實際銷售比例與宣稱不符。「抹茶」偏差最大（實際 26，預期 36，少賣了 10 杯），但整體仍可接受。</p>
+</div>
+</details>
+</li>
+
+<!-- ── Ex 3: 配適度 - 拒絕 H0 ── -->
+<li>
+<strong>Ex 3　大學生選課時段偏好（配適度檢定）</strong>
+<p>某大學教務處宣稱學生對四個上課時段（早上 8–10 點 / 上午 10–12 點 / 下午 13–15 點 / 下午 15–17 點）的選課比例均等，各占 <strong>25%</strong>。期末統計隨機抽取 <strong>200 筆</strong>選課紀錄，觀察各時段選課次數如下：</p>
+<table>
+    <thead><tr><th>時段</th><th>8–10 點</th><th>10–12 點</th><th>13–15 點</th><th>15–17 點</th><th>合計</th></tr></thead>
+    <tbody><tr><td>觀察次數</td><td>30</td><td>70</td><td>65</td><td>35</td><td>200</td></tr></tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請進行卡方配適度檢定，判斷四個時段的選課比例是否均等。（計算至小數點後三位）</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0: p_1 = p_2 = p_3 = p_4 = 0.25$（四個時段選課比例均等）</p>
+<p>$H_1$：至少一個時段的選課比例不等於 25%</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$n = 200$，每格 $e_i = 200 \times 0.25 = 50$）</p>
+<table class="chi-table">
+    <thead><tr><th>時段</th><th>8–10 點</th><th>10–12 點</th><th>13–15 點</th><th>15–17 點</th></tr></thead>
+    <tbody>
+        <tr><td>$p_i$</td><td>0.25</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>
+        <tr><td>$f_i$（觀察）</td><td>30</td><td>70</td><td>65</td><td>35</td></tr>
+        <tr class="expected"><td>$e_i = 200 \times 0.25$</td><td>50</td><td>50</td><td>50</td><td>50</td></tr>
+        <tr><td>$f_i - e_i$</td><td>−20</td><td>+20</td><td>+15</td><td>−15</td></tr>
+        <tr><td>$\dfrac{(f_i-e_i)^2}{e_i}$</td>
+            <td>$\dfrac{400}{50}=8.000$</td>
+            <td>$\dfrac{400}{50}=8.000$</td>
+            <td>$\dfrac{225}{50}=4.500$</td>
+            <td>$\dfrac{225}{50}=4.500$</td></tr>
+    </tbody>
+</table>
+<p>所有預期次數 = 50 $\geq 5$ ✅</p>
+
+<p><strong>Step 3 — 統計量</strong></p>
+<div class="math-block">
+$$\chi^2 = 8.000 + 8.000 + 4.500 + 4.500 = 25.000,\quad df = 4 - 1 = 3$$
+</div>
+<p>$\chi^2_{0.05,3} = 7.815$；p 值 $= P(\chi^2_3 > 25.000) \approx 0.000$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 25.000 \gg 7.815$，p 值 $\approx 0.000 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p class="note">✅ 有充分的統計證據推論四個時段的選課比例<strong>並不均等</strong>。<br>
+偏差最大的兩個時段：
+<ul style="margin-top:6px;">
+    <li>8–10 點（早八）：實際 30，預期 50，少了 20 人——學生明顯<strong>迴避早八</strong></li>
+    <li>10–12 點：實際 70，預期 50，多了 20 人——最受歡迎的時段</li>
+</ul>
+早上 8–10 點和晚間時段相對冷門，10–12 點和 13–15 點最受歡迎，建議教務處依實際需求重新分配教室資源。
+</p>
+</div>
+</details>
+</li>
+
+<!-- ── Ex 4: 獨立性 - 通勤方式 vs 職業 ── -->
+<li>
+<strong>Ex 4　通勤方式與工作性質是否相關？（獨立性檢定）</strong>
+<p>研究人員隨機抽取 300 名上班族，記錄其工作性質（內勤/外勤）與主要通勤方式（捷運/公車/自行開車），結果如下：</p>
+<table>
+    <thead><tr><th>工作 \ 通勤</th><th>捷運</th><th>公車</th><th>自行開車</th><th>合計</th></tr></thead>
+    <tbody>
+        <tr><td>內勤</td><td>80</td><td>40</td><td>30</td><td>150</td></tr>
+        <tr><td>外勤</td><td>40</td><td>30</td><td>80</td><td>150</td></tr>
+        <tr><td>合計</td><td>120</td><td>70</td><td>110</td><td>300</td></tr>
+    </tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請進行卡方獨立性檢定，判斷工作性質與通勤方式是否相互獨立。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：工作性質與通勤方式相互獨立；$H_1$：兩者有顯著關聯</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$e_{ij} = R_i \times C_j / 300$）</p>
+<table class="chi-table expected">
+    <thead><tr><th>工作 \ 通勤</th><th>捷運</th><th>公車</th><th>自行開車</th></tr></thead>
+    <tbody>
+        <tr><td>內勤</td><td>$150\times120/300=60$</td><td>$150\times70/300=35$</td><td>$150\times110/300=55$</td></tr>
+        <tr><td>外勤</td><td>$150\times120/300=60$</td><td>$150\times70/300=35$</td><td>$150\times110/300=55$</td></tr>
+    </tbody>
+</table>
+<p>所有預期次數均 $\geq 5$ ✅</p>
+
+<p><strong>Step 3 — 計算統計量</strong></p>
+<div class="math-block">
+$$\chi^2 = \frac{(80-60)^2}{60}+\frac{(40-35)^2}{35}+\frac{(30-55)^2}{55}+\frac{(40-60)^2}{60}+\frac{(30-35)^2}{35}+\frac{(80-55)^2}{55}$$
+$$= \frac{400}{60}+\frac{25}{35}+\frac{625}{55}+\frac{400}{60}+\frac{25}{35}+\frac{625}{55}$$
+$$= 6.667+0.714+11.364+6.667+0.714+11.364 = 37.490$$
+</div>
+<div class="math-block">
+$$df = (2-1)(3-1) = 2,\quad \chi^2_{0.05,2} = 5.991$$
+</div>
+<p>p 值 $\approx 0.000$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 37.490 \gg 5.991$ → <strong>強力拒絕 $H_0$</strong></p>
+
+<p class="note">✅ 有非常強的統計證據推論<strong>工作性質與通勤方式有顯著關聯</strong>。<br>
+偏差最大格子：自行開車（內勤實際 30，預期 55，少了 25；外勤實際 80，預期 55，多了 25），$\chi^2$ 貢獻各 11.364。<br>
+結論：外勤工作者更傾向自行開車（行動靈活性需求高），內勤工作者更傾向搭乘捷運。</p>
+</div>
+</details>
+</li>
+
+<!-- ── Ex 5: 獨立性 - 社群媒體 ── -->
+<li>
+<strong>Ex 5　社群媒體使用習慣與年齡層是否相關？（獨立性檢定）</strong>
+<p>某行銷公司隨機抽取 <strong>450 名</strong>受訪者，記錄其年齡層（青年 18–35 歲 / 壯年 36–55 歲）與最常使用的社群媒體（Instagram / Facebook / YouTube），結果如下：</p>
+<table>
+    <thead><tr><th>年齡 \ 平台</th><th>Instagram</th><th>Facebook</th><th>YouTube</th><th>合計</th></tr></thead>
+    <tbody>
+        <tr><td>青年（18–35）</td><td>120</td><td>45</td><td>60</td><td>225</td></tr>
+        <tr><td>壯年（36–55）</td><td>30</td><td>105</td><td>90</td><td>225</td></tr>
+        <tr><td>合計</td><td>150</td><td>150</td><td>150</td><td>450</td></tr>
+    </tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請進行卡方獨立性檢定，判斷年齡層與社群媒體使用習慣是否相互獨立。（計算至小數點後三位）</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：年齡層與社群媒體偏好相互獨立；$H_1$：兩者有顯著關聯，$\alpha = 0.05$</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$e_{ij} = R_i \times C_j / 450$，兩列各 225，三行各 150）</p>
+<table class="chi-table expected">
+    <thead><tr><th>年齡 \ 平台</th><th>Instagram</th><th>Facebook</th><th>YouTube</th></tr></thead>
+    <tbody>
+        <tr><td>青年</td><td>$225\times150/450=75$</td><td>$225\times150/450=75$</td><td>$225\times150/450=75$</td></tr>
+        <tr><td>壯年</td><td>$75$</td><td>$75$</td><td>$75$</td></tr>
+    </tbody>
+</table>
+<p>所有預期次數 = 75 $\geq 5$ ✅</p>
+
+<p><strong>Step 3 — 計算統計量</strong></p>
+<div class="math-block">
+$$\chi^2 = \frac{(120-75)^2}{75}+\frac{(45-75)^2}{75}+\frac{(60-75)^2}{75}+\frac{(30-75)^2}{75}+\frac{(105-75)^2}{75}+\frac{(90-75)^2}{75}$$
+$$= \frac{2025}{75}+\frac{900}{75}+\frac{225}{75}+\frac{2025}{75}+\frac{900}{75}+\frac{225}{75}$$
+$$= 27.000+12.000+3.000+27.000+12.000+3.000 = 84.000$$
+</div>
+<div class="math-block">
+$$df = (2-1)(3-1) = 2,\quad \chi^2_{0.05,2} = 5.991$$
+</div>
+<p>p 值 $\approx 0.000$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 84.000 \gg 5.991$ → <strong>強力拒絕 $H_0$</strong></p>
+
+<p class="note">✅ 有非常強的統計證據推論<strong>年齡層與社群媒體偏好有顯著關聯</strong>。<br>
+<strong>關聯方向：</strong>
+<ul style="margin-top:6px;">
+    <li>🧑 青年（18–35）：大量使用 <strong>Instagram</strong>（實際 120，預期 75，多了 45），明顯迴避 Facebook</li>
+    <li>🧔 壯年（36–55）：大量使用 <strong>Facebook</strong>（實際 105，預期 75，多了 30），使用 Instagram 明顯偏少</li>
+    <li>YouTube 兩個年齡層皆有偏差但較小（$\chi^2$ 貢獻各 3）</li>
+</ul>
+</p>
+</div>
+</details>
+</li>
+
+<!-- ── Ex 6: 獨立性 - 不拒絕 H0 ── -->
+<li>
+<strong>Ex 6　用餐偏好與居住地區是否相關？（獨立性檢定）</strong>
+<p>某餐飲調查公司隨機抽取 <strong>180 名</strong>消費者，記錄其居住地區（北部 / 南部）與用餐偏好（中式 / 日式 / 西式），結果如下：</p>
+<table>
+    <thead><tr><th>地區 \ 偏好</th><th>中式</th><th>日式</th><th>西式</th><th>合計</th></tr></thead>
+    <tbody>
+        <tr><td>北部</td><td>46</td><td>38</td><td>26</td><td>110</td></tr>
+        <tr><td>南部</td><td>29</td><td>23</td><td>18</td><td>70</td></tr>
+        <tr><td>合計</td><td>75</td><td>61</td><td>44</td><td>180</td></tr>
+    </tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，請進行卡方獨立性檢定，判斷居住地區與用餐偏好是否相互獨立。（計算至小數點後三位）</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：居住地區與用餐偏好相互獨立；$H_1$：兩者有顯著關聯，$\alpha = 0.05$</p>
+
+<p><strong>Step 2 — 預期次數</strong>（$e_{ij} = R_i \times C_j / 180$）</p>
+<table class="chi-table expected">
+    <thead><tr><th>地區 \ 偏好</th><th>中式</th><th>日式</th><th>西式</th></tr></thead>
+    <tbody>
+        <tr><td>北部</td>
+            <td>$110\times75/180=45.833$</td>
+            <td>$110\times61/180=37.278$</td>
+            <td>$110\times44/180=26.889$</td></tr>
+        <tr><td>南部</td>
+            <td>$70\times75/180=29.167$</td>
+            <td>$70\times61/180=23.722$</td>
+            <td>$70\times44/180=17.111$</td></tr>
+    </tbody>
+</table>
+<p>所有預期次數均 $\geq 5$ ✅</p>
+
+<p><strong>Step 3 — 計算統計量</strong></p>
+<table class="chi-table">
+    <thead><tr><th>格子</th><th>$f_{ij}$</th><th>$e_{ij}$</th><th>$f-e$</th><th>$(f-e)^2/e$</th></tr></thead>
+    <tbody>
+        <tr><td>北部 × 中式</td><td>46</td><td>45.833</td><td>+0.167</td><td>0.001</td></tr>
+        <tr><td>北部 × 日式</td><td>38</td><td>37.278</td><td>+0.722</td><td>0.014</td></tr>
+        <tr><td>北部 × 西式</td><td>26</td><td>26.889</td><td>−0.889</td><td>0.029</td></tr>
+        <tr><td>南部 × 中式</td><td>29</td><td>29.167</td><td>−0.167</td><td>0.001</td></tr>
+        <tr><td>南部 × 日式</td><td>23</td><td>23.722</td><td>−0.722</td><td>0.022</td></tr>
+        <tr><td>南部 × 西式</td><td>18</td><td>17.111</td><td>+0.889</td><td>0.046</td></tr>
+    </tbody>
+</table>
+
+<div class="math-block">
+$$\chi^2 = 0.001+0.014+0.029+0.001+0.022+0.046 = 0.113,\quad df = (2-1)(3-1) = 2$$
+</div>
+<p>$\chi^2_{0.05,2} = 5.991$；p 值 $= P(\chi^2_2 > 0.113) \approx 0.945$</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$\chi^2 = 0.113 \ll 5.991$，p 值 $\approx 0.945 \gg 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p class="note">
+❌ 沒有充分的統計證據推論居住地區與用餐偏好有顯著關聯。<br><br>
+🔍 <strong>為什麼不顯著？</strong>觀察各格子的實際比例：
+<ul style="margin-top:6px;">
+    <li>北部：中式 41.8%、日式 34.5%、西式 23.6%</li>
+    <li>南部：中式 41.4%、日式 32.9%、西式 25.7%</li>
+</ul>
+北部與南部的用餐偏好比例<strong>幾乎完全一致</strong>，所有格子的實際次數都非常接近預期次數（最大偏差不到 1 人），$\chi^2 = 0.113$ 極小，是「不拒絕 $H_0$」的典型案例。<br><br>
+💡 <strong>教學提示：</strong>$\chi^2$ 極小（接近 0）時，代表資料「太符合獨立的假設」，兩變數之間幾乎沒有任何關聯性。
+</p>
+</div>
+</details>
+</li>
+
+</ol><!-- end exercises -->
+
+<hr>
+
+<!-- ══════════════════════════════════════════════
+     Chapter Summary
+══════════════════════════════════════════════ -->
+<div class="summary" id="summary">
+<h2>📖 Chapter 15 Summary</h2>
+
+<table style="color:#d8e8f8; font-size:.87em; margin-top:16px;">
+    <thead>
+        <tr style="background:#0a2040;">
+            <th style="color:#a8d0f8;">項目</th>
+            <th style="color:#a8d0f8;">配適度檢定（15.1）</th>
+            <th style="color:#a8d0f8;">獨立性檢定（15.2）</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>核心問題</strong></td><td>樣本分配是否符合理論比例？</td><td>兩個類別變數是否獨立？</td></tr>
+        <tr><td><strong>$H_0$</strong></td><td>各類別符合理論比例 $p_i = p_i^0$</td><td>兩變數相互獨立</td></tr>
+        <tr><td><strong>預期次數</strong></td><td>$e_i = n \cdot p_i^0$</td><td>$e_{ij} = R_i \cdot C_j / n$</td></tr>
+        <tr><td><strong>自由度</strong></td><td>$k - 1$</td><td>$(r-1)(c-1)$</td></tr>
+        <tr><td><strong>統計量</strong></td><td colspan="2">$\chi^2 = \sum \dfrac{(f - e)^2}{e}$，<strong>右尾檢定</strong></td></tr>
+        <tr><td><strong>使用條件</strong></td><td colspan="2">所有預期次數 $\geq 5$；若不足應合併類別</td></tr>
+    </tbody>
+</table>
+
+<ul style="margin-top:16px;">
+    <li><strong>卡方統計量的直覺：</strong>實際 ≈ 預期 → $\chi^2$ 小 → 不拒絕 $H_0$；差距大 → $\chi^2$ 大 → 拒絕 $H_0$</li>
+    <li><strong>預期次數的意義：</strong>配適度 = 「按理論比例分配的次數」；獨立性 = 「若兩變數完全無關，按邊際比例分配的次數」</li>
+    <li><strong>拒絕 $H_0$ 後的後續分析：</strong>觀察哪些格子（類別）偏差最大（貢獻最多 $\chi^2$），以解釋關聯的方向與強度</li>
+    <li><strong>卡方檢定的限制：</strong>只能告訴你「有沒有關聯」，不能告訴你關聯的強弱（需要 Cramér's V 等效應量指標）</li>
+</ul>
+</div>
+
+
+<script>
+/* ─── Quiz ─── */
+function checkQ(name, correct, explanation) {
+    const sel = document.querySelector(`input[name="${name}"]:checked`);
+    const fb  = document.getElementById(`${name}-fb`);
+    if (!sel) { fb.textContent = '⚠️ 請選擇一個答案！'; fb.className = 'quiz-feedback incorrect'; fb.style.display = 'block'; return; }
+    fb.textContent = sel.value === correct ? explanation : `❌ 答錯了！正確是 ${correct.toUpperCase()}。${explanation}`;
+    fb.className   = sel.value === correct ? 'quiz-feedback correct' : 'quiz-feedback incorrect';
+    fb.style.display = 'block';
+}
+
+/* ─── Chi-square p-value (right tail) ─── */
+function gammln(xx) {
+    const c = [76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,1.208650973866179e-3,-5.395239384953e-6];
+    let y=xx, x=xx, tmp=x+5.5; tmp -= (x+0.5)*Math.log(tmp);
+    let ser=1.000000000190015;
+    for (let j=0;j<6;j++) ser+=c[j]/++y;
+    return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+    const MAXIT=200,EPS=3e-7,FPMIN=1e-30;
+    const qab=a+b,qap=a+1,qam=a-1;
+    let c=1, d=1-qab*x/qap; if(Math.abs(d)<FPMIN)d=FPMIN; d=1/d; let h=d;
+    for(let m=1;m<=MAXIT;m++){
+        const m2=2*m;
+        let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+        d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+        aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+        d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+        if(Math.abs(d*c-1)<EPS)break;
+    }
+    return h;
+}
+function betai(a,b,x){
+    if(x<=0)return 0; if(x>=1)return 1;
+    const lb=gammln(a)+gammln(b)-gammln(a+b);
+    const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lb);
+    return x<(a+1)/(a+b+2) ? front*betacf(a,b,x)/a : 1-front*betacf(b,a,1-x)/b;
+}
+function chi2pvalue(chi2, df){
+    // P(X > chi2) = 1 - regularized gamma = gammaQ(df/2, chi2/2)
+    return 1 - betai(df/2, 10000, chi2/(chi2+10000)); // approx via betai
+}
+// Better: use incomplete gamma directly
+function gammaQ(a, x){
+    // upper regularized incomplete gamma P(a,x) = 1 - gammaP
+    if(x < 0 || a <= 0) return NaN;
+    if(x === 0) return 1;
+    if(x < a+1) return 1 - gammaSerP(a,x);
+    return gammaCF(a,x);
+}
+function gammaSerP(a,x){
+    let ap=a, sum=1/a, del=1/a;
+    for(let n=1;n<=200;n++){ ap++; del*=x/ap; sum+=del; if(Math.abs(del)<Math.abs(sum)*3e-7)break; }
+    return sum*Math.exp(-x+a*Math.log(x)-gammln(a));
+}
+function gammaCF(a,x){
+    let b=x+1-a, c=1/1e-30, d=1/b, h=d;
+    for(let i=1;i<=200;i++){
+        const an=-i*(i-a); b+=2; d=an*d+b; if(Math.abs(d)<1e-30)d=1e-30;
+        c=b+an/c; if(Math.abs(c)<1e-30)c=1e-30; d=1/d; const del=d*c; h*=del;
+        if(Math.abs(del-1)<3e-7)break;
+    }
+    return Math.exp(-x+a*Math.log(x)-gammln(a))*h;
+}
+function chi2pval(chi2, df){ return gammaQ(df/2, chi2/2); }
+
+// chi2 critical value (binary search)
+function chi2crit(alpha, df){
+    let lo=0, hi=200;
+    for(let i=0;i<100;i++){ const mid=(lo+hi)/2; if(chi2pval(mid,df)>alpha)lo=mid; else hi=mid; }
+    return (lo+hi)/2;
+}
+
+/* ─── Calculator A: Goodness-of-Fit ─── */
+function calcGOF(){
+    const obs   = document.getElementById('gof-obs').value.split(',').map(s=>parseFloat(s.trim()));
+    const pRaw  = document.getElementById('gof-prob').value.split(',').map(s=>s.trim());
+    const alpha = parseFloat(document.getElementById('gof-alpha').value);
+    const res   = document.getElementById('gof-result');
+
+    // parse fractions like "1/6"
+    const probs = pRaw.map(s=>{ if(s.includes('/')) { const [a,b]=s.split('/'); return parseFloat(a)/parseFloat(b); } return parseFloat(s); });
+
+    if(obs.length !== probs.length){ res.textContent='⚠️ 觀察次數與比例的項數必須相同！'; res.style.display='block'; return; }
+    const pSum = probs.reduce((a,b)=>a+b,0);
+    if(Math.abs(pSum-1)>0.01){ res.textContent=`⚠️ 比例總和 = ${pSum.toFixed(4)}，應等於 1！`; res.style.display='block'; return; }
+
+    const n   = obs.reduce((a,b)=>a+b,0);
+    const exp = probs.map(p=>n*p);
+    const minE = Math.min(...exp);
+
+    let chi2 = 0;
+    let detail = '類別       觀察(f)  預期(e)   f−e    (f−e)²/e\n';
+    detail += '─'.repeat(52)+'\n';
+    obs.forEach((fi, i) => {
+        const ei = exp[i], diff=fi-ei, contrib=(fi-ei)**2/ei;
+        chi2 += contrib;
+        detail += `類別 ${String(i+1).padStart(2)}   ${String(fi).padStart(6)}  ${ei.toFixed(2).padStart(7)}  ${diff>0?'+':''}${diff.toFixed(1).padStart(5)}   ${contrib.toFixed(3).padStart(8)}\n`;
+    });
+    detail += '─'.repeat(52)+'\n';
+    detail += `合計    ${String(n).padStart(7)}  ${n.toFixed(2).padStart(7)}         ${chi2.toFixed(3).padStart(8)}\n\n`;
+
+    const df  = obs.length - 1;
+    const pv  = chi2pval(chi2, df);
+    const crit= chi2crit(alpha, df);
+
+    detail += `χ² = ${chi2.toFixed(3)},  df = ${df},  α = ${alpha}\n`;
+    detail += `χ²_crit(${alpha}, ${df}) = ${crit.toFixed(3)}\n`;
+    detail += `p 值 = ${pv.toFixed(4)}\n`;
+    if(minE < 5) detail += `⚠️ 警告：最小預期次數 = ${minE.toFixed(2)} < 5，建議合併類別！\n`;
+    detail += '\n';
+    detail += pv < alpha
+        ? `✅ p = ${pv.toFixed(4)} < α = ${alpha}，拒絕 H₀。\n樣本分配與理論比例有顯著差異。`
+        : `❌ p = ${pv.toFixed(4)} ≥ α = ${alpha}，不拒絕 H₀。\n沒有充分證據推論樣本分配與理論比例不符。`;
+
+    res.textContent = detail;
+    res.style.display = 'block';
+}
+
+/* ─── Calculator B: Independence Test ─── */
+function calcIndep(){
+    const raw   = document.getElementById('ind-table').value.trim().split('\n');
+    const alpha = parseFloat(document.getElementById('ind-alpha').value);
+    const res   = document.getElementById('ind-result');
+
+    const table = raw.map(line=>line.split(',').map(s=>parseFloat(s.trim())));
+    const r = table.length;
+    const c = table[0].length;
+    if(table.some(row=>row.length!==c)){ res.textContent='⚠️ 每列的欄數必須相同！'; res.style.display='block'; return; }
+
+    const Ri = table.map(row=>row.reduce((a,b)=>a+b,0));
+    const Cj = Array.from({length:c},(_,j)=>table.reduce((s,row)=>s+row[j],0));
+    const n  = Ri.reduce((a,b)=>a+b,0);
+    const exp = table.map((row,i)=>row.map((_,j)=>Ri[i]*Cj[j]/n));
+    const minE = Math.min(...exp.flat());
+
+    let chi2=0;
+    let detail=`列聯表大小：${r} × ${c}，總樣本數 n = ${n}\n\n`;
+    detail+='預期次數矩陣 e_ij = R_i × C_j / n：\n';
+    exp.forEach((row,i)=>{ detail+='  ['+ row.map(v=>v.toFixed(2).padStart(7)).join(',')+' ]\n'; });
+
+    detail+='\n各格子 (f−e)²/e：\n';
+    table.forEach((row,i)=>{
+        row.forEach((fi,j)=>{
+            const ei=exp[i][j], contrib=(fi-ei)**2/ei;
+            chi2+=contrib;
+            detail+=`  (${i+1},${j+1}): f=${fi}, e=${ei.toFixed(2)}, 貢獻=${contrib.toFixed(3)}\n`;
+        });
+    });
+
+    const df  = (r-1)*(c-1);
+    const pv  = chi2pval(chi2, df);
+    const crit= chi2crit(alpha, df);
+
+    detail+=`\nχ² = ${chi2.toFixed(3)},  df = (${r}−1)(${c}−1) = ${df},  α = ${alpha}\n`;
+    detail+=`χ²_crit(${alpha}, ${df}) = ${crit.toFixed(3)}\n`;
+    detail+=`p 值 = ${pv.toFixed(4)}\n`;
+    if(minE<5) detail+=`⚠️ 警告：最小預期次數 = ${minE.toFixed(2)} < 5，建議合併類別！\n`;
+    detail+='\n';
+    detail+= pv<alpha
+        ? `✅ p = ${pv.toFixed(4)} < α = ${alpha}，拒絕 H₀。\n兩個類別變數有顯著關聯（非獨立）。`
+        : `❌ p = ${pv.toFixed(4)} ≥ α = ${alpha}，不拒絕 H₀。\n沒有充分證據推論兩個類別變數有關聯。`;
+
+    res.textContent = detail;
+    res.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

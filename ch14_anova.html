@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14　變異數分析（ANOVA）</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false,
+                strict: "ignore"
+            });
+        });
+    </script>
+
+    <style>
+        :root {
+            --navy: #1a3a6b;
+            --blue: #2e6cb8;
+            --blue-light: #4a90d9;
+            --accent: #c0392b;
+            --gold: #d4a017;
+            --green: #27ae60;
+            --bg: #f7f9fc;
+            --card: #ffffff;
+            --border: #d0dcea;
+            --text: #2c3e50;
+            --muted: #5a6a7a;
+            --math-bg: #eaf3ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans TC', 'Source Serif 4', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+        }
+
+        h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            border-bottom: 4px solid var(--blue-light);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-top: 48px;
+            margin-bottom: 14px;
+            border-left: 5px solid var(--blue-light);
+            padding-left: 12px;
+        }
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin-top: 28px;
+            margin-bottom: 10px;
+        }
+        p { margin-bottom: 12px; }
+        ul, ol { margin-left: 24px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; }
+
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+        .chapter-intro {
+            font-size: 1.05rem;
+            color: var(--muted);
+            border-left: 3px solid var(--blue-light);
+            padding: 10px 16px;
+            background: #eef4fb;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 24px;
+        }
+
+        .learning-goals {
+            background: #fffbea;
+            border: 1.5px solid var(--gold);
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 24px 0;
+        }
+        .learning-goals h3 { color: #8a6000; margin-top: 0; }
+
+        .toc {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin: 24px 0;
+            box-shadow: 0 2px 8px rgba(30,60,110,0.06);
+        }
+        .toc h3 { color: var(--navy); margin-top: 0; }
+        .toc a { color: var(--blue); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+
+        .highlight {
+            background: #fffbe6;
+            border-left: 4px solid var(--gold);
+            padding: 12px 16px;
+            margin: 16px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .math-block {
+            background: var(--math-bg);
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            overflow-x: auto;
+            font-size: 1.05em;
+            text-align: center;
+        }
+
+        .formula-card {
+            background: var(--card);
+            border: 2px solid var(--blue-light);
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(74,144,217,0.1);
+        }
+        .formula-card h3 { margin-top: 0; color: var(--navy); }
+        .formula-card .note {
+            font-size: 0.9em;
+            color: var(--muted);
+            background: #f0f6ff;
+            border-left: 3px solid #aac4ee;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .steps-box {
+            background: #f4f6ff;
+            border: 1px solid #b0bce8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .steps-box h3 { color: var(--navy); margin-top: 0; }
+        .steps-box ol { margin-bottom: 0; }
+        .steps-box li { margin-bottom: 10px; }
+
+        /* ── Example Block (teacher's own examples) ── */
+        .example-block {
+            background: #f0faff;
+            border-left: 5px solid var(--blue-light);
+            border-radius: 0 8px 8px 0;
+            padding: 18px 22px;
+            margin: 20px 0;
+        }
+        .example-block h3 { color: var(--navy); margin-top: 0; }
+        .example-block .note {
+            font-size: 0.92em;
+            color: #333;
+            background: #e6f7e6;
+            border-left: 3px solid var(--green);
+            padding: 10px 14px;
+            margin-top: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+        .example-block .warn {
+            font-size: 0.92em;
+            background: #fff3cd;
+            border-left: 3px solid var(--gold);
+            padding: 10px 14px;
+            margin-top: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* ── Context badge (scenario description) ── */
+        .scenario {
+            background: #f8f4ff;
+            border: 1.5px dashed #9b7fd4;
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 14px;
+            font-size: 0.97em;
+            color: #3d2070;
+        }
+        .scenario strong { color: #6a3fbf; }
+
+        .decision-tree {
+            background: #f3f8ee;
+            border: 1.5px solid #7cbf5a;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 20px 0;
+        }
+        .decision-tree h3 { color: #2d6a1f; margin-top: 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.95em;
+        }
+        th, td { border: 1px solid #c8d8ec; padding: 8px 12px; text-align: center; }
+        th { background: #ddeeff; color: var(--navy); font-weight: 600; }
+        tr:nth-child(even) { background: #f5f8ff; }
+
+        .anova-table th { background: #1a3a6b; color: white; }
+        .anova-table td { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+
+        /* ── Design comparison side-by-side ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .col-box { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fafbff; }
+        .col-box h3 { font-size: 0.98em; margin-top: 0; text-align: center; }
+        .col-box.highlight-green { background: #f0fff4; border-color: #7ec87e; }
+        .col-box.highlight-orange { background: #fff8f0; border-color: #f0a040; }
+
+        /* ── Calculator ── */
+        .calc-box {
+            background: #f4fff4;
+            border: 1.5px solid #7ec87e;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 20px 0;
+        }
+        .calc-box h3 { color: #1a6b1a; margin-top: 0; }
+        .calc-box label { font-size: 0.92em; display: inline-block; margin-right: 12px; margin-bottom: 8px; }
+        .calc-box input, .calc-box select {
+            display: block;
+            padding: 5px 8px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            margin-top: 3px;
+            font-size: 0.92em;
+            width: 110px;
+        }
+        .calc-box .inputs-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+        .calc-box button {
+            background: #3a9a5c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 9px 22px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-top: 10px;
+        }
+        .calc-box button:hover { background: #2a7a4a; }
+        .calc-result {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: #efffef;
+            border: 1px solid #88cc88;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            display: none;
+            white-space: pre-line;
+        }
+
+        /* ── Quiz ── */
+        .quiz-section {
+            background: #fff8f0;
+            border: 1.5px solid #f5c518;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 28px 0;
+        }
+        .quiz-section h3 { color: #8a5000; margin-top: 0; }
+        .quiz-q { margin-bottom: 26px; padding-bottom: 20px; border-bottom: 1px dashed #e0c87a; }
+        .quiz-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .quiz-q p { margin-bottom: 10px; }
+        .quiz-q label { display: block; margin: 6px 0; cursor: pointer; }
+        .quiz-q label:hover { color: var(--blue); }
+        .quiz-q button {
+            background: var(--blue-light);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 7px 18px;
+            cursor: pointer;
+            font-size: 0.92em;
+            margin-top: 10px;
+        }
+        .quiz-q button:hover { background: var(--blue); }
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            display: none;
+        }
+        .correct { background: #d4edda; color: #155724; }
+        .incorrect { background: #f8d7da; color: #721c24; }
+
+        /* ── Exercises ── */
+        .exercises-list { list-style: none; padding: 0; }
+        .exercises-list > li {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+        .exercises-list > li strong { color: var(--navy); }
+        details summary {
+            cursor: pointer;
+            color: var(--blue);
+            font-weight: 700;
+            margin-top: 12px;
+            user-select: none;
+        }
+        details summary:hover { color: var(--navy); }
+        details > div { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+        /* ── Summary ── */
+        .summary {
+            background: var(--navy);
+            color: #e8f0fc;
+            border-radius: 10px;
+            padding: 22px 26px;
+            margin-top: 40px;
+        }
+        .summary h2 { color: #c8dcf8; border-left-color: #6aaae8; margin-top: 0; }
+        .summary li { margin-bottom: 10px; color: #d8e8f8; }
+        .summary strong { color: #a8d0f8; }
+
+        /* ── Interaction plot ── */
+        .interaction-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .int-cell {
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .int-high { background: #d4edda; color: #155724; }
+        .int-mid  { background: #fff3cd; color: #856404; }
+        .int-low  { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 640px) {
+            .two-col { grid-template-columns: 1fr; }
+            body { padding: 20px 14px 60px; }
+            .interaction-grid { grid-template-columns: repeat(2,1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Chapter 14　變異數分析（ANOVA）</h1>
+
+<p class="chapter-intro">
+本章將第 13 章的兩母體比較延伸至<strong>同時比較三個或以上母體平均數</strong>的情境，核心技術是<strong>變異數分析（Analysis of Variance, ANOVA）</strong>。透過分解資料的總變異，判斷處理組之間的差異是否超出隨機誤差範圍，並視需要進行多重比較、引入區集控制、或分析兩個因子的交互效果。
+</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>理解 ANOVA 的核心邏輯：將總變異分解為<strong>處理間（SST）</strong>與<strong>誤差內（SSE）</strong>，以 F 統計量判斷顯著性。</li>
+    <li>能建立並解讀 ANOVA 表，計算 MST、MSE、F 統計量，根據 p 值做出決策。</li>
+    <li>能比較 Fisher LSD、Bonferroni 校正、Tukey 方法，選擇合適的多重比較工具。</li>
+    <li>理解<strong>區集設計</strong>的概念，能判斷何時應引入區集，以及區集化如何降低誤差、提高檢定力。</li>
+    <li>能執行<strong>雙因子 ANOVA</strong>，正確詮釋交互作用的存在對主效果解讀的影響。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#s141">Section 14.1　單因子變異數分析</a></li>
+    <li><a href="#s142">Section 14.2　多重比較（LSD / Bonferroni / Tukey）</a></li>
+    <li><a href="#s143">Section 14.3　實驗設計概覽</a></li>
+    <li><a href="#s144">Section 14.4　隨機化區集（雙因子）變異數分析</a></li>
+    <li><a href="#s145">Section 14.5　雙因子（因子實驗）變異數分析</a></li>
+    <li><a href="#calc">互動計算機</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#exercises">Exercises（14.1–14.8）</a></li>
+    <li><a href="#summary">Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ============================== 14.1 ============================== -->
+<h2 id="s141">Section 14.1　單因子變異數分析</h2>
+
+<p>當我們要<strong>同時比較 $k \geq 2$ 個獨立母體的平均數</strong>時，使用<strong>單因子 ANOVA（One-Way ANOVA）</strong>。名稱中的「變異數分析」源自其做法：透過分析樣本變異數，判斷各組平均數之間是否存在真正差異。</p>
+
+<div class="highlight">
+<strong>核心假設：</strong>$H_0: \mu_1 = \mu_2 = \cdots = \mu_k$（所有處理平均數相等）<br>
+$H_1$：至少有兩個平均數不相等
+</div>
+
+<div class="formula-card">
+<h3>📐 三大平方和與 F 統計量</h3>
+
+<p><strong>處理間平方和 SST（Between-treatments）：</strong>衡量各組平均數與總平均數的差異</p>
+<div class="math-block">
+$$\text{SST} = \sum_{j=1}^{k} n_j (\bar{x}_j - \bar{\bar{x}})^2$$
+</div>
+
+<p><strong>誤差平方和 SSE（Within-treatments / Error）：</strong>衡量各組內部的隨機變異</p>
+<div class="math-block">
+$$\text{SSE} = \sum_{j=1}^{k}(n_j - 1)s_j^2$$
+</div>
+
+<p><strong>均方與 F 統計量：</strong></p>
+<div class="math-block">
+$$\text{MST} = \frac{\text{SST}}{k-1}, \quad \text{MSE} = \frac{\text{SSE}}{n-k}, \quad F = \frac{\text{MST}}{\text{MSE}} \sim F_{k-1,\; n-k}$$
+</div>
+<p class="note">直覺：若各組平均數確實不同（SST 大），而組內隨機誤差相對小（MSE 小），則 F 值大，應拒絕 $H_0$。若 $H_0$ 成立，MST ≈ MSE，故 $F \approx 1$。</p>
+</div>
+
+<div class="steps-box">
+<h3>📋 標準 ANOVA 表</h3>
+<table class="anova-table">
+    <thead><tr><th>變異來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr></thead>
+    <tbody>
+        <tr><td>處理（Treatment）</td><td>SST</td><td>$k-1$</td><td>MST = SST/$(k-1)$</td><td>MST / MSE</td></tr>
+        <tr><td>誤差（Error）</td><td>SSE</td><td>$n-k$</td><td>MSE = SSE/$(n-k)$</td><td></td></tr>
+        <tr><td><strong>總計</strong></td><td>SST+SSE</td><td>$n-1$</td><td></td><td></td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ── 本土範例 1：男女身高 ── -->
+<div class="example-block">
+<h3>📝 範例 A　男女同學身高是否有差異？（ANOVA 入門）</h3>
+<div class="scenario">
+以下為 4 位男同學與 4 位女同學的身高（公分）。請問在 $\alpha = 0.05$ 下，男女生平均身高是否有顯著差異？
+</div>
+
+<div class="two-col">
+<div class="col-box">
+<h3>男同學</h3>
+<table><tbody>
+<tr><td>173</td><td>176</td><td>171</td><td>180</td></tr>
+</tbody></table>
+<p>$\bar{x}_1 = 175$，$s_1^2 = 15.33$</p>
+</div>
+<div class="col-box">
+<h3>女同學</h3>
+<table><tbody>
+<tr><td>160</td><td>158</td><td>169</td><td>165</td></tr>
+</tbody></table>
+<p>$\bar{x}_2 = 163$，$s_2^2 = 24.67$</p>
+</div>
+</div>
+
+<p><strong>Step 1 — 假設</strong>　$H_0: \mu_{\text{男}} = \mu_{\text{女}}$；$H_1: \mu_{\text{男}} \neq \mu_{\text{女}}$，$\alpha = 0.05$</p>
+
+<p><strong>Step 2 — 計算</strong>　$n = 8$，$k = 2$，$\bar{\bar{x}} = (700+652)/8 = 169$</p>
+<div class="math-block">
+$$\text{SST} = 4(175-169)^2 + 4(163-169)^2 = 4(36)+4(36) = 288$$
+</div>
+<div class="math-block">
+$$\text{SSE} = (4-1)(15.33)+(4-1)(24.67) = 46 + 74 = 120$$
+</div>
+<div class="math-block">
+$$\text{MST} = \frac{288}{1} = 288,\quad \text{MSE} = \frac{120}{6} = 20,\quad F = \frac{288}{20} = 14.4$$
+</div>
+
+<table class="anova-table">
+    <thead><tr><th>變源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p 值</th></tr></thead>
+    <tbody>
+        <tr><td>組間</td><td>288</td><td>1</td><td>288</td><td>14.4</td><td>0.0090</td></tr>
+        <tr><td>組內</td><td>120</td><td>6</td><td>20</td><td></td><td></td></tr>
+        <tr><td>總和</td><td>408</td><td>7</td><td></td><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<p><strong>Step 3 — 決策</strong>　p 值 $= 0.0090 < 0.05$ → 拒絕 $H_0$</p>
+<p class="note">✅ 有充分的統計證據推論：男女同學的平均身高存在顯著差異（男 175 cm > 女 163 cm）。<br>
+💡 <strong>教學補充：</strong>此範例僅有 2 組，ANOVA 等同於 t 檢定（且 $F = t^2$：$14.4 = 3.795^2$），幫助學生理解 ANOVA 是 t 檢定在多組情境下的推廣。</p>
+</div>
+
+<!-- ── 本土範例 2：社區高中 ── -->
+<div class="example-block">
+<h3>📝 範例 B　社區高中制度：三所學校學測成績是否相等？</h3>
+<div class="scenario">
+<strong>背景：</strong>教育部推動社區高中制度已有多年，希望學生能就近就學，破除高中排名的迷思。以下資料為三所學校的學測成績，請問是否能以統計證據支持三所學校的平均成績相等？（$\alpha = 0.05$）
+</div>
+
+<table>
+    <thead><tr><th>中和高中</th><th>陽明高中</th><th>三重高中</th></tr></thead>
+    <tbody>
+        <tr><td>10</td><td>9</td><td>12</td></tr>
+        <tr><td>10</td><td>6</td><td>8</td></tr>
+        <tr><td>7</td><td>9</td><td>10</td></tr>
+        <tr><td>9</td><td>—</td><td>—</td></tr>
+    </tbody>
+</table>
+<p style="font-size:0.9em; color:var(--muted);">（樣本大小不等：中和 $n_1=4$，陽明 $n_2=3$，三重 $n_3=3$；$n=10$）</p>
+
+<p><strong>Step 1 — 假設</strong>　$H_0: \mu_1 = \mu_2 = \mu_3$；$H_1$：至少兩校平均不等</p>
+
+<p><strong>Step 2 — 計算</strong></p>
+<p>$\bar{x}_1 = 9,\; \bar{x}_2 = 8,\; \bar{x}_3 = 10,\; \bar{\bar{x}} = (36+24+30)/10 = 9$</p>
+<div class="math-block">
+$$\text{SST} = 4(9-9)^2+3(8-9)^2+3(10-9)^2 = 0+3+3 = 6$$
+</div>
+<p>各組 $s^2$：中和 $s_1^2 = 2$，陽明 $s_2^2 = 3$，三重 $s_3^2 = 4$</p>
+<div class="math-block">
+$$\text{SSE} = 3(2)+2(3)+2(4) = 6+6+8 = 20,\quad \text{MST} = 3,\quad \text{MSE} = 2.857,\quad F = 1.05$$
+</div>
+<p>p 值 $= P(F_{2,7} > 1.05) \approx 0.40 > 0.05$</p>
+
+<p class="note">❌ 不拒絕 $H_0$。沒有充分的統計證據推論三所學校的平均學測成績存在顯著差異，與社區高中制度「拉近各校程度」的期望方向一致。</p>
+</div>
+
+<!-- ── 本土範例 3：試卷公平性 ── -->
+<div class="example-block">
+<h3>📝 範例 C　考試公平性：三份試卷難易度是否一致？</h3>
+<div class="scenario">
+<strong>背景：</strong>某教師為避免學生作弊，測驗時出了 A、B、C 三份考題。為確認考題的公平性，想瞭解三份試卷的難易度是否一致。以下為各組學生的成績，請問是否能證實平均成績因考題而有所差異？（$\alpha = 0.05$）
+</div>
+
+<table>
+    <thead><tr><th>A 卷</th><th>B 卷</th><th>C 卷</th></tr></thead>
+    <tbody>
+        <tr><td>58</td><td>58</td><td>48</td></tr>
+        <tr><td>64</td><td>69</td><td>57</td></tr>
+        <tr><td>55</td><td>71</td><td>59</td></tr>
+        <tr><td>66</td><td>64</td><td>47</td></tr>
+        <tr><td>67</td><td>68</td><td>49</td></tr>
+    </tbody>
+</table>
+
+<p><strong>Step 1 — 假設</strong>　$H_0: \mu_A = \mu_B = \mu_C$；$H_1$：至少兩卷難易度不同</p>
+
+<p><strong>Step 2 — 計算</strong></p>
+<p>$\bar{x}_A = 62,\; \bar{x}_B = 66,\; \bar{x}_C = 52,\; \bar{\bar{x}} = (310+330+260)/15 = 60$</p>
+<div class="math-block">
+$$\text{SST} = 5(62-60)^2+5(66-60)^2+5(52-60)^2 = 20+180+320 = 520$$
+</div>
+<p>各組 $s^2$：A 卷 $\approx 26.5$，B 卷 $\approx 24.5$，C 卷 $\approx 26.5$</p>
+<div class="math-block">
+$$\text{SSE} \approx 4(26.5)+4(24.5)+4(26.5) = 310,\quad \text{MST} = 260,\quad \text{MSE} \approx 25.83,\quad F \approx 10.06$$
+</div>
+<p>p 值 $= P(F_{2,12} > 10.06) \approx 0.003 < 0.05$</p>
+
+<p class="note">✅ 拒絕 $H_0$。有充分的統計證據推論三份試卷的平均成績<strong>存在顯著差異</strong>。C 卷平均成績（52 分）明顯低於 A 卷（62）和 B 卷（66），考題難易度並不一致，有失公平。</p>
+</div>
+
+<!-- ── 本土範例 4：路線行車時間（不等樣本）── -->
+<div class="example-block">
+<h3>📝 範例 D　路線選擇：從甲地到乙地的行車時間是否因路線而異？</h3>
+<div class="scenario">
+<strong>背景：</strong>某人想瞭解從甲地到乙地的行車時間是否因路線不同而有所差異，因此在四條路線進行重複實驗，得到以下資料（分鐘）。請問是否能證實平均行車時間會因路線而有所差異？（$\alpha = 0.05$）
+</div>
+
+<table>
+    <thead><tr><th>Route 1</th><th>Route 2</th><th>Route 3</th><th>Route 4</th></tr></thead>
+    <tbody>
+        <tr><td>93</td><td>79</td><td>71</td><td>68</td></tr>
+        <tr><td>90</td><td>72</td><td>73</td><td>70</td></tr>
+        <tr><td>85</td><td>77</td><td>74</td><td>72</td></tr>
+        <tr><td>80</td><td>84</td><td>78</td><td>65</td></tr>
+        <tr><td>—</td><td>88</td><td>75</td><td>74</td></tr>
+        <tr><td>—</td><td>—</td><td>68</td><td>71</td></tr>
+        <tr><td>—</td><td>—</td><td>65</td><td>—</td></tr>
+    </tbody>
+</table>
+<p style="font-size:0.9em; color:var(--muted);">各路線樣本數不等：$n_1=4,\; n_2=5,\; n_3=7,\; n_4=6$；$n=22$，各路線平均：87, 80, 72, 70 分鐘，總平均 76 分鐘。</p>
+
+<p><strong>Step 2 — 計算</strong></p>
+<div class="math-block">
+$$\text{SST} = 4(87-76)^2+5(80-76)^2+7(72-76)^2+6(70-76)^2 = 484+80+112+216 = 892$$
+</div>
+<p>各路線 $s^2$：Route 1 ≈ 30.67, Route 2 ≈ 36.5, Route 3 ≈ 17.14, Route 4 ≈ 10.0</p>
+<div class="math-block">
+$$\text{SSE} = 3(30.67)+4(36.5)+6(17.14)+5(10) = 92+146+102.86+50 = 390.86$$
+</div>
+<div class="math-block">
+$$\text{MST} = \frac{892}{3} = 297.3,\quad \text{MSE} = \frac{390.86}{18} = 21.7,\quad F = 13.70$$
+</div>
+<p>p 值 $\approx 0.0001 < 0.05$</p>
+
+<p class="note">✅ 強力拒絕 $H_0$。四條路線的平均行車時間存在<strong>非常顯著的差異</strong>。Route 1 最慢（87 分），Route 4 最快（70 分），若想最快抵達應選 Route 4。</p>
+</div>
+
+<hr>
+
+<!-- ============================== 14.2 ============================== -->
+<h2 id="s142">Section 14.2　多重比較（Post-hoc Analysis）</h2>
+
+<p>ANOVA 拒絕 $H_0$ 後，只知道「至少有兩組不同」，但<strong>哪兩組（或哪些組）</strong>不同？需要進行<strong>多重比較</strong>。</p>
+
+<div class="two-col">
+<div class="col-box">
+<h3>🔹 Fisher LSD</h3>
+<div class="math-block" style="font-size:0.9em;">
+$$\text{LSD} = t_{\alpha/2,\;n-k}\sqrt{\text{MSE}\!\left(\tfrac{1}{n_i}+\tfrac{1}{n_j}\right)}$$
+</div>
+<p style="font-size:0.88em;">每對獨立比較，較寬鬆。適合<strong>探索性</strong>分析，或事先規劃少數幾對。</p>
+</div>
+<div class="col-box">
+<h3>🔹 Bonferroni 校正</h3>
+<div class="math-block" style="font-size:0.9em;">
+$$C = \frac{k(k-1)}{2},\quad \alpha^* = \frac{\alpha}{C}$$
+</div>
+<p style="font-size:0.88em;">調降顯著水準控制族系型 I 錯誤，適合<strong>事先計畫</strong>的少數幾對。</p>
+</div>
+</div>
+
+<div class="formula-card">
+<h3>📐 Tukey 多重比較法（最常用）</h3>
+<div class="math-block">
+$$\omega = q_{\alpha}(k,\; n-k) \cdot \sqrt{\frac{\text{MSE}}{n_g}}$$
+</div>
+<p>$q_\alpha(k, \nu)$ = 學生化全距臨界值（查表）；$n_g$ = 各組共同樣本數（不等時取調和平均）。若 $|\bar{x}_i - \bar{x}_j| > \omega$，推論 $\mu_i \neq \mu_j$。</p>
+<p class="note">適合比較<strong>所有可能配對</strong>，控制族系型 I 錯誤率比 Fisher LSD 嚴格，比 Bonferroni 更有效率。</p>
+</div>
+
+<div class="highlight">
+<strong>選擇指南：</strong>
+<ul style="margin-top:6px;">
+    <li>事前僅比較少數幾對 → <strong>Bonferroni</strong></li>
+    <li>想比較所有配對 → <strong>Tukey</strong></li>
+    <li>探索性（找值得深入的方向）→ <strong>Fisher LSD</strong>（較寬鬆）</li>
+</ul>
+</div>
+
+<hr>
+
+<!-- ============================== 14.3 ============================== -->
+<h2 id="s143">Section 14.3　實驗設計概覽</h2>
+
+<div class="decision-tree">
+<h3>📊 設計選擇流程</h3>
+<ol>
+    <li>比較 $k$ 個母體的平均數（區間資料）？
+        <ul>
+            <li>各組實驗單位<strong>互相獨立</strong>（如隨機分配） → <strong>單因子 ANOVA（14.1）</strong></li>
+            <li>實驗單位可依某特徵<strong>配對或分組</strong>（區集化） → <strong>隨機化區集 ANOVA（14.4）</strong></li>
+        </ul>
+    </li>
+    <li>有<strong>兩個因子</strong>同時影響反應變數 → <strong>雙因子 ANOVA（14.5）</strong></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ============================== 14.4 ============================== -->
+<h2 id="s144">Section 14.4　隨機化區集（雙因子）變異數分析</h2>
+
+<p>當實驗單位本身存在差異（如球員力量不同、病患體重不同），這些差異會混入 SSE，干擾對處理效果的偵測。<strong>區集設計</strong>的核心思想：將此「雜訊」從誤差中分離出去。</p>
+
+<div class="formula-card">
+<h3>📐 隨機化區集 ANOVA 公式</h3>
+<p>$k$ = 處理數，$b$ = 區集數，$n = bk$</p>
+<div class="math-block">
+$$\text{SS(Total)} = \text{SST} + \text{SSB} + \text{SSE}$$
+</div>
+<table class="anova-table">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F（處理）</th></tr></thead>
+    <tbody>
+        <tr><td>處理</td><td>SST</td><td>$k-1$</td><td>MST</td><td>MST / MSE，$\nu_2 = (k-1)(b-1)$</td></tr>
+        <tr><td>區集</td><td>SSB</td><td>$b-1$</td><td>MSB</td><td>MSB / MSE（可選檢定）</td></tr>
+        <tr><td>誤差</td><td>SSE</td><td>$(k-1)(b-1)$</td><td>MSE</td><td></td></tr>
+        <tr><td>總計</td><td>SS(Total)</td><td>$n-1$</td><td></td><td></td></tr>
+    </tbody>
+</table>
+<p class="note">關鍵：區集化後 SSE 通常大幅縮小（因 SSB 被獨立出來），MSE 也隨之縮小，F 統計量增大，更容易偵測到處理間差異。</p>
+</div>
+
+<!-- ── 三份高爾夫球範例：設計對比 ── -->
+<h3>🏌️ 三個高爾夫球範例：為什麼區集很重要？</h3>
+
+<p>以下三個範例使用相同的情境，逐步展示<strong>忽略區集所造成的問題</strong>，以及引入適當區集準則的效果。</p>
+
+<!-- 範例 E：完全隨機設計 -->
+<div class="example-block">
+<h3>📝 範例 E　高爾夫球品牌測試（完全隨機設計）</h3>
+<div class="scenario">
+<strong>背景：</strong>某廠商想測試不同品牌高爾夫球（A、B、C）的擊球距離是否有差異，利用「<strong>高爾夫擊球機器人</strong>」進行測試，機器人分別對三種品牌各揮擊 5 球，記錄飛行距離（碼）如下。
+</div>
+
+<table>
+    <thead><tr><th></th><th>Brand A</th><th>Brand B</th><th>Brand C</th><th>列平均</th></tr></thead>
+    <tbody>
+        <tr><td></td><td>240</td><td>270</td><td>210</td><td>240</td></tr>
+        <tr><td></td><td>220</td><td>270</td><td>230</td><td>240</td></tr>
+        <tr><td></td><td>250</td><td>300</td><td>230</td><td>260</td></tr>
+        <tr><td></td><td>260</td><td>310</td><td>270</td><td>280</td></tr>
+        <tr><td></td><td>280</td><td>300</td><td>260</td><td>280</td></tr>
+        <tr><th>品牌平均</th><th>250</th><th>290</th><th>240</th><th>總平均 260</th></tr>
+    </tbody>
+</table>
+
+<p>由於使用的是<strong>機器人</strong>（消除了人的個體差異），每次揮擊條件相同，此設計為<strong>完全隨機設計（Single Factor ANOVA）</strong>，無需引入區集。</p>
+<div class="math-block">
+$$\text{SST} = 5(250-260)^2+5(290-260)^2+5(240-260)^2 = 500+4500+2000 = 7000$$
+</div>
+<p>（請用計算機或 Excel 跑完整 ANOVA）</p>
+<p class="note">💡 重點：機器人打球 = 實驗條件一致 → 不需要區集化。這是完全隨機設計的理想情境。</p>
+</div>
+
+<!-- 範例 F：引入真人球員（區集） -->
+<div class="example-block">
+<h3>📝 範例 F　高爾夫球品牌測試（引入真人球員 → 區集設計）</h3>
+<div class="scenario">
+<strong>背景：</strong>現在改找<strong>五位不同的高爾夫球員</strong>進行測試，每位選手分別對 A、B、C 三種品牌各揮擊一球，記錄飛行距離（碼）如下。
+</div>
+
+<table>
+    <thead><tr><th>球員（區集）</th><th>Brand A</th><th>Brand B</th><th>Brand C</th><th>球員平均</th></tr></thead>
+    <tbody>
+        <tr><td>Player 1</td><td>240</td><td>270</td><td>210</td><td>240</td></tr>
+        <tr><td>Player 2</td><td>220</td><td>270</td><td>230</td><td>240</td></tr>
+        <tr><td>Player 3</td><td>250</td><td>300</td><td>230</td><td>260</td></tr>
+        <tr><td>Player 4</td><td>260</td><td>310</td><td>270</td><td>280</td></tr>
+        <tr><td>Player 5</td><td>280</td><td>300</td><td>260</td><td>280</td></tr>
+        <tr><th>品牌平均</th><th>250</th><th>290</th><th>240</th><th>總平均 260</th></tr>
+    </tbody>
+</table>
+
+<p>注意：<strong>數據與範例 E 完全相同！</strong>但設計不同——五位球員的力量各異，這個「球員差異」是影響飛行距離的重要來源。若仍用單因子 ANOVA，球員差異會被混入 SSE，讓誤差變大，更難偵測品牌效果。</p>
+
+<div class="highlight">
+<strong>區集設計的效果：</strong>以球員為區集，可以從 SSE 中分離出 SSB（球員間差異），讓 MSE 縮小，F 值增大，對品牌效果的偵測更靈敏。Excel 使用：<strong>Anova: Two-Factor Without Replication</strong>
+</div>
+</div>
+
+<!-- 範例 G：強調區集準則（年齡與性別） -->
+<div class="example-block">
+<h3>📝 範例 G　高爾夫球品牌測試（區集準則的重要性）</h3>
+<div class="scenario">
+<strong>背景：</strong>現在找了五位<strong>年齡、性別各異</strong>的民眾進行相同測試，每位受測者分別揮擊 A、B、C 三種品牌，記錄飛行距離如下。
+</div>
+
+<table>
+    <thead><tr><th>受測者（區集）</th><th>Brand A</th><th>Brand B</th><th>Brand C</th><th>平均</th></tr></thead>
+    <tbody>
+        <tr><td>Player 1（<strong>80 歲男性</strong>）</td><td>140</td><td>170</td><td>110</td><td>140</td></tr>
+        <tr><td>Player 2（<strong>77 歲女性</strong>）</td><td>120</td><td>170</td><td>130</td><td>140</td></tr>
+        <tr><td>Player 3（<strong>35 歲女性</strong>）</td><td>200</td><td>250</td><td>180</td><td>210</td></tr>
+        <tr><td>Player 4（<strong>40 歲男性</strong>）</td><td>260</td><td>310</td><td>270</td><td>280</td></tr>
+        <tr><td>Player 5（<strong>10 歲女孩</strong>）</td><td>130</td><td>150</td><td>110</td><td>130</td></tr>
+        <tr><th>品牌平均</th><th>170</th><th>210</th><th>160</th><th>總平均 180</th></tr>
+    </tbody>
+</table>
+
+<div class="warn">
+⚠️ <strong>若忽略區集（誤用單因子 ANOVA）：</strong><br>
+觀察「品牌平均」（170, 210, 160）和「受測者平均」（140, 140, 210, 280, 130），可以看出：<br>
+<ul style="margin-top:6px;">
+    <li>受測者間的差異<strong>遠大於</strong>品牌間的差異（80 歲男性 vs. 40 歲男性差了近 140 碼）</li>
+    <li>若以單因子 ANOVA 分析，受測者個人差異全部混入 SSE，使 MSE 膨脹，很可能無法偵測到品牌間的真正差異</li>
+</ul>
+</div>
+
+<p class="note">
+✅ <strong>正確做法：以受測者為區集（隨機化區集設計）</strong><br>
+年齡與體力是影響擊球距離的重要因素——40 歲壯年男性天生比 80 歲老先生打得遠，這是與品牌無關的「雜訊」。區集化後，這部分變異（SSB）被獨立計算，不再污染 SSE，使得對品牌差異的偵測更準確。<br><br>
+💡 <strong>區集準則選擇原則：</strong>任何與反應變數高度相關、但不是我們感興趣的因子的特徵，都應考慮作為區集準則。此例中，<strong>年齡與性別（即個人體力差異）</strong>正是這樣的特徵。
+</p>
+</div>
+
+<hr>
+
+<!-- ============================== 14.5 ============================== -->
+<h2 id="s145">Section 14.5　雙因子（因子實驗）變異數分析</h2>
+
+<p>當反應變數同時受到<strong>兩個因子</strong>影響，且我們想知道兩者是否存在<strong>交互作用</strong>時，使用<strong>雙因子 ANOVA（Two-Way ANOVA with Replication）</strong>。</p>
+
+<div class="formula-card">
+<h3>📐 雙因子 ANOVA：總變異分解</h3>
+<div class="math-block">
+$$\text{SS(Total)} = \text{SS(A)} + \text{SS(B)} + \text{SS(AB)} + \text{SSE}$$
+</div>
+<table class="anova-table">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr></thead>
+    <tbody>
+        <tr><td>因子 A（樣本）</td><td>SS(A)</td><td>$a-1$</td><td>MS(A)</td><td>MS(A)/MSE</td></tr>
+        <tr><td>因子 B（欄）</td><td>SS(B)</td><td>$b-1$</td><td>MS(B)</td><td>MS(B)/MSE</td></tr>
+        <tr><td>交互作用 AB</td><td>SS(AB)</td><td>$(a-1)(b-1)$</td><td>MS(AB)</td><td>MS(AB)/MSE</td></tr>
+        <tr><td>誤差</td><td>SSE</td><td>$ab(r-1)$</td><td>MSE</td><td></td></tr>
+        <tr><td>總計</td><td>SS(Total)</td><td>$n-1$</td><td></td><td></td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="steps-box">
+<h3>📋 雙因子 ANOVA 的檢定順序（重要！）</h3>
+<ol>
+    <li><strong>先檢定交互作用（AB）</strong><br>
+        若 p 值 $< \alpha$ → <strong>有顯著交互作用，停止主效果個別檢定</strong>，交互作用本身是最重要的結論</li>
+    <li><strong>若無顯著交互作用，再分別檢定主效果 A 和 B</strong><br>
+        分別判斷因子 A 各水準、因子 B 各水準之間是否有差異</li>
+</ol>
+</div>
+
+<!-- ── 本土範例 H：交互效果（頭文字D + F1）── -->
+<div class="example-block">
+<h3>📝 範例 H　路線 × 駕駛者：誰在哪條路最快？（交互作用範例）</h3>
+<div class="scenario">
+<strong>背景：</strong>比較五位駕駛者（老人、女人、男人、<strong>拓海</strong>、<strong>Hamilton</strong>）在三條路線（淡金公路、陽明山公路、高速公路）的行車時間（分鐘）。每種組合有 2 次重複測量（$r=2$）。<br><br>
+🚗 <strong>拓海</strong>（源自《頭文字 D》）：山路高手，擅長彎道與坡道，在山路上技術出神入化。<br>
+🏎️ <strong>Hamilton</strong>（F1 車手）：在平坦、高速的賽道上如魚得水，擅長高速操控。
+</div>
+
+<table>
+    <thead>
+        <tr><th>駕駛者</th><th>淡金公路（山路）</th><th>陽金公路（山路）</th><th>高速公路</th><th>個人平均</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>老人</td><td>40, 36 → <strong>平均 38</strong></td><td>50, 42 → <strong>平均 46</strong></td><td>30, 34 → <strong>平均 32</strong></td><td>38.7</td></tr>
+        <tr><td>女人</td><td>38, 36 → <strong>平均 37</strong></td><td>48, 46 → <strong>平均 47</strong></td><td>28, 30 → <strong>平均 29</strong></td><td>37.7</td></tr>
+        <tr><td>男人</td><td>30, 34 → <strong>平均 32</strong></td><td>41, 37 → <strong>平均 39</strong></td><td>25, 27 → <strong>平均 26</strong></td><td>32.3</td></tr>
+        <tr><td><strong>拓海</strong></td><td>26, 24 → <strong>平均 25</strong></td><td>10, 12 → <strong>🏆 平均 11</strong></td><td>21, 19 → <strong>平均 20</strong></td><td>18.7</td></tr>
+        <tr><td><strong>Hamilton</strong></td><td>20, 18 → <strong>平均 19</strong></td><td>25, 23 → <strong>平均 24</strong></td><td>10, 8 → <strong>🏆 平均 9</strong></td><td>17.3</td></tr>
+        <tr><th>路線平均</th><th>30.2</th><th>33.4</th><th>23.2</th><th>總平均 28.9</th></tr>
+    </tbody>
+</table>
+
+<p><strong>Excel ANOVA 結果（Two-Factor With Replication）：</strong></p>
+<table class="anova-table">
+    <thead><tr><th>變源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p 值</th></tr></thead>
+    <tbody>
+        <tr><td>駕駛者（樣本）</td><td>2535.2</td><td>4</td><td>633.8</td><td>113.18</td><td>&lt; 0.0001</td></tr>
+        <tr><td>路線（欄）</td><td>544.3</td><td>2</td><td>272.1</td><td>48.60</td><td>&lt; 0.0001</td></tr>
+        <tr><td><strong>交互作用</strong></td><td><strong>582.4</strong></td><td><strong>8</strong></td><td><strong>72.8</strong></td><td><strong>13.00</strong></td><td><strong>&lt; 0.0001</strong></td></tr>
+        <tr><td>組內（誤差）</td><td>84.0</td><td>15</td><td>5.6</td><td></td><td></td></tr>
+        <tr><td>總和</td><td>3745.9</td><td>29</td><td></td><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<h3>🔍 交互作用解析</h3>
+<p>交互作用顯著（$F = 13.0$，p $< 0.0001$），代表<strong>路線的效果因駕駛者而異</strong>。來看關鍵數字：</p>
+
+<div class="interaction-grid">
+    <div style="background:#ddeeff; padding:8px; border-radius:6px; font-weight:600;">路線 ↓ 駕駛 →</div>
+    <div style="background:#ddeeff; padding:8px; border-radius:6px;"><strong>陽金（山路）</strong></div>
+    <div style="background:#ddeeff; padding:8px; border-radius:6px;"><strong>高速公路</strong></div>
+    <div style="background:#f0f4ff; padding:8px; border-radius:6px;"><strong>拓海</strong></div>
+    <div class="int-cell int-high">🏆 <strong>11</strong> 分<br><small>山路之神！</small></div>
+    <div class="int-cell int-mid">20 分</div>
+    <div style="background:#f0f4ff; padding:8px; border-radius:6px;"><strong>Hamilton</strong></div>
+    <div class="int-cell int-mid">24 分</div>
+    <div class="int-cell int-high">🏆 <strong>9</strong> 分<br><small>F1 賽道！</small></div>
+</div>
+
+<p style="margin-top:14px;">
+拓海在陽金山路的平均時間（<strong>11 分</strong>）遠低於他在高速公路（20 分）；Hamilton 在高速公路（<strong>9 分</strong>）遠優於山路（24 分）。兩者的優勢路線<strong>完全相反</strong>——這正是交互作用的典型表現。
+</p>
+
+<p class="note">
+✅ <strong>結論：交互作用顯著，停止主效果個別解讀</strong><br>
+不能單純說「拓海最快」或「陽金最慢」——因為答案取決於兩者的組合。正確結論應是：
+<ul style="margin-top:8px;">
+    <li>🏔️ 若要走<strong>山路</strong>（陽金），讓<strong>拓海</strong>開</li>
+    <li>🛣️ 若要走<strong>高速公路</strong>，讓<strong>Hamilton</strong>開</li>
+</ul>
+這就是統計學與現實判斷的完美結合。
+</p>
+</div>
+
+<hr>
+
+<!-- ============================== Calculator ============================== -->
+<h2 id="calc">🔢 Interactive Calculators</h2>
+
+<div class="calc-box">
+<h3>🔢 Calculator A　單因子 ANOVA（輸入各組統計量）</h3>
+<p style="font-size:0.9em; margin-bottom:10px;">以逗號分隔輸入各組的 $n$、$\bar{x}$、$s^2$，自動產生 ANOVA 表。</p>
+<div class="inputs-row">
+    <label>各組 $n_j$<br><input type="text" id="an-n" value="4,4,4" style="width:160px;"></label>
+    <label>各組 $\bar{x}_j$<br><input type="text" id="an-xbar" value="175,163,170" style="width:160px;"></label>
+    <label>各組 $s_j^2$<br><input type="text" id="an-s2" value="15.33,24.67,20" style="width:160px;"></label>
+    <label>$\alpha$<br><input type="number" id="an-alpha" value="0.05" step="0.01" min="0.01" max="0.2" style="width:80px;"></label>
+</div>
+<button onclick="calcAnova()">Calculate ANOVA</button>
+<div class="calc-result" id="anova-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 Calculator B　多重比較臨界值（Fisher LSD / Bonferroni / Tukey）</h3>
+<div class="inputs-row">
+    <label>MSE<br><input type="number" id="mc-mse" value="20" step="any" style="width:110px;"></label>
+    <label>處理數 $k$<br><input type="number" id="mc-k" value="3" min="2" style="width:80px;"></label>
+    <label>各組 $n_g$（相等）<br><input type="number" id="mc-n" value="4" min="2" style="width:80px;"></label>
+    <label>誤差 df $(n-k)$<br><input type="number" id="mc-dfE" value="9" min="1" style="width:80px;"></label>
+    <label>$\alpha$<br><input type="number" id="mc-alpha" value="0.05" step="0.01" style="width:80px;"></label>
+</div>
+<button onclick="calcMultiComp()">Calculate</button>
+<div class="calc-result" id="mc-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 Calculator C　隨機化區集 ANOVA（由平方和計算）</h3>
+<div class="inputs-row">
+    <label>SST<br><input type="number" id="rb-sst" value="7000" step="any" style="width:100px;"></label>
+    <label>SSB<br><input type="number" id="rb-ssb" value="5000" step="any" style="width:100px;"></label>
+    <label>SSE<br><input type="number" id="rb-sse" value="2000" step="any" style="width:100px;"></label>
+    <label>處理數 $k$<br><input type="number" id="rb-k" value="3" min="2" style="width:80px;"></label>
+    <label>區集數 $b$<br><input type="number" id="rb-b" value="5" min="2" style="width:80px;"></label>
+    <label>$\alpha$<br><input type="number" id="rb-alpha" value="0.05" step="0.01" style="width:80px;"></label>
+</div>
+<button onclick="calcBlockAnova()">Calculate</button>
+<div class="calc-result" id="rb-result"></div>
+</div>
+
+<hr>
+
+<!-- ============================== Quiz ============================== -->
+<div class="quiz-section" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+    <p>Q1. 在單因子 ANOVA 中，若 $k = 3$，$n = 15$，則 MSE 的自由度為？</p>
+    <label><input type="radio" name="q1" value="a"> A. 2</label>
+    <label><input type="radio" name="q1" value="b"> B. 12</label>
+    <label><input type="radio" name="q1" value="c"> C. 14</label>
+    <label><input type="radio" name="q1" value="d"> D. 5</label>
+    <button onclick="checkQ('q1','b','✅ 正確！MSE 自由度 = n − k = 15 − 3 = 12。MST 自由度 = k−1 = 2，總自由度 = n−1 = 14。')">Submit</button>
+    <div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q2. 範例 G 中，若忽略受測者的年齡與性別差異（以單因子 ANOVA 分析），最可能的後果是？</p>
+    <label><input type="radio" name="q2" value="a"> A. F 值增大，更容易拒絕 H₀</label>
+    <label><input type="radio" name="q2" value="b"> B. SSB 被計入 SSE，使 MSE 膨脹，F 值縮小，更難偵測品牌差異</label>
+    <label><input type="radio" name="q2" value="c"> C. 對結果沒有影響</label>
+    <label><input type="radio" name="q2" value="d"> D. p 值會變小</label>
+    <button onclick="checkQ('q2','b','✅ 正確！個人體力差異（80 歲男性 vs 40 歲男性差了 140 碼）若沒有被區集化隔離，全部混入 SSE，會讓 MSE 非常大，F 值縮小，即使品牌真的有差異也可能偵測不到（型 II 錯誤）。')">Submit</button>
+    <div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q3. 範例 H（路線 × 駕駛者）中，交互作用顯著，此時應如何詮釋結果？</p>
+    <label><input type="radio" name="q3" value="a"> A. 直接比較各路線的平均時間，說明哪條路最快</label>
+    <label><input type="radio" name="q3" value="b"> B. 直接比較各駕駛者的平均時間，說明誰最快</label>
+    <label><input type="radio" name="q3" value="c"> C. 停止主效果個別比較，分析「特定駕駛者 × 特定路線」的最佳組合</label>
+    <label><input type="radio" name="q3" value="d"> D. 改用 t 檢定重新分析</label>
+    <button onclick="checkQ('q3','c','✅ 正確！有交互作用時，路線的最佳選擇取決於駕駛者，駕駛者的優劣取決於路線，無法單獨比較主效果。應分析特定組合：拓海 × 陽金山路（11 分）、Hamilton × 高速公路（9 分）。')">Submit</button>
+    <div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q4. 範例 C（試卷公平性）中，ANOVA 結果顯示三份試卷難易度有顯著差異（C 卷最難）。若老師想知道 A 卷和 B 卷之間是否也有差異，應使用？</p>
+    <label><input type="radio" name="q4" value="a"> A. 重新跑一次 ANOVA</label>
+    <label><input type="radio" name="q4" value="b"> B. 多重比較（如 Tukey 或 Bonferroni）</label>
+    <label><input type="radio" name="q4" value="c"> C. 不需要，ANOVA 已告知所有資訊</label>
+    <label><input type="radio" name="q4" value="d"> D. 直接看平均數差異</label>
+    <button onclick="checkQ('q4','b','✅ 正確！ANOVA 只告訴你「至少有兩組不同」，要找出哪些組對不同，需要事後多重比較（Post-hoc）。Tukey 適合所有配對，Bonferroni 適合事先規劃的少數幾對。')">Submit</button>
+    <div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q5. 範例 E（機器人打球）改成範例 F（真人球員打球），為什麼要換成「區集設計」？</p>
+    <label><input type="radio" name="q5" value="a"> A. 因為真人比機器人更準確</label>
+    <label><input type="radio" name="q5" value="b"> B. 因為球員個人力量差異會影響距離，若不區集化，球員差異混入 SSE 會干擾品牌效果的偵測</label>
+    <label><input type="radio" name="q5" value="c"> C. 因為每個品牌的球數不夠</label>
+    <label><input type="radio" name="q5" value="d"> D. 因為區集設計計算更簡單</label>
+    <button onclick="checkQ('q5','b','✅ 正確！機器人每次揮擊力道固定（無個體差異），適合完全隨機設計。換成真人後，每位球員的力量高低是與品牌無關的雜訊，應以球員為區集隔離這個變異來源，才能準確衡量品牌差異。')">Submit</button>
+    <div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- ============================== Exercises ============================== -->
+<h2 id="exercises">📚 Exercises（第 14.1–14.8 題）</h2>
+<p>以下習題涵蓋單因子 ANOVA 的理解性分析與應用，請先獨立作答，再展開解答確認。</p>
+
+<ol class="exercises-list">
+
+<li>
+<strong>14.1　What-If 分析：樣本大小的影響</strong>
+<p>一位統計實作人員計算下列統計量（三個處理）：</p>
+<table>
+    <thead><tr><th>統計量</th><th>處理 1</th><th>處理 2</th><th>處理 3</th></tr></thead>
+    <tbody>
+        <tr><td>$n$</td><td>5</td><td>5</td><td>5</td></tr>
+        <tr><td>$\bar{x}$</td><td>10</td><td>15</td><td>20</td></tr>
+        <tr><td>$s^2$</td><td>50</td><td>50</td><td>50</td></tr>
+    </tbody>
+</table>
+<p>a. 完成 ANOVA 表。　b. 改每個樣本大小為 10，重做 (a)。　c. 描述增加樣本大小對 F 的影響。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)：$n_j = 5$</strong></p>
+<p>$n=15$，$\bar{\bar{x}}=15$</p>
+<div class="math-block">$$\text{SST}=5(10-15)^2+5(15-15)^2+5(20-15)^2=250$$</div>
+<div class="math-block">$$\text{SSE}=3\times4\times50=600,\quad \text{MST}=125,\quad \text{MSE}=50,\quad F=2.50$$</div>
+<p>p 值 $\approx 0.122 > 0.05$，不拒絕 $H_0$。</p>
+
+<p><strong>Part (b)：$n_j = 10$</strong></p>
+<div class="math-block">$$\text{SST}=10(25)+0+10(25)=500,\quad \text{SSE}=3\times9\times50=1{,}350$$</div>
+<div class="math-block">$$\text{MST}=250,\quad \text{MSE}=1350/27=50,\quad F=5.00$$</div>
+<p>p 值 $\approx 0.014 < 0.05$，<strong>拒絕 $H_0$</strong>。</p>
+
+<p><strong>Part (c)：</strong>增加 $n_j$，SST 按比例增大，但 MSE 不變（$\bar{x}_j$ 與 $s^2$ 相同），故 $F = \text{MST}/\text{MSE}$ 增大。樣本越大，越容易偵測到同樣大小的平均數差異。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.2　What-If 分析：樣本變異數的影響</strong>
+<table>
+    <thead><tr><th>統計量</th><th>處理 1</th><th>處理 2</th><th>處理 3</th></tr></thead>
+    <tbody>
+        <tr><td>$n$</td><td>4</td><td>4</td><td>4</td></tr>
+        <tr><td>$\bar{x}$</td><td>20</td><td>22</td><td>25</td></tr>
+        <tr><td>$s^2$</td><td>10</td><td>10</td><td>10</td></tr>
+    </tbody>
+</table>
+<p>a. 完成 ANOVA 表。　b. 改每個變異數為 25，重做 (a)。　c. 描述樣本變異數增加對 F 的影響。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)：$s^2 = 10$</strong></p>
+<p>$\bar{\bar{x}}=(80+88+100)/12=22.33$</p>
+<div class="math-block">$$\text{SST}=4(20-22.33)^2+4(22-22.33)^2+4(25-22.33)^2\approx50.67$$</div>
+<div class="math-block">$$\text{SSE}=3\times3\times10=90,\quad \text{MST}=25.33,\quad \text{MSE}=10,\quad F=2.53$$</div>
+
+<p><strong>Part (b)：$s^2 = 25$</strong></p>
+<div class="math-block">$$\text{SSE}=225,\quad \text{MSE}=25,\quad F=25.33/25=1.01$$</div>
+
+<p><strong>Part (c)：</strong>增加 $s^2$，SSE 增大，MSE 增大，但 SST（由平均數決定）不變，故 $F$ 縮小。組內變異越大，越難從噪音中辨識出處理效果。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.3　What-If 分析：樣本平均數的影響（各加 100）</strong>
+<table>
+    <thead><tr><th>統計量</th><th>處理 1</th><th>處理 2</th><th>處理 3</th><th>處理 4</th></tr></thead>
+    <tbody>
+        <tr><td>$n$</td><td>10</td><td>14</td><td>11</td><td>18</td></tr>
+        <tr><td>$\bar{x}$</td><td>30</td><td>35</td><td>33</td><td>40</td></tr>
+        <tr><td>$s^2$</td><td>10</td><td>10</td><td>10</td><td>10</td></tr>
+    </tbody>
+</table>
+<p>a. 完成 ANOVA 表。　b. 改平均數為 130, 135, 133, 140，重做。　c. 描述各加 100 對 F 的影響。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)：</strong>$n=53$，$\bar{\bar{x}}=1873/53\approx35.34$</p>
+<div class="math-block">$$\text{SST}=10(30-35.34)^2+14(35-35.34)^2+11(33-35.34)^2+18(40-35.34)^2\approx737.3$$</div>
+<div class="math-block">$$\text{SSE}=49\times10=490,\quad \text{MST}=245.8,\quad \text{MSE}=10,\quad F=24.58$$</div>
+
+<p><strong>Part (b)：</strong>各 $\bar{x}_j$ 加 100，$\bar{\bar{x}}$ 也加 100，每個 $(\bar{x}_j - \bar{\bar{x}})$ <strong>差值完全不變</strong>，SST、SSE、MST、MSE、F <strong>全部不變</strong>，仍為 24.58。</p>
+
+<p><strong>Part (c)：</strong>平均數整體平移（加常數）不改變任何組間差距，對 F 統計量<strong>毫無影響</strong>。F 只看各組的<strong>相對差異</strong>，不看絕對數值。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.4　MBA 主修與工作機會數</strong>
+<p>財金、行銷、管理三個主修各隨機抽取 4 位畢業生，詢問得到的工作機會數：</p>
+<table>
+    <thead><tr><th>財金</th><th>行銷</th><th>管理</th></tr></thead>
+    <tbody>
+        <tr><td>3</td><td>1</td><td>8</td></tr>
+        <tr><td>1</td><td>5</td><td>5</td></tr>
+        <tr><td>4</td><td>3</td><td>4</td></tr>
+        <tr><td>1</td><td>4</td><td>6</td></tr>
+    </tbody>
+</table>
+<p>在 $\alpha = 0.05$ 下，三個主修的工作機會數是否有顯著差異？</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p>$\bar{x}_1=2.25,\; \bar{x}_2=3.25,\; \bar{x}_3=5.75,\; \bar{\bar{x}}=3.75$</p>
+<div class="math-block">$$\text{SST}=4(2.25-3.75)^2+4(3.25-3.75)^2+4(5.75-3.75)^2=9+1+16=26$$</div>
+<div class="math-block">$$s_1^2=2.25,\; s_2^2\approx2.92,\; s_3^2\approx2.92$$</div>
+<div class="math-block">$$\text{SSE}\approx6.75+8.75+8.75=24.25,\quad \text{MST}=13,\quad \text{MSE}=2.694,\quad F\approx4.83$$</div>
+<p>p 值 $\approx 0.038 < 0.05$</p>
+<p class="note">✅ 拒絕 $H_0$。管理主修（$\bar{x}=5.75$）工作機會顯著多於財金（2.25）。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.5　三種品牌人造奶油容量差異（$\alpha=0.01$）</strong>
+<table>
+    <thead><tr><th>品牌 1</th><th>品牌 2</th><th>品牌 3</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>2</td><td>1</td></tr>
+        <tr><td>3</td><td>2</td><td>2</td></tr>
+        <tr><td>3</td><td>4</td><td>4</td></tr>
+        <tr><td>0</td><td>3</td><td>2</td></tr>
+        <tr><td>1</td><td>0</td><td>3</td></tr>
+        <tr><td>0</td><td>4</td><td>4</td></tr>
+    </tbody>
+</table>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p>$\bar{x}_1\approx1.33,\; \bar{x}_2=2.5,\; \bar{x}_3\approx2.67,\; \bar{\bar{x}}\approx2.17$</p>
+<div class="math-block">$$\text{SST}\approx6.33,\quad \text{SSE}\approx28.18,\quad F\approx1.68$$</div>
+<p>p 值 $\approx 0.22 > 0.01$</p>
+<p class="note">❌ 不拒絕 $H_0$（$\alpha=0.01$）。沒有充分證據推論三種品牌容量有顯著差異。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.6　不同學位學程學生暑期收入（$\alpha=0.05$）</strong>
+<table>
+    <thead><tr><th>人文</th><th>理工</th><th>商管</th></tr></thead>
+    <tbody>
+        <tr><td>3.3</td><td>3.9</td><td>4.0</td></tr>
+        <tr><td>2.5</td><td>5.1</td><td>6.2</td></tr>
+        <tr><td>4.6</td><td>3.9</td><td>6.3</td></tr>
+        <tr><td>5.4</td><td>6.2</td><td>5.9</td></tr>
+        <tr><td>3.9</td><td>4.8</td><td>6.4</td></tr>
+    </tbody>
+</table>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p>$\bar{x}_1=3.94,\; \bar{x}_2=4.78,\; \bar{x}_3=5.76,\; \bar{\bar{x}}\approx4.83$</p>
+<div class="math-block">$$\text{SST}\approx8.30,\quad \text{SSE}\approx11.91,\quad F\approx4.18$$</div>
+<p>p 值 $\approx 0.042 < 0.05$</p>
+<p class="note">✅ 拒絕 $H_0$。商管（$\bar{x}=5.76$ 千元）收入顯著高於人文（3.94 千元）。</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.7　大學社群垃圾郵件數量（$\alpha=0.025$）</strong>
+<table>
+    <thead><tr><th>教授</th><th>行政人員</th><th>學生</th></tr></thead>
+    <tbody>
+        <tr><td>7</td><td>5</td><td>12</td></tr>
+        <tr><td>4</td><td>9</td><td>4</td></tr>
+        <tr><td>0</td><td>12</td><td>5</td></tr>
+        <tr><td>3</td><td>16</td><td>18</td></tr>
+        <tr><td>18</td><td>10</td><td>15</td></tr>
+    </tbody>
+</table>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p>$\bar{x}_1=6.4,\; \bar{x}_2=10.4,\; \bar{x}_3=10.8,\; \bar{\bar{x}}=9.2$</p>
+<div class="math-block">$$\text{SST}=59.2,\quad \text{SSE}=409.2,\quad F=0.868$$</div>
+<p>p 值 $\approx 0.44 > 0.025$</p>
+<p class="note">❌ 不拒絕 $H_0$。沒有充分證據推論三組垃圾郵件數量有顯著差異。（各組組內變異很大，尤其教授組因一人收到 18 封造成高變異。）</p>
+</div>
+</details>
+</li>
+
+<li>
+<strong>14.8　不同品牌電腦機齡差異（$\alpha=0.05$）</strong>
+<table>
+    <thead><tr><th>IBM</th><th>Dell</th><th>Hewlett-Packard</th><th>其他</th></tr></thead>
+    <tbody>
+        <tr><td>17</td><td>8</td><td>6</td><td>24</td></tr>
+        <tr><td>10</td><td>4</td><td>15</td><td>12</td></tr>
+        <tr><td>13</td><td>21</td><td>8</td><td>15</td></tr>
+    </tbody>
+</table>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p>$\bar{x}_1\approx13.33,\; \bar{x}_2=11,\; \bar{x}_3\approx9.67,\; \bar{x}_4=17,\; \bar{\bar{x}}=12.75$</p>
+<div class="math-block">$$\text{SST}\approx92.85,\quad \text{SSE}\approx305.3,\quad F\approx0.811$$</div>
+<p>p 值 $\approx 0.52 > 0.05$</p>
+<p class="note">❌ 不拒絕 $H_0$。沒有充分證據推論各品牌電腦機齡有顯著差異。（每組僅 3 筆，統計力很低。）</p>
+</div>
+</details>
+</li>
+
+</ol>
+
+<hr>
+
+<!-- ============================== Summary ============================== -->
+<div class="summary" id="summary">
+<h2>📖 Chapter 14 Summary</h2>
+
+<table style="color:#d8e8f8; font-size:0.88em; margin-top:16px;">
+    <thead>
+        <tr style="background:#0a2040;">
+            <th style="color:#a8d0f8;">設計</th>
+            <th style="color:#a8d0f8;">適用情境</th>
+            <th style="color:#a8d0f8;">SS 分解</th>
+            <th style="color:#a8d0f8;">Excel 工具</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>單因子 ANOVA</strong></td>
+            <td>$k$ 個獨立組（機器人打球）</td>
+            <td>SST + SSE</td>
+            <td>Single Factor</td>
+        </tr>
+        <tr>
+            <td><strong>區集設計</strong></td>
+            <td>有個體差異需控制（真人打球）</td>
+            <td>SST + SSB + SSE</td>
+            <td>Two-Factor Without Replication</td>
+        </tr>
+        <tr>
+            <td><strong>雙因子 ANOVA</strong></td>
+            <td>兩因子 + 交互作用（駕駛 × 路線）</td>
+            <td>SS(A)+SS(B)+SS(AB)+SSE</td>
+            <td>Two-Factor With Replication</td>
+        </tr>
+    </tbody>
+</table>
+
+<ul style="margin-top:16px;">
+    <li><strong>F 的直覺：</strong>$F = \text{MST}/\text{MSE}$，「訊號」對「雜訊」的比值。F 越大，處理效果越突出。</li>
+    <li><strong>What-If 規律：</strong>① 增加樣本數 → F 增大；② 增加組內變異 → F 縮小；③ 平均數平移 → F <strong>不變</strong>。</li>
+    <li><strong>多重比較：</strong>Tukey 適合所有配對；Bonferroni 適合事前計畫少數幾對；Fisher LSD 最寬鬆，用於探索。</li>
+    <li><strong>區集化時機：</strong>當實驗單位存在與處理無關但影響反應變數的個體差異時（年齡、體重、能力…），應設計區集。忽略區集 → SSE 膨脹 → 檢定力下降。</li>
+    <li><strong>交互作用優先：</strong>雙因子 ANOVA 務必先檢定 AB 交互作用。有交互作用時，主效果個別解讀無意義——「最佳選擇取決於兩個因子的組合」（如拓海 × 陽金、Hamilton × 高速）。</li>
+</ul>
+</div>
+
+
+<script>
+/* ── Quiz ── */
+function checkQ(name, correct, explanation) {
+    const sel = document.querySelector(`input[name="${name}"]:checked`);
+    const fb = document.getElementById(`${name}-fb`);
+    if (!sel) { fb.textContent = '⚠️ 請選擇一個答案！'; fb.className = 'quiz-feedback incorrect'; fb.style.display = 'block'; return; }
+    fb.textContent = sel.value === correct ? explanation : `❌ 答錯了！正確是 ${correct.toUpperCase()}。${explanation}`;
+    fb.className = sel.value === correct ? 'quiz-feedback correct' : 'quiz-feedback incorrect';
+    fb.style.display = 'block';
+}
+
+/* ── F distribution p-value (exact via regularized incomplete beta) ── */
+function gammln(xx) {
+    const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,1.208650973866179e-3,-5.395239384953e-6];
+    let y=xx,x=xx,tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp);
+    let ser=1.000000000190015;
+    for(let j=0;j<6;j++) ser+=c[j]/++y;
+    return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+    const MAXIT=200,EPS=3e-7,FPMIN=1e-30;
+    const qab=a+b,qap=a+1,qam=a-1;
+    let c=1,d=1-qab*x/qap; if(Math.abs(d)<FPMIN)d=FPMIN; d=1/d; let h=d;
+    for(let m=1;m<=MAXIT;m++){
+        const m2=2*m;
+        let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+        d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+        aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+        d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;
+        const del=d*c;h*=del;if(Math.abs(del-1)<EPS)break;
+    }
+    return h;
+}
+function betai(a,b,x){
+    if(x<=0)return 0;if(x>=1)return 1;
+    const lbeta=gammln(a)+gammln(b)-gammln(a+b);
+    const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lbeta);
+    return x<(a+1)/(a+b+2)?front*betacf(a,b,x)/a:1-front*betacf(b,a,1-x)/b;
+}
+function fPvalue(F,df1,df2){return betai(df2/2,df1/2,df2/(df2+df1*F));}
+
+function tQuantile(p,df){
+    if(df>300)return normInv(p);
+    let lo=0,hi=20;
+    for(let i=0;i<80;i++){const mid=(lo+hi)/2;if(tCDF(mid,df)<p)lo=mid;else hi=mid;}
+    return(lo+hi)/2;
+}
+function tCDF(t,df){const x=df/(df+t*t);return 1-0.5*betai(df/2,0.5,x);}
+function normInv(p){
+    const a=[2.515517,0.802853,0.010328],b=[1.432788,0.189269,0.001308];
+    const t=Math.sqrt(-2*Math.log(p<0.5?p:1-p));
+    const n=t-(a[0]+a[1]*t+a[2]*t*t)/(1+b[0]*t+b[1]*t*t+b[2]*t*t*t);
+    return p<0.5?-n:n;
+}
+
+/* ── Calculator A: One-Way ANOVA ── */
+function calcAnova(){
+    const ns=document.getElementById('an-n').value.split(',').map(Number);
+    const xs=document.getElementById('an-xbar').value.split(',').map(Number);
+    const s2s=document.getElementById('an-s2').value.split(',').map(Number);
+    const alpha=parseFloat(document.getElementById('an-alpha').value);
+    const res=document.getElementById('anova-result');
+    if(ns.length!==xs.length||xs.length!==s2s.length){res.textContent='⚠️ 各欄位個數必須相同！';res.style.display='block';return;}
+    const k=ns.length,n=ns.reduce((a,b)=>a+b,0);
+    const xbar=ns.reduce((s,ni,i)=>s+ni*xs[i],0)/n;
+    const SST=ns.reduce((s,ni,i)=>s+ni*(xs[i]-xbar)**2,0);
+    const SSE=ns.reduce((s,ni,i)=>s+(ni-1)*s2s[i],0);
+    const dfT=k-1,dfE=n-k,MST=SST/dfT,MSE=SSE/dfE,F=MST/MSE;
+    const pv=fPvalue(F,dfT,dfE);
+    res.innerHTML=`─────── ANOVA 表 ───────
+來源      SS          df   MS          F        p 值
+處理  ${SST.toFixed(3).padStart(11)} ${String(dfT).padStart(4)} ${MST.toFixed(3).padStart(11)} ${F.toFixed(3).padStart(7)}  ${pv.toFixed(4)}
+誤差  ${SSE.toFixed(3).padStart(11)} ${String(dfE).padStart(4)} ${MSE.toFixed(3).padStart(11)}
+總計  ${(SST+SSE).toFixed(3).padStart(11)} ${String(n-1).padStart(4)}
+
+總平均 x̄̄ = ${xbar.toFixed(4)}
+${pv<alpha?`✅ p=${pv.toFixed(4)} < α=${alpha}，拒絕 H₀\n有充分統計證據推論至少兩個處理平均數不同。`:`❌ p=${pv.toFixed(4)} ≥ α=${alpha}，不拒絕 H₀\n沒有充分統計證據推論處理間有顯著差異。`}`;
+    res.style.display='block';
+}
+
+/* ── Calculator B: Multiple Comparisons ── */
+function qStudRange(k,df){
+    const tbl={'2,5':3.64,'2,6':3.46,'2,7':3.34,'2,8':3.26,'2,9':3.20,'2,10':3.15,'2,12':3.08,'2,15':3.01,'2,20':2.95,'2,30':2.89,'2,40':2.86,'2,60':2.83,'2,120':2.80,'2,999':2.77,'3,5':4.60,'3,6':4.34,'3,7':4.16,'3,8':4.04,'3,9':3.95,'3,10':3.88,'3,12':3.77,'3,15':3.67,'3,20':3.58,'3,30':3.49,'3,40':3.44,'3,60':3.40,'3,120':3.36,'3,999':3.31,'4,5':5.22,'4,6':4.90,'4,7':4.68,'4,8':4.53,'4,9':4.41,'4,10':4.33,'4,12':4.20,'4,15':4.08,'4,20':3.96,'4,30':3.85,'4,40':3.79,'4,60':3.74,'4,120':3.68,'4,999':3.63,'5,5':5.67,'5,6':5.30,'5,7':5.06,'5,8':4.89,'5,9':4.76,'5,10':4.65,'5,12':4.51,'5,15':4.37,'5,20':4.23,'5,30':4.10,'5,40':4.04,'5,60':3.98,'5,120':3.92,'5,999':3.86};
+    const dfOpts=[5,6,7,8,9,10,12,15,20,30,40,60,120,999];
+    const cd=dfOpts.reduce((p,c)=>Math.abs(c-df)<Math.abs(p-df)?c:p);
+    const kc=Math.min(k,5);
+    return tbl[`${kc},${cd}`]||3.5;
+}
+function calcMultiComp(){
+    const MSE=parseFloat(document.getElementById('mc-mse').value);
+    const k=parseInt(document.getElementById('mc-k').value);
+    const ng=parseFloat(document.getElementById('mc-n').value);
+    const dfE=parseInt(document.getElementById('mc-dfE').value);
+    const alpha=parseFloat(document.getElementById('mc-alpha').value);
+    const C=k*(k-1)/2;
+    const t_lsd=tQuantile(1-alpha/2,dfE);
+    const LSD=t_lsd*Math.sqrt(MSE*2/ng);
+    const alphaStar=alpha/C;
+    const t_bon=tQuantile(1-alphaStar/2,dfE);
+    const omegaB=t_bon*Math.sqrt(MSE*2/ng);
+    const q=qStudRange(k,dfE);
+    const omegaT=q*Math.sqrt(MSE/ng);
+    document.getElementById('mc-result').innerHTML=
+`輸入：MSE=${MSE}, k=${k}, n_g=${ng}, df_E=${dfE}, α=${alpha}
+成對比較數 C = ${k}×${k-1}/2 = ${C}
+
+Fisher LSD（α=${alpha}）
+  t_{α/2,${dfE}} ≈ ${t_lsd.toFixed(3)}
+  LSD = ${LSD.toFixed(3)}
+  → |x̄_i − x̄_j| > ${LSD.toFixed(3)} 則推論 μ_i ≠ μ_j
+
+Bonferroni（α* = ${alpha}/${C} = ${alphaStar.toFixed(5)}）
+  t_{α*/2,${dfE}} ≈ ${t_bon.toFixed(3)}
+  ω_B = ${omegaB.toFixed(3)}
+  → |x̄_i − x̄_j| > ${omegaB.toFixed(3)} 則推論 μ_i ≠ μ_j
+
+Tukey（q_{α}(${k},${dfE}) ≈ ${q.toFixed(2)}）
+  ω_T = ${omegaT.toFixed(3)}
+  → |x̄_i − x̄_j| > ${omegaT.toFixed(3)} 則推論 μ_i ≠ μ_j
+
+（Tukey q 值為近似，請以統計表或 Excel 確認）`;
+    document.getElementById('mc-result').style.display='block';
+}
+
+/* ── Calculator C: Randomized Block ANOVA ── */
+function calcBlockAnova(){
+    const SST=parseFloat(document.getElementById('rb-sst').value);
+    const SSB=parseFloat(document.getElementById('rb-ssb').value);
+    const SSE=parseFloat(document.getElementById('rb-sse').value);
+    const k=parseInt(document.getElementById('rb-k').value);
+    const b=parseInt(document.getElementById('rb-b').value);
+    const alpha=parseFloat(document.getElementById('rb-alpha').value);
+    const n=k*b,dfT=k-1,dfB=b-1,dfE=(k-1)*(b-1);
+    const MST=SST/dfT,MSB=SSB/dfB,MSE=SSE/dfE;
+    const FT=MST/MSE,FB=MSB/MSE;
+    const pvT=fPvalue(FT,dfT,dfE),pvB=fPvalue(FB,dfB,dfE);
+    document.getElementById('rb-result').innerHTML=
+`k=${k} 個處理，b=${b} 個區集，n=k×b=${n}
+
+─── 隨機化區集 ANOVA 表 ───
+來源   SS         df    MS         F        p 值
+處理 ${SST.toFixed(2).padStart(10)} ${String(dfT).padStart(4)} ${MST.toFixed(2).padStart(10)} ${FT.toFixed(3).padStart(7)}  ${pvT.toFixed(4)} ${pvT<alpha?'← 拒絕 H₀':'← 不拒絕 H₀'}
+區集 ${SSB.toFixed(2).padStart(10)} ${String(dfB).padStart(4)} ${MSB.toFixed(2).padStart(10)} ${FB.toFixed(3).padStart(7)}  ${pvB.toFixed(4)} ${pvB<alpha?'← 拒絕 H₀':'← 不拒絕 H₀'}
+誤差 ${SSE.toFixed(2).padStart(10)} ${String(dfE).padStart(4)} ${MSE.toFixed(2).padStart(10)}
+總計 ${(SST+SSB+SSE).toFixed(2).padStart(10)} ${String(n-1).padStart(4)}`;
+    document.getElementById('rb-result').style.display='block';
+}
+</script>
+
+</body>
+</html>

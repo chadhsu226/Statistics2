@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16　簡單線性迴歸分析</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded",()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false,strict:"ignore"}));</script>
+    <style>
+        :root {
+            --navy:#1a3a6b; --blue:#2e6cb8; --blue-light:#4a90d9;
+            --teal:#1a7a6b; --teal-light:#2aaa96;
+            --accent:#c0392b; --gold:#d4a017; --green:#27ae60;
+            --bg:#f7f9fc; --card:#ffffff; --border:#d0dcea;
+            --text:#2c3e50; --muted:#5a6a7a; --math-bg:#eaf3ff;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Noto Sans TC','Source Serif 4',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;max-width:920px;margin:0 auto;padding:36px 24px 80px;}
+        h1{font-family:'Source Serif 4',serif;font-size:2rem;font-weight:700;color:var(--navy);border-bottom:4px solid var(--teal-light);padding-bottom:12px;margin-bottom:20px;}
+        h2{font-family:'Source Serif 4',serif;font-size:1.45rem;font-weight:600;color:var(--navy);margin-top:52px;margin-bottom:14px;border-left:5px solid var(--teal-light);padding-left:12px;}
+        h3{font-size:1.08rem;font-weight:700;color:var(--teal);margin-top:26px;margin-bottom:10px;}
+        p{margin-bottom:12px;} ul,ol{margin-left:24px;margin-bottom:12px;} li{margin-bottom:6px;}
+        hr{border:none;border-top:1px solid var(--border);margin:50px 0;}
+        .chapter-intro{font-size:1.05rem;color:var(--muted);border-left:3px solid var(--teal-light);padding:10px 16px;background:#eef7f5;border-radius:0 6px 6px 0;margin-bottom:24px;}
+        .learning-goals{background:#fffbea;border:1.5px solid var(--gold);border-radius:8px;padding:18px 22px;margin:24px 0;}
+        .learning-goals h3{color:#8a6000;margin-top:0;}
+        .toc{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:18px 24px;margin:24px 0;box-shadow:0 2px 8px rgba(30,60,110,.06);}
+        .toc h3{color:var(--navy);margin-top:0;} .toc a{color:var(--blue);text-decoration:none;} .toc a:hover{text-decoration:underline;}
+        .highlight{background:#fffbe6;border-left:4px solid var(--gold);padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;}
+        .math-block{background:var(--math-bg);border-radius:6px;padding:14px 18px;margin:14px 0;overflow-x:auto;font-size:1.05em;text-align:center;}
+        .formula-card{background:var(--card);border:2px solid var(--teal-light);border-radius:10px;padding:18px 22px;margin:20px 0;box-shadow:0 2px 8px rgba(42,170,150,.1);}
+        .formula-card h3{margin-top:0;color:var(--navy);}
+        .formula-card .note{font-size:.9em;color:var(--muted);background:#f0faf8;border-left:3px solid var(--teal-light);padding:8px 12px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .steps-box{background:#f4f6ff;border:1px solid #b0bce8;border-radius:8px;padding:16px 20px;margin:16px 0;}
+        .steps-box h3{color:var(--navy);margin-top:0;} .steps-box ol{margin-bottom:0;} .steps-box li{margin-bottom:10px;}
+        .example-block{background:#f0faf8;border-left:5px solid var(--teal-light);border-radius:0 8px 8px 0;padding:18px 22px;margin:20px 0;}
+        .example-block h3{color:var(--navy);margin-top:0;}
+        .example-block .note{font-size:.92em;background:#e6f7e6;border-left:3px solid var(--green);padding:10px 14px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .example-block .warn{font-size:.92em;background:#fff3cd;border-left:3px solid var(--gold);padding:10px 14px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .scenario{background:#f0f8ff;border:1.5px dashed #4a90d9;border-radius:8px;padding:12px 18px;margin-bottom:14px;font-size:.97em;color:#1a3060;}
+        .scenario strong{color:#2255a0;}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.93em;}
+        th,td{border:1px solid #c8d8ec;padding:8px 12px;text-align:center;}
+        th{background:#ddeeff;color:var(--navy);font-weight:600;}
+        tr:nth-child(even){background:#f5f8ff;}
+        .reg-table th{background:#1a4a6b;color:white;}
+        .reg-table td{font-family:'JetBrains Mono',monospace;font-size:.88em;}
+        .anova-reg th{background:#1a5a4b;color:white;}
+        .anova-reg td{font-family:'JetBrains Mono',monospace;font-size:.88em;}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+        .col-box{border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:#fafbff;}
+        .col-box h3{font-size:.98em;margin-top:0;text-align:center;}
+        .pop-vs-sample{background:var(--card);border:2px solid var(--teal-light);border-radius:10px;padding:0;margin:20px 0;overflow:hidden;}
+        .pop-vs-sample .pvs-header{display:grid;grid-template-columns:1fr 1fr;} 
+        .pop-vs-sample .pvs-col{padding:14px 18px;}
+        .pop-vs-sample .pvs-col.pop{background:#1a4a6b;color:#d8eeff;}
+        .pop-vs-sample .pvs-col.samp{background:#1a5a4b;color:#d8f8f0;}
+        .pop-vs-sample .pvs-col h3{color:inherit;margin-top:0;font-size:1em;}
+        .pop-vs-sample .pvs-body{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--teal-light);}
+        .pop-vs-sample .pvs-body .pvs-col{padding:12px 18px;border-right:1px solid var(--border);}
+        .pop-vs-sample .pvs-body .pvs-col:last-child{border-right:none;}
+        .calc-box{background:#f4fff4;border:1.5px solid #7ec87e;border-radius:8px;padding:18px 22px;margin:20px 0;}
+        .calc-box h3{color:#1a6b1a;margin-top:0;}
+        .calc-box label{font-size:.92em;display:inline-block;margin-right:12px;margin-bottom:8px;}
+        .calc-box input{display:block;padding:5px 8px;border:1px solid #aaa;border-radius:4px;margin-top:3px;font-size:.9em;width:110px;}
+        .calc-box textarea{display:block;padding:6px 8px;border:1px solid #aaa;border-radius:4px;margin-top:3px;font-size:.88em;width:100%;font-family:'JetBrains Mono',monospace;}
+        .calc-box .inputs-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+        .calc-box button{background:#3a9a5c;color:white;border:none;border-radius:5px;padding:9px 22px;cursor:pointer;font-size:.95em;margin-top:10px;}
+        .calc-box button:hover{background:#2a7a4a;}
+        .calc-result{margin-top:12px;padding:12px 16px;background:#efffef;border:1px solid #88cc88;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.83em;display:none;white-space:pre-line;}
+        .quiz-section{background:#fff8f0;border:1.5px solid #f5c518;border-radius:8px;padding:20px 24px;margin:28px 0;}
+        .quiz-section h3{color:#8a5000;margin-top:0;}
+        .quiz-q{margin-bottom:26px;padding-bottom:20px;border-bottom:1px dashed #e0c87a;}
+        .quiz-q:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+        .quiz-q p{margin-bottom:10px;} .quiz-q label{display:block;margin:6px 0;cursor:pointer;} .quiz-q label:hover{color:var(--blue);}
+        .quiz-q button{background:var(--blue-light);color:white;border:none;border-radius:5px;padding:7px 18px;cursor:pointer;font-size:.92em;margin-top:10px;}
+        .quiz-q button:hover{background:var(--blue);}
+        .quiz-feedback{margin-top:10px;padding:8px 12px;border-radius:5px;font-weight:600;display:none;}
+        .correct{background:#d4edda;color:#155724;} .incorrect{background:#f8d7da;color:#721c24;}
+        .exercises-list{list-style:none;padding:0;}
+        .exercises-list>li{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:16px;}
+        .exercises-list>li strong{color:var(--navy);}
+        details summary{cursor:pointer;color:var(--blue);font-weight:700;margin-top:12px;user-select:none;}
+        details summary:hover{color:var(--navy);}
+        details>div{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+        .summary{background:var(--navy);color:#e8f0fc;border-radius:10px;padding:22px 26px;margin-top:40px;}
+        .summary h2{color:#c8dcf8;border-left-color:#6aaae8;margin-top:0;}
+        .summary li{margin-bottom:10px;color:#d8e8f8;} .summary strong{color:#a8d0f8;}
+        .residual-box{background:#fdf4ff;border:1.5px solid #c49be0;border-radius:8px;padding:16px 20px;margin:16px 0;}
+        .residual-box h3{color:#5a1a8a;margin-top:0;}
+        .ci-pi-box{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+        .ci-box{background:#e8f4ff;border:2px solid var(--blue-light);border-radius:8px;padding:14px 16px;}
+        .pi-box{background:#fff4e8;border:2px solid #f0a040;border-radius:8px;padding:14px 16px;}
+        .ci-box h3{color:#1a3a8a;margin-top:0;font-size:.98em;}
+        .pi-box h3{color:#7a3a00;margin-top:0;font-size:.98em;}
+        canvas{max-width:100%;border-radius:8px;}
+        @media(max-width:640px){.two-col,.ci-pi-box,.pop-vs-sample .pvs-header,.pop-vs-sample .pvs-body{grid-template-columns:1fr;}body{padding:20px 14px 60px;}}
+    </style>
+</head>
+<body>
+
+<h1>Chapter 16　簡單線性迴歸分析</h1>
+
+<p class="chapter-intro">
+迴歸分析（Regression Analysis）是統計學中最廣泛應用的工具之一，目的是找出一個或多個<strong>自變數（X）</strong>與<strong>依變數（Y）</strong>之間的數量關係。本章聚焦於<strong>簡單線性迴歸（Simple Linear Regression）</strong>——只有一個自變數的情形。我們將從母體模型出發，學習如何用樣本資料估計迴歸線，並進行統計推論與預測。
+</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>理解母體迴歸模型 $Y = \beta_0 + \beta_1 X + \varepsilon$ 的結構與假設條件（LINE）。</li>
+    <li>能應用<strong>最小平方法（OLS）</strong>估計迴歸係數 $b_0, b_1$，並理解估計值與母體參數的差異。</li>
+    <li>能分解總變異（SST = SSR + SSE），計算 $R^2$ 衡量模型的解釋力。</li>
+    <li>能對 $\beta_1$ 進行 <strong>t 檢定</strong>，判斷 X 對 Y 是否有顯著的線性影響。</li>
+    <li>能建立迴歸 <strong>ANOVA 表</strong>，以 F 檢定驗證整體模型顯著性（在簡單迴歸中 $F = t^2$）。</li>
+    <li>能區分<strong>平均值信賴區間</strong>（CI）與<strong>個別預測區間</strong>（PI），並理解兩者的寬度差異。</li>
+    <li>能進行基本<strong>殘差分析</strong>，檢驗迴歸模型的假設是否成立。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#s161">Section 16.1　母體迴歸模型</a></li>
+    <li><a href="#s162">Section 16.2　最小平方估計（OLS）</a></li>
+    <li><a href="#s163">Section 16.3　誤差項 $\sigma$ 的估計與 $R^2$</a></li>
+    <li><a href="#s164">Section 16.4　t 檢定：斜率係數的顯著性</a></li>
+    <li><a href="#s165">Section 16.5　F 檢定：迴歸 ANOVA 表</a></li>
+    <li><a href="#s166">Section 16.6　預測：信賴區間 vs 預測區間</a></li>
+    <li><a href="#s167">Section 16.7　殘差分析</a></li>
+    <li><a href="#calc">互動計算機</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#exercises">Exercises</a></li>
+    <li><a href="#summary">Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.1 母體迴歸模型 ══════════════ -->
+<h2 id="s161">Section 16.1　母體迴歸模型</h2>
+
+<p>在研究兩個變數之間的關係時，我們先假設存在一個<strong>真實的母體關係</strong>，然後用樣本去估計它。</p>
+
+<div class="formula-card">
+<h3>📐 母體迴歸模型（Population Regression Model）</h3>
+<div class="math-block">
+$$Y = \beta_0 + \beta_1 X + \varepsilon$$
+</div>
+<ul>
+    <li>$\beta_0$：母體截距（Population Intercept）——真實參數，<strong>未知</strong></li>
+    <li>$\beta_1$：母體斜率（Population Slope）——真實參數，<strong>未知</strong></li>
+    <li>$\varepsilon$：誤差項（Error Term）——代表所有其他未被 X 解釋的因素及隨機波動</li>
+</ul>
+<p class="note">
+<strong>關鍵概念：</strong>$\beta_0$ 和 $\beta_1$ 是固定的（雖然未知的）母體參數，就像 $\mu$ 和 $\sigma$。我們用樣本估計值 $b_0$（估 $\beta_0$）和 $b_1$（估 $\beta_1$）來逼近它們，但估計值不等於真值。
+</p>
+</div>
+
+<h3>✅ 誤差項的假設條件（LINE）</h3>
+<div class="steps-box">
+<ol>
+    <li><strong>L — Linearity（線性）</strong>：$Y$ 與 $X$ 之間存在線性關係，即 $E(Y|X) = \beta_0 + \beta_1 X$</li>
+    <li><strong>I — Independence（獨立）</strong>：各觀測值的誤差項 $\varepsilon_i$ 彼此獨立</li>
+    <li><strong>N — Normality（常態性）</strong>：誤差項服從常態分配，$\varepsilon \sim N(0, \sigma^2)$</li>
+    <li><strong>E — Equal Variance（變異數齊性）</strong>：對所有 $X$ 值，誤差項的變異數均相等（Homoscedasticity）</li>
+</ol>
+</div>
+
+<!-- ── 缺席範例：從母體出發 ── -->
+<div class="example-block">
+<h3>📝 主範例　缺席次數與出席成績：從母體到樣本</h3>
+<div class="scenario">
+<strong>情境：</strong>假設「缺席次數（$X$）」與「出席成績（$Y$）」之間存在以下<strong>真實的母體關係</strong>：
+$$Y = \underbrace{95}_{\beta_0} + \underbrace{(-6)}_{\beta_1} \cdot X + \varepsilon, \quad \varepsilon \sim N(0, \sigma^2)$$
+這表示：平均而言，缺席一次成績下降 6 分；若從未缺席（$X=0$），預期平均成績為 95 分。
+</div>
+
+<p>然而在現實中，我們<strong>不知道</strong> $\beta_0 = 95$ 和 $\beta_1 = -6$。我們只能從樣本資料去<strong>估計</strong>它們。</p>
+
+<p>以下是從這個母體中抽出的 <strong>15 筆樣本</strong>（已含隨機誤差 $\varepsilon$）：</p>
+
+<table class="reg-table">
+    <thead><tr><th>學生</th><th>缺席次數 $x_i$</th><th>出席成績 $y_i$</th><th>母體預測值 $\beta_0+\beta_1 x_i$</th><th>誤差 $\varepsilon_i = y_i - (95-6x_i)$</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>4</td><td>74</td><td>71</td><td>+3</td></tr>
+        <tr><td>2</td><td>3</td><td>72</td><td>77</td><td>−5</td></tr>
+        <tr><td>3</td><td>0</td><td>92</td><td>95</td><td>−3</td></tr>
+        <tr><td>4</td><td>2</td><td>77</td><td>83</td><td>−6</td></tr>
+        <tr><td>5</td><td>5</td><td>68</td><td>65</td><td>+3</td></tr>
+        <tr><td>6</td><td>5</td><td>64</td><td>65</td><td>−1</td></tr>
+        <tr><td>7</td><td>7</td><td>58</td><td>53</td><td>+5</td></tr>
+        <tr><td>8</td><td>1</td><td>85</td><td>89</td><td>−4</td></tr>
+        <tr><td>9</td><td>3</td><td>77</td><td>77</td><td>0</td></tr>
+        <tr><td>10</td><td>6</td><td>61</td><td>59</td><td>+2</td></tr>
+        <tr><td>11</td><td>7</td><td>51</td><td>53</td><td>−2</td></tr>
+        <tr><td>12</td><td>1</td><td>88</td><td>89</td><td>−1</td></tr>
+        <tr><td>13</td><td>0</td><td>96</td><td>95</td><td>+1</td></tr>
+        <tr><td>14</td><td>4</td><td>72</td><td>71</td><td>+1</td></tr>
+        <tr><td>15</td><td>2</td><td>79</td><td>83</td><td>−4</td></tr>
+    </tbody>
+</table>
+<p class="note">
+💡 注意：即使我們<strong>知道</strong>真實母體參數 $\beta_0=95, \beta_1=-6$，每位學生的成績仍不等於母體預測值——誤差項 $\varepsilon_i$ 使得每個觀測值有隨機偏移。這正是統計估計存在不確定性的根本原因。
+</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.2 OLS ══════════════ -->
+<h2 id="s162">Section 16.2　最小平方估計（OLS）</h2>
+
+<p>現在我們<strong>假裝不知道</strong> $\beta_0, \beta_1$ 的真值，純粹用 15 筆樣本資料去估計。</p>
+
+<p><strong>最小平方法（Ordinary Least Squares, OLS）</strong>的核心思想：找一條直線，使得所有樣本點到這條直線的<strong>垂直距離平方和最小</strong>。</p>
+
+<div class="formula-card">
+<h3>📐 OLS 估計公式</h3>
+<div class="math-block">
+$$b_1 = \frac{S_{xy}}{S_{xx}} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sum(x_i - \bar{x})^2}$$
+</div>
+<div class="math-block">
+$$b_0 = \bar{y} - b_1 \bar{x}$$
+</div>
+<p>估計迴歸線（Estimated Regression Line）：$\hat{y} = b_0 + b_1 x$</p>
+<p class="note">
+<strong>殘差（Residual）</strong>$e_i = y_i - \hat{y}_i$：樣本觀測值與估計值之差。注意殘差 $e_i$ 是誤差項 $\varepsilon_i$ 的估計，但兩者不同——$\varepsilon_i$ 是真實誤差（未知），$e_i$ 是可計算的樣本殘差。
+</p>
+</div>
+
+<!-- ── 缺席範例 OLS 計算 ── -->
+<div class="example-block">
+<h3>📝 主範例（續）　用 15 筆樣本估計迴歸線</h3>
+
+<p><strong>Step 1 — 計算樣本平均數</strong></p>
+<div class="math-block">
+$$\bar{x} = \frac{4+3+0+\cdots+2}{15} = \frac{50}{15} = 3.333, \quad \bar{y} = \frac{74+72+92+\cdots+79}{15} = \frac{1114}{15} = 74.267$$
+</div>
+
+<p><strong>Step 2 — 計算 $S_{xx}$ 與 $S_{xy}$</strong></p>
+<div class="math-block">
+$$S_{xx} = \sum(x_i - \bar{x})^2 = (4-3.333)^2+(3-3.333)^2+\cdots = 77.333$$
+</div>
+<div class="math-block">
+$$S_{xy} = \sum(x_i - \bar{x})(y_i - \bar{y}) = (4-3.333)(74-74.267)+\cdots = -408.333$$
+</div>
+
+<p><strong>Step 3 — 計算 $b_1, b_0$</strong></p>
+<div class="math-block">
+$$b_1 = \frac{S_{xy}}{S_{xx}} = \frac{-408.333}{77.333} = -5.280, \quad b_0 = 74.267 - (-5.280)(3.333) = 91.867$$
+</div>
+
+<p><strong>估計迴歸線：</strong></p>
+<div class="math-block">
+$$\hat{y} = 91.867 - 5.280\, x$$
+</div>
+
+<div class="pop-vs-sample">
+    <div class="pvs-header">
+        <div class="pvs-col pop"><h3>🌐 母體（真實，未知）</h3></div>
+        <div class="pvs-col samp"><h3>📊 樣本估計（可計算）</h3></div>
+    </div>
+    <div class="pvs-body">
+        <div class="pvs-col pop">
+            <p>$\beta_0 = 95$</p>
+            <p>$\beta_1 = -6$</p>
+            <p>$Y = 95 - 6X + \varepsilon$</p>
+        </div>
+        <div class="pvs-col samp">
+            <p>$b_0 = 91.867 \approx \beta_0$</p>
+            <p>$b_1 = -5.280 \approx \beta_1$</p>
+            <p>$\hat{y} = 91.867 - 5.280\,x$</p>
+        </div>
+    </div>
+</div>
+
+<p class="note">
+✅ 樣本估計值 $b_0 = 91.867$（真值 95）、$b_1 = -5.280$（真值 −6）——<strong>接近但不完全相等</strong>，這正是抽樣誤差造成的。不同的樣本會得到不同的 $b_0, b_1$，但當樣本數夠大時，估計值會趨向真值。這就是為什麼增加樣本數能提高估計精度。
+</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.3 σ 估計與 R² ══════════════ -->
+<h2 id="s163">Section 16.3　$\sigma$ 的估計與 $R^2$</h2>
+
+<h3>變異分解：SST = SSR + SSE</h3>
+<p>迴歸分析的核心邏輯是：Y 的總變異可以被分解為「迴歸可解釋的部分」與「殘差（無法解釋的部分）」。</p>
+
+<div class="formula-card">
+<h3>📐 三大平方和</h3>
+<div class="math-block">
+$$\underbrace{\text{SST}}_{\text{Total}} = \underbrace{\text{SSR}}_{\text{Regression}} + \underbrace{\text{SSE}}_{\text{Error}}$$
+</div>
+<div class="math-block">
+$$\text{SST} = \sum(y_i - \bar{y})^2, \quad \text{SSR} = \sum(\hat{y}_i - \bar{y})^2, \quad \text{SSE} = \sum(y_i - \hat{y}_i)^2 = \sum e_i^2$$
+</div>
+
+<p><strong>決定係數 $R^2$（Coefficient of Determination）：</strong></p>
+<div class="math-block">
+$$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}} \in [0, 1]$$
+</div>
+
+<p><strong>誤差標準差 $s_e$（Standard Error of Estimate）：</strong></p>
+<div class="math-block">
+$$s_e = \sqrt{\text{MSE}} = \sqrt{\frac{\text{SSE}}{n-2}}$$
+</div>
+<p class="note">
+$s_e$ 是母體誤差標準差 $\sigma$ 的估計，自由度為 $n-2$（估計了兩個參數 $b_0, b_1$）。<br>
+<strong>$R^2$ 的解讀：</strong>$R^2 = 0.80$ 表示自變數 X 解釋了 Y 總變異的 80%，剩餘 20% 由其他未納入的因素或隨機誤差造成。
+</p>
+</div>
+
+<div class="example-block">
+<h3>📝 輔助範例　研發支出 → 營收（變異分解示意）</h3>
+<div class="scenario">
+<strong>資料：</strong>5 間公司的研發支出（$X$，百萬元）與年營收（$Y$，百萬元）如下：
+</div>
+<table class="reg-table">
+    <thead><tr><th>$x_i$</th><th>$y_i$</th><th>$\hat{y}_i = -1+7x_i$</th><th>$y_i - \bar{y}$</th><th>$\hat{y}_i - \bar{y}$</th><th>$y_i - \hat{y}_i$（殘差）</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>10</td><td>6</td><td>−10</td><td>−14</td><td>+4</td></tr>
+        <tr><td>2</td><td>10</td><td>13</td><td>−10</td><td>−7</td><td>−3</td></tr>
+        <tr><td>3</td><td>20</td><td>20</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>4</td><td>20</td><td>27</td><td>0</td><td>+7</td><td>−7</td></tr>
+        <tr><td>5</td><td>40</td><td>34</td><td>+20</td><td>+14</td><td>+6</td></tr>
+        <tr><th>合計</th><th>$\bar{y}=20$</th><th></th><th>—</th><th>—</th><th>0</th></tr>
+    </tbody>
+</table>
+<div class="math-block">
+$$\text{SST} = 100+100+0+0+400 = 600$$
+$$\text{SSR} = 196+49+0+49+196 = 490$$
+$$\text{SSE} = 16+9+0+49+36 = 110$$
+$$R^2 = \frac{490}{600} = 0.817, \quad s_e = \sqrt{\frac{110}{3}} = 6.055$$
+</div>
+<p class="note">✅ 研發支出解釋了營收變異的 <strong>81.7%</strong>，模型配適度良好。殘差之和恆等於 0（OLS 的性質）。</p>
+</div>
+
+<div class="example-block">
+<h3>📝 主範例（續）　缺席範例的變異分解</h3>
+<div class="math-block">
+$$\text{SST} = 2264.93, \quad \text{SSR} = 2156.07, \quad \text{SSE} = 108.86$$
+$$R^2 = \frac{2156.07}{2264.93} = 0.952, \quad s_e = \sqrt{\frac{108.86}{13}} = 2.894$$
+</div>
+<p class="note">✅ 缺席次數解釋了出席成績變異的 <strong>95.2%</strong>，$R^2$ 非常高，說明缺席次數是預測出席成績的強力指標。$s_e = 2.894$ 分表示：使用迴歸線預測，典型的預測誤差約為 ±2.9 分。</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.4 t 檢定 ══════════════ -->
+<h2 id="s164">Section 16.4　t 檢定：斜率係數的顯著性</h2>
+
+<p>我們想知道：$X$ 對 $Y$ 是否真的有線性影響？這等同於問：母體斜率 $\beta_1$ 是否顯著不等於 0？</p>
+
+<div class="highlight">
+$H_0: \beta_1 = 0$（X 對 Y 沒有線性影響）<br>
+$H_1: \beta_1 \neq 0$（X 對 Y 有線性影響）
+</div>
+
+<div class="formula-card">
+<h3>📐 斜率的 t 檢定</h3>
+<p><strong>$b_1$ 的標準誤：</strong></p>
+<div class="math-block">
+$$s_{b_1} = \frac{s_e}{\sqrt{S_{xx}}} = \sqrt{\frac{\text{MSE}}{S_{xx}}}$$
+</div>
+<p><strong>t 統計量：</strong></p>
+<div class="math-block">
+$$t = \frac{b_1 - 0}{s_{b_1}} = \frac{b_1}{s_{b_1}} \sim t_{n-2}$$
+</div>
+<p><strong>$\beta_1$ 的信賴區間：</strong></p>
+<div class="math-block">
+$$b_1 \pm t_{\alpha/2,\; n-2} \cdot s_{b_1}$$
+</div>
+<p class="note">$b_0$ 亦可類似地進行推論，其標準誤為 $s_{b_0} = s_e\sqrt{\dfrac{1}{n}+\dfrac{\bar{x}^2}{S_{xx}}}$，但實務上截距的顯著性通常較不重要。</p>
+</div>
+
+<div class="example-block">
+<h3>📝 主範例（續）　對 $\beta_1$ 進行 t 檢定（$\alpha = 0.05$）</h3>
+
+<p><strong>Step 1 — 假設</strong>：$H_0: \beta_1 = 0$；$H_1: \beta_1 \neq 0$</p>
+
+<p><strong>Step 2 — 計算</strong></p>
+<div class="math-block">
+$$s_{b_1} = \sqrt{\frac{\text{MSE}}{S_{xx}}} = \sqrt{\frac{8.374}{77.333}} = 0.329$$
+</div>
+<div class="math-block">
+$$t = \frac{b_1}{s_{b_1}} = \frac{-5.280}{0.329} = -16.046$$
+</div>
+
+<p><strong>Step 3 — 決策</strong>：$df = n - 2 = 13$，$t_{0.025, 13} = 2.160$</p>
+<p>$|t| = 16.046 > 2.160$，p 值 $\approx 0.000$ → <strong>強力拒絕 $H_0$</strong></p>
+
+<p><strong>$\beta_1$ 的 95% 信賴區間：</strong></p>
+<div class="math-block">
+$$-5.280 \pm 2.160 \times 0.329 = -5.280 \pm 0.711 = (-5.991,\; -4.569)$$
+</div>
+
+<p class="note">
+✅ 缺席次數對出席成績有<strong>極為顯著的負向線性影響</strong>（p ≈ 0）。我們有 95% 的信心相信：每多缺席一次，出席成績平均下降 <strong>4.57 到 5.99 分</strong>之間。<br><br>
+💡 <strong>信賴區間的解讀：</strong>此區間完全落在負值，進一步確認缺席次數對成績有顯著的負面影響，與母體真值 $\beta_1 = -6$ 非常接近（但稍高），符合抽樣誤差的預期。
+</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.5 F 檢定 ══════════════ -->
+<h2 id="s165">Section 16.5　F 檢定：迴歸 ANOVA 表</h2>
+
+<p>除了 t 檢定，迴歸模型的整體顯著性也可以用 <strong>F 檢定</strong>（透過迴歸 ANOVA 表）來驗證。</p>
+
+<div class="formula-card">
+<h3>📐 迴歸 ANOVA 表</h3>
+<table class="anova-reg">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr></thead>
+    <tbody>
+        <tr><td>迴歸（Regression）</td><td>SSR</td><td>1</td><td>MSR = SSR/1</td><td>$F = \text{MSR}/\text{MSE}$</td></tr>
+        <tr><td>誤差（Error）</td><td>SSE</td><td>$n-2$</td><td>MSE = SSE/$(n-2)$</td><td></td></tr>
+        <tr><td><strong>總計（Total）</strong></td><td>SST</td><td>$n-1$</td><td></td><td></td></tr>
+    </tbody>
+</table>
+<p class="note">
+<strong>在簡單線性迴歸中，F = t²：</strong>F 檢定與 t 檢定等價——兩者都在檢定 $H_0: \beta_1 = 0$，且 $F = t^2$。到了<strong>複迴歸</strong>，這兩種檢定就不再相同：t 檢定針對個別係數，F 檢定針對「至少有一個 $\beta_j \neq 0$」，這是兩者最重要的區別。
+</p>
+</div>
+
+<div class="example-block">
+<h3>📝 主範例（續）　迴歸 ANOVA 表</h3>
+<table class="anova-reg">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p 值</th></tr></thead>
+    <tbody>
+        <tr><td>迴歸</td><td>2156.07</td><td>1</td><td>2156.07</td><td>257.47</td><td>≈ 0.000</td></tr>
+        <tr><td>誤差</td><td>108.86</td><td>13</td><td>8.374</td><td></td><td></td></tr>
+        <tr><td><strong>總計</strong></td><td>2264.93</td><td>14</td><td></td><td></td><td></td></tr>
+    </tbody>
+</table>
+<div class="math-block">
+$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{2156.07}{8.374} = 257.47 = (-16.046)^2 = t^2 \checkmark$$
+</div>
+<p class="note">✅ 驗證 $F = t^2$：$257.47 \approx 16.046^2 = 257.47$ ✓。在簡單迴歸中，t 檢定與 F 檢定完全等價。這個等價關係在複迴歸中將不再成立，屆時 F 檢定會有更獨特的角色。</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.6 預測 ══════════════ -->
+<h2 id="s166">Section 16.6　預測：信賴區間 vs 預測區間</h2>
+
+<p>有了迴歸線，我們可以對新的 $x^*$ 值進行預測。但「預測的不確定性」有兩種，對應兩種不同的區間：</p>
+
+<div class="ci-pi-box">
+<div class="ci-box">
+<h3>🔵 平均值信賴區間（CI for Mean Response）</h3>
+<p>問題：「<strong>所有</strong>缺席 $x^*$ 次的學生，<strong>平均</strong>成績的範圍？」</p>
+<div class="math-block" style="font-size:.9em;">
+$$\hat{y} \pm t_{\alpha/2,n-2} \cdot s_e \sqrt{\frac{1}{n}+\frac{(x^*-\bar{x})^2}{S_{xx}}}$$
+</div>
+<p>估計的是 $E(Y|X=x^*)$ 的位置，<strong>較窄</strong>。</p>
+</div>
+<div class="pi-box">
+<h3>🟠 個別預測區間（PI for Individual）</h3>
+<p>問題：「<strong>某一位</strong>缺席 $x^*$ 次的學生，<strong>這個人</strong>的成績範圍？」</p>
+<div class="math-block" style="font-size:.9em;">
+$$\hat{y} \pm t_{\alpha/2,n-2} \cdot s_e \sqrt{1+\frac{1}{n}+\frac{(x^*-\bar{x})^2}{S_{xx}}}$$
+</div>
+<p>除了平均值的不確定外，還加上個別誤差 $\varepsilon$，<strong>較寬</strong>。</p>
+</div>
+</div>
+
+<div class="highlight">
+<strong>關鍵差異：</strong>PI 比 CI 多了一個 「$1$」在根號下，代表個別觀測值的隨機誤差 $\sigma^2$。CI 的寬度可以隨 $n \to \infty$ 縮為 0，但 PI 即使 $n \to \infty$ 也不會縮為 0（因為個別誤差永遠存在）。
+</div>
+
+<div class="example-block">
+<h3>📝 主範例（續）　預測缺席 3 次的學生成績（$\alpha = 0.05$）</h3>
+
+<p>$x^* = 3$，$\hat{y} = 91.867 - 5.280 \times 3 = 76.027$</p>
+<div class="math-block">
+$$h = \frac{1}{n}+\frac{(x^*-\bar{x})^2}{S_{xx}} = \frac{1}{15}+\frac{(3-3.333)^2}{77.333} = 0.0667+0.00144 = 0.0681$$
+</div>
+
+<div class="two-col">
+<div class="col-box">
+<h3>🔵 平均值 95% CI</h3>
+<div class="math-block" style="font-size:.88em;">
+$$76.027 \pm 2.160 \times 2.894 \times \sqrt{0.0681}$$
+$$= 76.027 \pm 1.630$$
+$$= (74.40,\; 77.66)$$
+</div>
+<p style="font-size:.9em; text-align:center;">缺席 3 次的學生，<strong>平均成績</strong>介於 74.40–77.66 分</p>
+</div>
+<div class="col-box">
+<h3>🟠 個別預測 95% PI</h3>
+<div class="math-block" style="font-size:.88em;">
+$$76.027 \pm 2.160 \times 2.894 \times \sqrt{1+0.0681}$$
+$$= 76.027 \pm 6.460$$
+$$= (69.57,\; 82.49)$$
+</div>
+<p style="font-size:.9em; text-align:center;"><strong>某一位</strong>缺席 3 次的學生，<strong>個人成績</strong>介於 69.57–82.49 分</p>
+</div>
+</div>
+<p class="note">✅ CI 寬度約 3.3 分，PI 寬度約 12.9 分，PI 遠寬於 CI。這反映出：預測個別學生比預測「平均學生」有更大的不確定性——即使我們對迴歸線的估計已經非常準確，個別學生的表現仍受各種隨機因素影響。</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 16.7 殘差分析 ══════════════ -->
+<h2 id="s167">Section 16.7　殘差分析</h2>
+
+<p>迴歸模型的假設條件（LINE）需要透過<strong>殘差分析（Residual Analysis）</strong>來驗證。殘差 $e_i = y_i - \hat{y}_i$ 應表現出隨機性，若有系統性規律則表示假設被違背。</p>
+
+<div class="residual-box">
+<h3>📊 四種殘差圖及其判斷標準</h3>
+
+<div class="two-col" style="margin-top:14px;">
+<div class="col-box">
+<h3>1. 殘差 vs 配適值圖（$e_i$ vs $\hat{y}_i$）</h3>
+<p style="font-size:.9em;">✅ 正常：殘差隨機散佈在 0 附近，無明顯規律<br>
+❌ 問題：呈漏斗狀 → 變異數不齊性（Heteroscedasticity）<br>
+❌ 問題：呈弧形 → 非線性關係，應考慮曲線迴歸</p>
+</div>
+<div class="col-box">
+<h3>2. 殘差 vs X 值圖（$e_i$ vs $x_i$）</h3>
+<p style="font-size:.9em;">✅ 正常：殘差隨機散佈，無趨勢<br>
+❌ 問題：有系統趨勢 → 線性假設可能不成立<br>
+❌ 問題：變異隨 X 增大 → 變異數不齊性</p>
+</div>
+</div>
+<div class="two-col">
+<div class="col-box">
+<h3>3. 殘差常態機率圖（Normal Q-Q Plot）</h3>
+<p style="font-size:.9em;">✅ 正常：殘差接近對角線，呈直線<br>
+❌ 問題：S 形或彎曲 → 誤差不服從常態分配</p>
+</div>
+<div class="col-box">
+<h3>4. 殘差 vs 時間/序號圖</h3>
+<p style="font-size:.9em;">✅ 正常：無系統性循環或趨勢<br>
+❌ 問題：有週期性規律 → 誤差項不獨立（自相關）</p>
+</div>
+</div>
+</div>
+
+<div class="example-block">
+<h3>📝 主範例（續）　缺席範例殘差表</h3>
+<table class="reg-table">
+    <thead><tr><th>$x_i$</th><th>$y_i$</th><th>$\hat{y}_i$</th><th>殘差 $e_i$</th><th>$e_i^2$</th></tr></thead>
+    <tbody>
+        <tr><td>4</td><td>74</td><td>70.75</td><td>+3.25</td><td>10.56</td></tr>
+        <tr><td>3</td><td>72</td><td>76.03</td><td>−4.03</td><td>16.24</td></tr>
+        <tr><td>0</td><td>92</td><td>91.87</td><td>+0.13</td><td>0.02</td></tr>
+        <tr><td>2</td><td>77</td><td>81.31</td><td>−4.31</td><td>18.58</td></tr>
+        <tr><td>5</td><td>68</td><td>65.47</td><td>+2.53</td><td>6.40</td></tr>
+        <tr><td>5</td><td>64</td><td>65.47</td><td>−1.47</td><td>2.16</td></tr>
+        <tr><td>7</td><td>58</td><td>54.91</td><td>+3.09</td><td>9.55</td></tr>
+        <tr><td>1</td><td>85</td><td>86.59</td><td>−1.59</td><td>2.53</td></tr>
+        <tr><td>3</td><td>77</td><td>76.03</td><td>+0.97</td><td>0.94</td></tr>
+        <tr><td>6</td><td>61</td><td>60.19</td><td>+0.81</td><td>0.66</td></tr>
+        <tr><td>7</td><td>51</td><td>54.91</td><td>−3.91</td><td>15.29</td></tr>
+        <tr><td>1</td><td>88</td><td>86.59</td><td>+1.41</td><td>1.99</td></tr>
+        <tr><td>0</td><td>96</td><td>91.87</td><td>+4.13</td><td>17.06</td></tr>
+        <tr><td>4</td><td>72</td><td>70.75</td><td>+1.25</td><td>1.56</td></tr>
+        <tr><td>2</td><td>79</td><td>81.31</td><td>−2.31</td><td>5.34</td></tr>
+        <tr><th>合計</th><th>—</th><th>—</th><th>≈ 0</th><th>108.88 = SSE</th></tr>
+    </tbody>
+</table>
+<p class="note">
+✅ 殘差之和 ≈ 0（OLS 性質），殘差絕對值均在 5 分以下，無明顯系統性規律。殘差隨機散佈在正負兩側，初步符合線性迴歸假設。<br>
+（完整驗證需搭配殘差圖，可用 Excel 或 Python 繪製。）
+</p>
+</div>
+
+<hr>
+
+<!-- ══════════════ 互動計算機 ══════════════ -->
+<h2 id="calc">🔢 互動計算機</h2>
+
+<div class="calc-box">
+<h3>🔢 簡單線性迴歸全功能計算機</h3>
+<p style="font-size:.9em; margin-bottom:10px;">輸入 X 與 Y 的樣本值（以逗號分隔，筆數相同），自動計算 OLS 估計、$R^2$、t 檢定、F 檢定，並可輸入 $x^*$ 計算信賴區間與預測區間。</p>
+<div class="inputs-row">
+    <label style="flex:1; min-width:260px;">X 值（逗號分隔）<br>
+        <input type="text" id="reg-x" value="4,3,0,2,5,5,7,1,3,6,7,1,0,4,2" style="width:100%; max-width:420px;">
+    </label>
+    <label style="flex:1; min-width:260px;">Y 值（逗號分隔）<br>
+        <input type="text" id="reg-y" value="74,72,92,77,68,64,58,85,77,61,51,88,96,72,79" style="width:100%; max-width:420px;">
+    </label>
+</div>
+<div class="inputs-row" style="margin-top:8px;">
+    <label>預測 $x^*$<br><input type="number" id="reg-xstar" value="3" step="any"></label>
+    <label>$\alpha$<br><input type="number" id="reg-alpha" value="0.05" step="0.01" min="0.01" max="0.2"></label>
+</div>
+<button onclick="calcRegression()">Calculate</button>
+<div class="calc-result" id="reg-result"></div>
+</div>
+
+<hr>
+
+<!-- ══════════════ Quiz ══════════════ -->
+<div class="quiz-section" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+<p>Q1. 在主範例中，母體斜率 $\beta_1 = -6$，而樣本估計值 $b_1 = -5.280$。這個差距說明了什麼？</p>
+<label><input type="radio" name="q1" value="a"> A. 迴歸模型計算有誤</label>
+<label><input type="radio" name="q1" value="b"> B. 這是正常的抽樣誤差，不同樣本會得到不同的 $b_1$，但期望值為 $\beta_1$</label>
+<label><input type="radio" name="q1" value="c"> C. 應增加更多變數讓模型更準確</label>
+<label><input type="radio" name="q1" value="d"> D. $\beta_1$ 的真值其實是 −5.280</label>
+<button onclick="checkQ('q1','b','✅ 正確！$b_1$ 是 $\\beta_1$ 的不偏估計量（Unbiased Estimator），即 $E(b_1) = \\beta_1$。但任何一次樣本的估計值因抽樣誤差而與真值有差距，這是統計估計的本質。')">Submit</button>
+<div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+<p>Q2. 研發支出範例中 $R^2 = 0.817$，這代表什麼意思？</p>
+<label><input type="radio" name="q2" value="a"> A. 研發支出與營收的相關係數為 0.817</label>
+<label><input type="radio" name="q2" value="b"> B. 迴歸模型有 81.7% 的機率是正確的</label>
+<label><input type="radio" name="q2" value="c"> C. 研發支出（X）解釋了營收（Y）總變異的 81.7%</label>
+<label><input type="radio" name="q2" value="d"> D. 81.7% 的資料點落在迴歸線上</label>
+<button onclick="checkQ('q2','c','✅ 正確！$R^2 = \\text{SSR}/\\text{SST}$ 代表自變數 X 能「解釋」Y 的總變異比例。剩餘的 18.3% 由其他未納入的因素或隨機誤差造成。')">Submit</button>
+<div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+<p>Q3. 在缺席範例中，為什麼個別預測區間（PI）比平均值信賴區間（CI）寬？</p>
+<label><input type="radio" name="q3" value="a"> A. 因為 PI 使用更大的 $\alpha$</label>
+<label><input type="radio" name="q3" value="b"> B. 因為 PI 除了對迴歸線位置的不確定外，還要加上個別學生自身的隨機誤差 $\sigma^2$</label>
+<label><input type="radio" name="q3" value="c"> C. 因為 PI 的自由度更小</label>
+<label><input type="radio" name="q3" value="d"> D. 兩者應該一樣寬</label>
+<button onclick="checkQ('q3','b','✅ 正確！CI 只需估計「平均成績的位置」，PI 還需考慮「某一個人相對於平均值的隨機偏差」。PI 的根號下多了「1」，即使 $n \\to \\infty$ 使 CI 趨近於點估計，PI 仍有 $\\pm z_{\\alpha/2} \\cdot \\sigma$ 的最小寬度。')">Submit</button>
+<div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+<p>Q4. 在簡單迴歸中，t 檢定（$H_0: \beta_1=0$）和 F 檢定（ANOVA）的關係為何？</p>
+<label><input type="radio" name="q4" value="a"> A. F 比 t 更嚴格，所以應優先使用 F 檢定</label>
+<label><input type="radio" name="q4" value="b"> B. 兩者等價，$F = t^2$，結論完全相同</label>
+<label><input type="radio" name="q4" value="c"> C. t 檢定適用於斜率，F 檢定適用於截距</label>
+<label><input type="radio" name="q4" value="d"> D. 兩者在複迴歸中也相同</label>
+<button onclick="checkQ('q4','b','✅ 正確！在簡單迴歸中，$F = t^2$，兩者等價。但在複迴歸中，t 檢定是對每個係數個別檢定，F 檢定是對「整體模型」（所有係數同時）的檢定，兩者就不再等價——這是複迴歸中重要的概念分岔點。')">Submit</button>
+<div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+<p>Q5. 殘差分析中，若殘差對配適值圖呈現「漏斗形」（隨 $\hat{y}$ 增大而殘差散布範圍也增大），違反了哪項假設？</p>
+<label><input type="radio" name="q5" value="a"> A. 線性假設（Linearity）</label>
+<label><input type="radio" name="q5" value="b"> B. 獨立性假設（Independence）</label>
+<label><input type="radio" name="q5" value="c"> C. 變異數齊性假設（Equal Variance / Homoscedasticity）</label>
+<label><input type="radio" name="q5" value="d"> D. 常態性假設（Normality）</label>
+<button onclick="checkQ('q5','c','✅ 正確！漏斗形殘差圖表示誤差的變異數隨 X（或 $\\hat{y}$）增大而擴大，違反了「各 X 值下變異數相等（Homoscedasticity）」的假設。這種現象稱為異方差性（Heteroscedasticity），可能需要對 Y 做對數轉換處理。')">Submit</button>
+<div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- ══════════════ Exercises ══════════════ -->
+<h2 id="exercises">📚 Exercises</h2>
+
+<ol class="exercises-list">
+
+<!-- Ex 1 年資月薪 -->
+<li>
+<strong>Ex 1　年資與月薪（基本 OLS 與 t 檢定）</strong>
+<p>人力資源部門想瞭解員工年資（$X$，年）是否能預測月薪（$Y$，千元）。隨機抽取 6 位員工資料如下：</p>
+<table>
+    <thead><tr><th>年資 $x$</th><th>3</th><th>4</th><th>5</th><th>7</th><th>2</th><th>3</th></tr></thead>
+    <tbody><tr><td>月薪 $y$（千元）</td><td>32</td><td>40</td><td>47</td><td>46</td><td>36</td><td>45</td></tr></tbody>
+</table>
+<p>a. 計算 OLS 估計迴歸線 $\hat{y} = b_0 + b_1 x$。</p>
+<p>b. 計算 $R^2$ 並解釋其意義。</p>
+<p>c. 在 $\alpha = 0.05$ 下，對 $\beta_1$ 進行 t 檢定，判斷年資對月薪是否有顯著線性影響。</p>
+<p>d. 討論：$R^2$ 偏低代表什麼含義？</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)</strong>　$\bar{x}=4, \bar{y}=41$</p>
+<div class="math-block">
+$$S_{xx}=\sum(x_i-4)^2=(3-4)^2+(4-4)^2+(5-4)^2+(7-4)^2+(2-4)^2+(3-4)^2=1+0+1+9+4+1=16$$
+$$S_{xy}=\sum(x_i-4)(y_i-41)=(-1)(-9)+(0)(-1)+(1)(6)+(3)(5)+(-2)(-5)+(-1)(4)=9+0+6+15+10-4=36$$
+$$b_1=\frac{36}{16}=2.25,\quad b_0=41-2.25\times4=32$$
+$$\hat{y}=32+2.25\,x$$
+</div>
+
+<p><strong>Part (b)</strong></p>
+<div class="math-block">
+$$\text{SST}=(-9)^2+(-1)^2+6^2+5^2+(-5)^2+4^2=81+1+36+25+25+16=184$$
+$$\text{SSR}=b_1 \cdot S_{xy}=2.25\times36=81, \quad \text{SSE}=184-81=103$$
+$$R^2=\frac{81}{184}=0.440$$
+</div>
+<p>年資僅解釋了月薪變異的 <strong>44.0%</strong>，配適度偏低。</p>
+
+<p><strong>Part (c)</strong>　$df = n-2 = 4$，$t_{0.025,4} = 2.776$</p>
+<div class="math-block">
+$$\text{MSE}=\frac{103}{4}=25.75,\quad s_{b_1}=\sqrt{\frac{25.75}{16}}=1.269,\quad t=\frac{2.25}{1.269}=1.773$$
+</div>
+<p>$|t|=1.773 < 2.776$，p 值 $\approx 0.151 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p class="note">
+❌ 在 $\alpha=0.05$ 下，<strong>沒有</strong>充分的統計證據推論年資對月薪有顯著線性影響。<br><br>
+<strong>Part (d) 討論：</strong>$R^2 = 0.44$ 偏低，且 $\beta_1$ 不顯著，表示：
+<ul style="margin-top:6px;">
+    <li>年資以外的因素（職位、學歷、部門、績效等）對月薪有更大的解釋力</li>
+    <li>樣本數 $n=6$ 非常小，統計力（Power）低，即使效果存在也可能無法偵測</li>
+    <li>若要更可靠的結論，需要更大的樣本，或引入更多變數（複迴歸）</li>
+</ul>
+</p>
+</div>
+</details>
+</li>
+
+<!-- Ex 2 身高遺傳 -->
+<li>
+<strong>Ex 2　身高遺傳：父母平均身高能預測子女身高嗎？</strong>
+<p>研究者蒐集 10 組男性成年子女的父母平均身高（$X$，公分）與子女身高（$Y$，公分）資料：</p>
+<table>
+    <thead><tr><th>父母平均 $x$</th><th>162</th><th>164</th><th>166</th><th>168</th><th>170</th><th>170</th><th>172</th><th>174</th><th>176</th><th>178</th></tr></thead>
+    <tbody><tr><td>子女身高 $y$</td><td>170</td><td>168</td><td>174</td><td>172</td><td>176</td><td>176</td><td>176</td><td>182</td><td>180</td><td>186</td></tr></tbody>
+</table>
+<p>a. 計算迴歸線 $\hat{y} = b_0 + b_1 x$，並解釋 $b_1$ 的含義。</p>
+<p>b. 計算 $R^2$，說明配適度。</p>
+<p>c. 在 $\alpha = 0.05$ 下，$\beta_1$ 是否顯著？（$t_{0.025,8} = 2.306$）</p>
+<p>d. 預測：父母平均身高 175 公分的家庭，男性子女身高的點估計為何？</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)</strong>　$n=10$，$\bar{x} = 1700/10 = \mathbf{170}$，$\bar{y} = 1760/10 = \mathbf{176}$</p>
+<div class="math-block">
+$$S_{xx} = (-8)^2+(-6)^2+(-4)^2+(-2)^2+0^2+0^2+2^2+4^2+6^2+8^2 = 240$$
+$$S_{xy} = (-8)(170-176)+(-6)(168-176)+\cdots+(8)(186-176)$$
+$$= (-8)(-6)+(-6)(-8)+(-4)(-2)+(-2)(-4)+(0)(0)+(0)(0)+(2)(0)+(4)(6)+(6)(4)+(8)(10) = 240$$
+$$b_1 = \frac{240}{240} = \mathbf{1.000}, \quad b_0 = 176 - 1.000 \times 170 = \mathbf{6}$$
+$$\hat{y} = 6 + 1.000\,x$$
+</div>
+<p><strong>$b_1$ 的解釋：</strong>父母平均身高每增加 1 公分，男性子女身高預期增加 <strong>1.00 公分</strong>（等於母體真值）。</p>
+
+<p><strong>Part (b)</strong></p>
+<div class="math-block">
+$$\text{SST} = 6^2+8^2+2^2+4^2+0^2+0^2+0^2+6^2+4^2+10^2 = 272$$
+$$\text{SSR} = b_1 \cdot S_{xy} = 1.000 \times 240 = 240, \quad \text{SSE} = 272-240 = 32$$
+$$R^2 = \frac{240}{272} = 0.882$$
+</div>
+<p>父母平均身高解釋了子女身高變異的 <strong>88.2%</strong>，配適度高。</p>
+
+<p><strong>Part (c)</strong></p>
+<div class="math-block">
+$$\text{MSE} = \frac{32}{8} = 4, \quad s_e = \sqrt{4} = 2, \quad s_{b_1} = \frac{s_e}{\sqrt{S_{xx}}} = \frac{2}{\sqrt{240}} = 0.1291$$
+$$t = \frac{1.000}{0.1291} = 7.746, \quad df=8, \quad t_{0.025,8}=2.306$$
+</div>
+<p>$|t| = 7.746 \gg 2.306$ → <strong>強力拒絕 $H_0$</strong>，父母平均身高對子女身高有極顯著影響。</p>
+
+<p><strong>Part (d)</strong>　$\hat{y} = 6 + 1.000 \times 175 = \mathbf{181}$ 公分</p>
+
+<p class="note">✅ 身高遺傳效應顯著（$p \approx 0$）。此例 $b_1 = 1.000$ 剛好等於母體真值——這是巧合（抽樣設計使然），實務上估計值與真值不會完全相同。$s_e = 2$ 公分表示典型預測誤差約 ±2 公分。</p>
+</div>
+</details>
+</li>
+
+<!-- Ex 3 CAPM -->
+<li>
+<strong>Ex 3　CAPM 市場模型（$\beta$ 係數估計）</strong>
+<p>Capital Asset Pricing Model（CAPM）的<strong>市場模型</strong>為：</p>
+<div class="math-block">
+$$R_i = \alpha + \beta \cdot R_m + \varepsilon$$
+</div>
+<p>其中 $R_m$ 為市場月報酬率（%），$R_i$ 為個股月報酬率（%），$\beta$ 衡量個股對市場波動的敏感度（$\beta > 1$ 為積極型股票）。以下為某科技股連續 12 個月的資料（整數，便於計算）：</p>
+<table>
+    <thead><tr><th>月份</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th></tr></thead>
+    <tbody>
+        <tr><td>市場 $R_m$</td><td>−3</td><td>−2</td><td>−1</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>3</td><td>3</td><td>4</td><td>2</td></tr>
+        <tr><td>個股 $R_i$</td><td>−2</td><td>−3</td><td>1</td><td>0</td><td>2</td><td>0</td><td>4</td><td>2</td><td>5</td><td>7</td><td>5</td><td>3</td></tr>
+    </tbody>
+</table>
+<p>a. 估計市場模型，求 $\hat{\alpha}$（$b_0$）和 $\hat{\beta}$（$b_1$）。（提示：$\bar{R}_m = 1$，$\bar{R}_i = 2$，$S_{xx} = 50$）</p>
+<p>b. 計算 $R^2$，說明市場因子對個股報酬的解釋力。</p>
+<p>c. 在 $\alpha = 0.05$ 下，$\beta$ 是否顯著？說明此股票特性。（$t_{0.025,10} = 2.228$）</p>
+<p>d. 解釋 $\hat{\alpha}$ 在 CAPM 中的經濟意涵。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)</strong>　$n=12$，$\bar{R}_m = 12/12 = \mathbf{1}$，$\bar{R}_i = 24/12 = \mathbf{2}$，$S_{xx} = \mathbf{50}$</p>
+<div class="math-block">
+$$S_{xy} = \sum(R_{m,i}-1)(R_{i,i}-2) = (-4)(-4)+(-3)(-5)+(-2)(-1)+(-1)(-2)+0+(-1)(0-2)+\cdots = 63$$
+</div>
+<div class="math-block">
+$$\hat{\beta} = b_1 = \frac{S_{xy}}{S_{xx}} = \frac{63}{50} = 1.26, \quad \hat{\alpha} = b_0 = 2 - 1.26 \times 1 = 0.74$$
+$$\hat{R}_i = 0.74 + 1.26\, R_m$$
+</div>
+
+<p><strong>Part (b)</strong></p>
+<div class="math-block">
+$$\text{SST} = 98,\quad \text{SSR} = b_1 \cdot S_{xy} = 1.26 \times 63 = 79.38,\quad \text{SSE} = 18.62$$
+$$R^2 = \frac{79.38}{98} = 0.810$$
+</div>
+<p>市場因子解釋了個股報酬率變異的 <strong>81.0%</strong>，市場系統性風險是此股票報酬的主要驅動力。</p>
+
+<p><strong>Part (c)</strong></p>
+<div class="math-block">
+$$\text{MSE} = \frac{18.62}{10} = 1.862,\quad s_{b_1} = \sqrt{\frac{1.862}{50}} = 0.193$$
+$$t = \frac{1.26}{0.193} = 6.53,\quad df=10,\quad t_{0.025,10}=2.228$$
+</div>
+<p>$|t| = 6.53 \gg 2.228$ → <strong>強力拒絕 $H_0$</strong></p>
+<p>$\hat{\beta} = 1.26 > 1$：此股票為<strong>積極型股票（Aggressive Stock）</strong>，市場每上漲 1%，此股票預期上漲 1.26%；市場每下跌 1%，此股票預期下跌 1.26%，系統性風險高於大盤。</p>
+
+<p><strong>Part (d) $\hat{\alpha}$ 的經濟意涵：</strong></p>
+<p>$\hat{\alpha} = 0.74\%$：在控制市場因子後，此股票平均每月仍有 0.74% 的「超額報酬」（Jensen's Alpha）。CAPM 理論預測 $\alpha = 0$（市場完全有效），$\hat{\alpha} > 0$ 暗示此股票可能被低估或具有非系統性優勢，對投資者是正面訊號。</p>
+
+<p class="note">✅ $\hat{\beta} = 1.26$ 顯著大於 1，適合風險偏好型投資人。$R^2 = 0.81$ 顯示除市場因子外，仍有約 19% 的個股特有風險（公司特定事件等）無法被市場因子解釋。</p>
+</div>
+</details>
+</li>
+
+<!-- Ex 4 廣告費銷售額 + 殘差分析 -->
+<li>
+<strong>Ex 4　廣告費與銷售額（全流程 + 殘差分析）</strong>
+<p>某連鎖品牌在 10 個城市投放廣告費（$X$，萬元）並記錄當月銷售額（$Y$，萬元）：</p>
+<table>
+    <thead><tr><th>城市</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr></thead>
+    <tbody>
+        <tr><td>廣告費 $x$</td><td>6</td><td>9</td><td>12</td><td>12</td><td>15</td><td>15</td><td>18</td><td>18</td><td>21</td><td>24</td></tr>
+        <tr><td>銷售額 $y$</td><td>14</td><td>19</td><td>25</td><td>25</td><td>29</td><td>30</td><td>35</td><td>35</td><td>42</td><td>46</td></tr>
+    </tbody>
+</table>
+<p>（提示：$\bar{x} = 15$，$\bar{y} = 30$，$S_{xx} = 270$）</p>
+<p>a. 求估計迴歸線並建立 ANOVA 表。</p>
+<p>b. 計算 $R^2$，判斷廣告費的解釋力。</p>
+<p>c. 在 $\alpha = 0.05$ 下，同時以 t 檢定與 F 檢定判斷廣告費是否有顯著影響，並驗證 $F = t^2$。（$t_{0.025,8} = 2.306$）</p>
+<p>d. 預測廣告費投入 18 萬元時，銷售額的點估計與 95% 預測區間。</p>
+<p>e. 計算各城市殘差，初步判斷殘差是否有系統性規律。</p>
+<details>
+<summary>▶ 點此展開解答</summary>
+<div>
+<p><strong>Part (a)</strong>　$n=10$，$\bar{x}=\mathbf{15}$，$\bar{y}=\mathbf{30}$，$S_{xx}=\mathbf{270}$</p>
+<div class="math-block">
+$$S_{xy} = \sum(x_i-15)(y_i-30)$$
+$$=(-9)(14-30)+(-6)(19-30)+(-3)(25-30)+(-3)(25-30)+(0)(-1)+(0)(0)+(3)(5)+(3)(5)+(6)(12)+(9)(16)$$
+$$= 144+66+15+15+0+0+15+15+72+144 = 486$$
+$$b_1 = \frac{486}{270} = \mathbf{1.8}, \quad b_0 = 30 - 1.8 \times 15 = \mathbf{3}$$
+$$\hat{y} = 3 + 1.8\,x$$
+</div>
+<table class="anova-reg">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr></thead>
+    <tbody>
+        <tr><td>迴歸</td><td>874.8</td><td>1</td><td>874.8</td><td>2187</td></tr>
+        <tr><td>誤差</td><td>3.2</td><td>8</td><td>0.40</td><td></td></tr>
+        <tr><td>總計</td><td>878.0</td><td>9</td><td></td><td></td></tr>
+    </tbody>
+</table>
+<p>（$\text{SSR} = b_1 \cdot S_{xy} = 1.8 \times 486 = 874.8$；$\text{SST} = \sum(y_i-30)^2 = 256+121+25+25+1+0+25+25+144+256 = 878$；$\text{SSE} = 878-874.8 = 3.2$）</p>
+
+<p><strong>Part (b)</strong>　$R^2 = 874.8/878 = \mathbf{0.996}$，廣告費解釋了銷售額變異的 <strong>99.6%</strong>，配適度極高。</p>
+
+<p><strong>Part (c)</strong></p>
+<div class="math-block">
+$$s_e = \sqrt{\text{MSE}} = \sqrt{0.40} = 0.632, \quad s_{b_1} = \frac{0.632}{\sqrt{270}} = 0.0385$$
+$$t = \frac{1.8}{0.0385} = 46.8, \quad F = \frac{874.8}{0.40} = 2187$$
+$$\text{驗證：}\; F = 2187 \approx 46.8^2 = 2190 \;\checkmark$$
+</div>
+<p>$|t| = 46.8 \gg 2.306$ → <strong>強力拒絕 $H_0$</strong>，廣告費對銷售額有極顯著正向影響。</p>
+
+<p><strong>Part (d)</strong>　$x^* = 18$，$\hat{y} = 3 + 1.8 \times 18 = \mathbf{35.4}$ 萬元</p>
+<div class="math-block">
+$$h = \frac{1}{10} + \frac{(18-15)^2}{270} = 0.100 + 0.033 = 0.133$$
+$$\text{PI: } 35.4 \pm 2.306 \times 0.632 \times \sqrt{1+0.133} = 35.4 \pm 1.55 = (\mathbf{33.85},\; \mathbf{36.95})$$
+</div>
+
+<p><strong>Part (e) 殘差：</strong></p>
+<table class="reg-table" style="font-size:.88em;">
+    <thead><tr><th>$x_i$</th><th>$y_i$</th><th>$\hat{y}_i=3+1.8x_i$</th><th>$e_i=y_i-\hat{y}_i$</th></tr></thead>
+    <tbody>
+        <tr><td>6</td><td>14</td><td>13.8</td><td>+0.2</td></tr>
+        <tr><td>9</td><td>19</td><td>19.2</td><td>−0.2</td></tr>
+        <tr><td>12</td><td>25</td><td>24.6</td><td>+0.4</td></tr>
+        <tr><td>12</td><td>25</td><td>24.6</td><td>+0.4</td></tr>
+        <tr><td>15</td><td>29</td><td>30.0</td><td>−1.0</td></tr>
+        <tr><td>15</td><td>30</td><td>30.0</td><td>0.0</td></tr>
+        <tr><td>18</td><td>35</td><td>35.4</td><td>−0.4</td></tr>
+        <tr><td>18</td><td>35</td><td>35.4</td><td>−0.4</td></tr>
+        <tr><td>21</td><td>42</td><td>40.8</td><td>+1.2</td></tr>
+        <tr><td>24</td><td>46</td><td>46.2</td><td>−0.2</td></tr>
+    </tbody>
+</table>
+<p class="note">✅ 殘差均在 ±1.2 萬以內，正負分佈無明顯規律，符合迴歸假設。此例 $b_1 = 1.8$ 剛好是整數，$b_0 = 3$ 也是整數，$S_{xx} = 270$ 是乾淨的數字，計算過程非常流暢。</p>
+</div>
+</details>
+</li>
+
+</ol>
+
+<hr>
+
+<!-- ══════════════ Summary ══════════════ -->
+<div class="summary" id="summary">
+<h2>📖 Chapter 16 Summary</h2>
+
+<table style="color:#d8e8f8;font-size:.87em;margin-top:16px;">
+    <thead>
+        <tr style="background:#0a2040;">
+            <th style="color:#a8d0f8;">主題</th>
+            <th style="color:#a8d0f8;">核心公式</th>
+            <th style="color:#a8d0f8;">重點</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>母體模型</td><td>$Y=\beta_0+\beta_1 X+\varepsilon$</td><td>$\beta_0,\beta_1$ 未知；$\varepsilon\sim N(0,\sigma^2)$；LINE 假設</td></tr>
+        <tr><td>OLS 估計</td><td>$b_1=S_{xy}/S_{xx}$，$b_0=\bar{y}-b_1\bar{x}$</td><td>$b_0\approx\beta_0$，$b_1\approx\beta_1$，差距來自抽樣誤差</td></tr>
+        <tr><td>變異分解</td><td>SST = SSR + SSE</td><td>$R^2=\text{SSR}/\text{SST}$，$s_e=\sqrt{\text{MSE}}$，$df=n-2$</td></tr>
+        <tr><td>t 檢定</td><td>$t=b_1/s_{b_1}\sim t_{n-2}$</td><td>$H_0:\beta_1=0$；$s_{b_1}=s_e/\sqrt{S_{xx}}$</td></tr>
+        <tr><td>F 檢定（ANOVA）</td><td>$F=\text{MSR}/\text{MSE}$</td><td>簡單迴歸：$F=t^2$，等價；複迴歸：不再等價</td></tr>
+        <tr><td>CI（平均值）</td><td>$\hat{y}\pm t\cdot s_e\sqrt{h}$</td><td>估計 $E(Y|X=x^*)$ 的區間，較窄</td></tr>
+        <tr><td>PI（個別）</td><td>$\hat{y}\pm t\cdot s_e\sqrt{1+h}$</td><td>預測個別觀測值，永遠比 CI 寬</td></tr>
+        <tr><td>殘差分析</td><td>$e_i=y_i-\hat{y}_i$</td><td>檢驗 LINE；漏斗→異方差；弧形→非線性</td></tr>
+    </tbody>
+</table>
+
+<ul style="margin-top:16px;">
+    <li><strong>母體 vs 樣本：</strong>$\beta_0, \beta_1$ 是未知的真值；$b_0, b_1$ 是從樣本估計的，因抽樣誤差而與真值有差距。</li>
+    <li><strong>$R^2$ 的限制：</strong>高 $R^2$ 不代表因果關係；低 $R^2$ 不一定代表關係不重要（也可能是非線性或樣本小）。</li>
+    <li><strong>簡單 vs 複迴歸的分岔點：</strong>在簡單迴歸中 $F = t^2$，兩種檢定完全等價；在複迴歸中，t 檢定是<strong>個別係數</strong>的檢定，F 檢定是<strong>整體模型</strong>的檢定，兩者獨立且都不可省略。</li>
+    <li><strong>PI > CI 永遠成立：</strong>根號下多一個「1」，個別預測的不確定性永遠大於平均值估計。</li>
+</ul>
+</div>
+
+<script>
+/* ── Quiz ── */
+function checkQ(name,correct,explanation){
+    const sel=document.querySelector(`input[name="${name}"]:checked`);
+    const fb=document.getElementById(`${name}-fb`);
+    if(!sel){fb.textContent='⚠️ 請選擇一個答案！';fb.className='quiz-feedback incorrect';fb.style.display='block';return;}
+    fb.textContent=sel.value===correct?explanation:`❌ 答錯了！正確是 ${correct.toUpperCase()}。${explanation}`;
+    fb.className=sel.value===correct?'quiz-feedback correct':'quiz-feedback incorrect';
+    fb.style.display='block';
+}
+
+/* ── Regression Calculator ── */
+function gammln(xx){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,1.208650973866179e-3,-5.395239384953e-6];let y=xx,x=xx,tmp=x+5.5;tmp-=(x+0.5)*Math.log(tmp);let ser=1.000000000190015;for(let j=0;j<6;j++)ser+=c[j]/++y;return -tmp+Math.log(2.5066282746310005*ser/x);}
+function betacf(a,b,x){const MAXIT=200,EPS=3e-7,FPMIN=1e-30;const qab=a+b,qap=a+1,qam=a-1;let c=1,d=1-qab*x/qap;if(Math.abs(d)<FPMIN)d=FPMIN;d=1/d;let h=d;for(let m=1;m<=MAXIT;m++){const m2=2*m;let aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;if(Math.abs(d*c-1)<EPS)break;}return h;}
+function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;const lb=gammln(a)+gammln(b)-gammln(a+b);const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lb);return x<(a+1)/(a+b+2)?front*betacf(a,b,x)/a:1-front*betacf(b,a,1-x)/b;}
+function tPval2(t,df){return 2*betai(df/2,0.5,df/(df+t*t));}
+function tCrit(alpha,df){let lo=0,hi=20;for(let i=0;i<100;i++){const m=(lo+hi)/2;if(2*betai(df/2,0.5,df/(df+m*m))>alpha)lo=m;else hi=m;}return(lo+hi)/2;}
+function fPval(F,df1,df2){const x=df2/(df2+df1*F);return betai(df2/2,df1/2,x);}
+
+function calcRegression(){
+    const xs=document.getElementById('reg-x').value.split(',').map(Number);
+    const ys=document.getElementById('reg-y').value.split(',').map(Number);
+    const xstar=parseFloat(document.getElementById('reg-xstar').value);
+    const alpha=parseFloat(document.getElementById('reg-alpha').value);
+    const res=document.getElementById('reg-result');
+    if(xs.length!==ys.length||xs.length<3){res.textContent='⚠️ X 與 Y 筆數需相同且至少 3 筆！';res.style.display='block';return;}
+    const n=xs.length;
+    const xbar=xs.reduce((a,b)=>a+b)/n;
+    const ybar=ys.reduce((a,b)=>a+b)/n;
+    const Sxx=xs.reduce((s,x)=>s+(x-xbar)**2,0);
+    const Sxy=xs.reduce((s,x,i)=>s+(x-xbar)*(ys[i]-ybar),0);
+    const b1=Sxy/Sxx, b0=ybar-b1*xbar;
+    const yhats=xs.map(x=>b0+b1*x);
+    const SST=ys.reduce((s,y)=>s+(y-ybar)**2,0);
+    const SSR=yhats.reduce((s,yh)=>s+(yh-ybar)**2,0);
+    const SSE=ys.reduce((s,y,i)=>s+(y-yhats[i])**2,0);
+    const MSE=SSE/(n-2), se=Math.sqrt(MSE);
+    const R2=SSR/SST;
+    const sb1=Math.sqrt(MSE/Sxx);
+    const sb0=Math.sqrt(MSE*(1/n+xbar**2/Sxx));
+    const tb1=b1/sb1, tb0=b0/sb0;
+    const pv_b1=tPval2(tb1,n-2), pv_b0=tPval2(tb0,n-2);
+    const F=SSR/MSE, pv_F=fPval(F,1,n-2);
+    const tc=tCrit(alpha,n-2);
+    const CI_b1=[b1-tc*sb1, b1+tc*sb1];
+
+    // Prediction
+    const yhat_p=b0+b1*xstar;
+    const h=1/n+(xstar-xbar)**2/Sxx;
+    const CI_half=tc*se*Math.sqrt(h);
+    const PI_half=tc*se*Math.sqrt(1+h);
+
+    res.innerHTML=
+`─── OLS 估計 ───────────────────────────────
+n = ${n},  x̄ = ${xbar.toFixed(4)},  ȳ = ${ybar.toFixed(4)}
+Sxx = ${Sxx.toFixed(4)},  Sxy = ${Sxy.toFixed(4)}
+
+b₁ = ${b1.toFixed(4)},  b₀ = ${b0.toFixed(4)}
+ŷ = ${b0.toFixed(4)} + ${b1.toFixed(4)} · x
+
+─── 變異分解 ─────────────────────────────────
+SST = ${SST.toFixed(4)},  SSR = ${SSR.toFixed(4)},  SSE = ${SSE.toFixed(4)}
+R² = ${R2.toFixed(4)},  s_e = ${se.toFixed(4)}
+
+─── 推論（α = ${alpha}） ──────────────────────────
+         係數      標準誤     t 統計量   p 值
+b₀  ${b0.toFixed(4).padStart(10)}  ${sb0.toFixed(4).padStart(8)}  ${tb0.toFixed(4).padStart(10)}  ${pv_b0.toFixed(4)}
+b₁  ${b1.toFixed(4).padStart(10)}  ${sb1.toFixed(4).padStart(8)}  ${tb1.toFixed(4).padStart(10)}  ${pv_b1.toFixed(4)}  ${pv_b1<alpha?'← 顯著':'← 不顯著'}
+
+${(1-alpha)*100}% CI for β₁: (${CI_b1[0].toFixed(4)}, ${CI_b1[1].toFixed(4)})
+
+─── ANOVA 表 ──────────────────────────────────
+來源      SS          df   MS          F        p 值
+迴歸  ${SSR.toFixed(4).padStart(11)} ${String(1).padStart(4)} ${SSR.toFixed(4).padStart(11)} ${F.toFixed(3).padStart(7)}  ${pv_F.toFixed(4)}  ${pv_F<alpha?'← 顯著':'← 不顯著'}
+誤差  ${SSE.toFixed(4).padStart(11)} ${String(n-2).padStart(4)} ${MSE.toFixed(4).padStart(11)}
+總計  ${SST.toFixed(4).padStart(11)} ${String(n-1).padStart(4)}
+
+驗證：F = ${F.toFixed(3)},  t² = ${(tb1**2).toFixed(3)}  ${Math.abs(F-(tb1**2))<0.05?'✓ F = t²':''}
+
+─── 預測（x* = ${xstar}） ──────────────────────────
+ŷ = ${yhat_p.toFixed(4)},  h = ${h.toFixed(4)}
+
+${(1-alpha)*100}% 平均值 CI: (${(yhat_p-CI_half).toFixed(3)}, ${(yhat_p+CI_half).toFixed(3)})
+${(1-alpha)*100}% 個別 PI:   (${(yhat_p-PI_half).toFixed(3)}, ${(yhat_p+PI_half).toFixed(3)})
+
+─── 殘差 ─────────────────────────────────────
+${ xs.map((x,i)=>`x=${x.toString().padStart(4)},  y=${ys[i].toString().padStart(5)},  ŷ=${yhats[i].toFixed(2).padStart(7)},  e=${(ys[i]-yhats[i]).toFixed(3).padStart(8)}`).join('\n') }`;
+    res.style.display='block';
+}
+</script>
+
+</body>
+</html>

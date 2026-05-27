@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡方分配與 F 分配教學講義</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f6f4;
+    --bg-tertiary: #eeede9;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --border-light: rgba(0,0,0,0.10);
+    --border-mid: rgba(0,0,0,0.18);
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --blue-dark: #0C447C;
+    --blue-mid: #185FA5;
+    --green: #639922;
+    --green-light: #EAF3DE;
+    --green-dark: #27500A;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-dark: #412402;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --info-bg: #E6F1FB;
+    --info-text: #0C447C;
+    --info-border: #B5D4F4;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #272725;
+      --bg-tertiary: #2e2e2c;
+      --text-primary: #e8e6de;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --border-light: rgba(255,255,255,0.08);
+      --border-mid: rgba(255,255,255,0.15);
+      --blue-light: #042C53;
+      --blue-dark: #85B7EB;
+      --blue-mid: #378ADD;
+      --green-light: #173404;
+      --green-dark: #C0DD97;
+      --amber-light: #412402;
+      --amber-dark: #FAC775;
+      --red-light: #501313;
+      --info-bg: #042C53;
+      --info-text: #85B7EB;
+      --info-border: #0C447C;
+      --highlight-bg: #412402;
+      --highlight-text: #FAC775;
+    }
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    background: var(--bg-primary);
+    border-bottom: 0.5px solid var(--border-light);
+    padding: 2rem 2rem 1.5rem;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .page-header-inner { max-width: 960px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+  .page-subtitle { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+  /* ── TOC ── */
+  .toc-bar {
+    background: var(--bg-secondary);
+    border-bottom: 0.5px solid var(--border-light);
+    padding: 0.6rem 2rem;
+  }
+  .toc-bar-inner { max-width: 960px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; }
+  .toc-link { font-size: 13px; color: var(--blue-mid); text-decoration: none; }
+  .toc-link:hover { text-decoration: underline; }
+
+  /* ── Layout ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  /* ── Section headers ── */
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin: 3rem 0 1.25rem; padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--border-mid);
+  }
+  .section-header:first-of-type { margin-top: 0; }
+  .section-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    font-weight: 600; font-size: 15px; flex-shrink: 0;
+  }
+  .badge-chi { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-f   { background: var(--green-light); color: var(--green-dark); font-size: 14px; }
+  .section-title { font-size: 21px; font-weight: 500; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem; margin: 1rem 0;
+  }
+  .card-blue  { border-left: 3px solid var(--blue); }
+  .card-green { border-left: 3px solid var(--green); }
+  .card-amber { border-left: 3px solid var(--amber); }
+  .card p { margin: 0.4rem 0 0; }
+  .card p:first-child { margin-top: 0; }
+
+  /* ── Formula ── */
+  .formula-box {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-mid);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem; margin: 0.5rem 0;
+    font-family: "Courier New", "Consolas", monospace;
+    font-size: 14px; text-align: center;
+    color: var(--text-primary);
+  }
+
+  /* ── Property grid ── */
+  .prop-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(185px,1fr));
+    gap: 10px; margin: 0.75rem 0 1rem;
+  }
+  .prop-card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.9rem;
+  }
+  .prop-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+  .prop-val   { font-weight: 500; font-size: 14px; }
+
+  /* ── Chart wrapper ── */
+  .chart-wrap { position: relative; width: 100%; height: 270px; margin: 0.75rem 0; }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 0.5rem 0 0.25rem; font-size: 13px; color: var(--text-secondary);
+  }
+  .controls input[type=range] { flex: 1; min-width: 100px; max-width: 200px; accent-color: var(--blue); }
+  .controls .val-badge { font-weight: 500; color: var(--text-primary); min-width: 26px; }
+  .controls .hint { font-size: 12px; color: var(--text-tertiary); }
+
+  /* ── Note ── */
+  .note { font-size: 12px; color: var(--text-secondary); margin: 0.2rem 0 0.75rem; }
+
+  /* ── Subsection label ── */
+  .sub-label { font-weight: 500; font-size: 15px; margin: 1.5rem 0 0.5rem; }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 0.5px solid var(--border-light); margin: 2.5rem 0; }
+
+  /* ── Lookup row ── */
+  .lookup-row {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px;
+    margin: 0.75rem 0 1rem; font-size: 13px;
+  }
+  .lookup-row label { display: flex; flex-direction: column; gap: 4px; color: var(--text-secondary); }
+  .lookup-row input[type=number],
+  .lookup-row select {
+    padding: 6px 9px; font-size: 13px;
+    border: 0.5px solid var(--border-mid);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary); color: var(--text-primary);
+    width: 100px; outline: none;
+  }
+  .lookup-row input[type=number]:focus,
+  .lookup-row select:focus { border-color: var(--blue); }
+  .lookup-result {
+    background: var(--info-bg); color: var(--info-text);
+    border: 0.5px solid var(--info-border);
+    border-radius: var(--radius-md); padding: 6px 16px;
+    font-size: 14px; font-weight: 500;
+  }
+
+  /* ── Tabs ── */
+  .tab-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 6px 16px; font-size: 13px;
+    border: 0.5px solid var(--border-mid);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: var(--bg-secondary); color: var(--text-secondary);
+    cursor: pointer; transition: background .15s;
+    font-family: inherit;
+  }
+  .tab-btn.active { background: var(--bg-primary); color: var(--text-primary); font-weight: 500; }
+  .tab-panel {
+    display: none; overflow-x: auto;
+    border: 0.5px solid var(--border-mid);
+    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+    background: var(--bg-primary);
+  }
+  .tab-panel.active { display: block; }
+
+  /* ── Tables ── */
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .stat-table th {
+    padding: 7px 11px;
+    background: var(--bg-secondary); color: var(--text-secondary);
+    font-weight: 500; text-align: center;
+    border-bottom: 0.5px solid var(--border-mid);
+    white-space: nowrap; position: sticky; top: 0; z-index: 1;
+  }
+  .stat-table td {
+    padding: 5px 11px; text-align: center;
+    border-bottom: 0.5px solid var(--border-light);
+    white-space: nowrap;
+  }
+  .stat-table tr:last-child td { border-bottom: none; }
+  .stat-table tr:hover td { background: var(--bg-secondary); }
+  .stat-table .row-head {
+    font-weight: 500; color: var(--text-secondary);
+    background: var(--bg-secondary) !important;
+    position: sticky; left: 0; z-index: 2;
+  }
+  .highlight-cell { background: #FFF3CD !important; color: #633806 !important; font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    .highlight-cell { background: #412402 !important; color: #FAC775 !important; }
+  }
+
+  /* ── Footer ── */
+  .page-footer {
+    text-align: center; font-size: 12px; color: var(--text-tertiary);
+    padding: 1.5rem; border-top: 0.5px solid var(--border-light);
+    background: var(--bg-primary); margin-top: 3rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <p class="page-title">卡方分配與 F 分配教學講義</p>
+    <p class="page-subtitle">統計學｜互動式查表與圖形說明</p>
+  </div>
+</header>
+
+<nav class="toc-bar">
+  <div class="toc-bar-inner">
+    <a class="toc-link" href="#sec-chi">§1 卡方分配（χ²）</a>
+    <a class="toc-link" href="#sec-chi-table">§2 卡方分配表（右尾）</a>
+    <a class="toc-link" href="#sec-f">§3 F 分配</a>
+    <a class="toc-link" href="#sec-f-table">§4 F 分配表（右尾）</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══════════════════════════════════════════════════
+     §1  卡方分配
+═══════════════════════════════════════════════════ -->
+<div class="section-header" id="sec-chi">
+  <span class="section-badge badge-chi">χ²</span>
+  <span class="section-title">卡方分配（Chi-Square Distribution）</span>
+</div>
+
+<div class="card card-blue">
+  <strong>定義</strong>：若 Z₁, Z₂, …, Zᵥ 為 ν 個<strong>獨立的標準常態隨機變數</strong>，則其平方和
+  <div class="formula-box">χ²(ν) = Z₁² + Z₂² + … + Zᵥ² = Σᵢ Zᵢ²</div>
+  所服從的分配稱為<strong>自由度 ν 的卡方分配</strong>，記作 χ²(ν)。
+</div>
+
+<p class="sub-label">基本性質</p>
+<div class="prop-grid">
+  <div class="prop-card"><div class="prop-label">定義域</div><div class="prop-val">χ² ≥ 0（僅非負值）</div></div>
+  <div class="prop-card"><div class="prop-label">平均數 E(χ²)</div><div class="prop-val">= ν（自由度）</div></div>
+  <div class="prop-card"><div class="prop-label">變異數 Var(χ²)</div><div class="prop-val">= 2ν</div></div>
+  <div class="prop-card"><div class="prop-label">眾數（Mode）</div><div class="prop-val">= max(ν−2, 0)</div></div>
+  <div class="prop-card"><div class="prop-label">形狀</div><div class="prop-val">右偏；ν 小時偏斜大</div></div>
+  <div class="prop-card"><div class="prop-label">累加性</div><div class="prop-val">χ²(m)+χ²(n) ~ χ²(m+n)</div></div>
+  <div class="prop-card"><div class="prop-label">ν → ∞ 時</div><div class="prop-val">趨近常態分配</div></div>
+  <div class="prop-card"><div class="prop-label">與常態關係</div><div class="prop-val">Z² ~ χ²(1)</div></div>
+</div>
+
+<p class="sub-label">密度函數（PDF）</p>
+<div class="card card-blue">
+  <div class="formula-box">f(x; ν) = x^(ν/2−1) · e^(−x/2) / [ 2^(ν/2) · Γ(ν/2) ] ，x > 0</div>
+  其中 Γ(·) 為 Gamma 函數；自由度 ν 決定曲線的形狀與集中程度。
+</div>
+
+<p class="sub-label">互動圖形：調整自由度觀察曲線變化</p>
+<div class="controls">
+  <span>自由度 ν =</span>
+  <input type="range" min="1" max="25" value="5" id="chiDf" oninput="drawChi()">
+  <span class="val-badge" id="chiDfVal">5</span>
+  <span class="hint">（紅色陰影 = α=0.05 右尾拒絕域）</span>
+</div>
+<div class="chart-wrap"><canvas id="chiChart"></canvas></div>
+<p class="note">▲ 藍色粗線：當前選定自由度；灰色細線：ν=1、3、10 參照線。自由度越大，曲線越趨近常態（鐘形）。</p>
+
+<div class="card card-blue">
+  <strong>常見應用場景</strong>
+  <p>① <strong>推論母體變異數</strong>：以樣本變異數 S² 推論母體 σ² 時，檢定統計量 (n−1)S²/σ₀² 服從 χ²(n−1)。</p>
+  <p>② <strong>適合度檢定</strong>（Goodness-of-fit test）：檢定觀測次數是否符合理論分配。</p>
+  <p>③ <strong>獨立性檢定</strong>（列聯表 Contingency Table）：判斷兩個類別變數是否獨立。</p>
+  <p>④ <strong>同質性檢定</strong>：比較多個母體的比例是否相同。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     §2  卡方分配表
+═══════════════════════════════════════════════════ -->
+<hr class="divider">
+<div class="section-header" id="sec-chi-table">
+  <span class="section-badge badge-chi">表</span>
+  <span class="section-title">卡方分配表（右尾臨界值）</span>
+</div>
+
+<div class="card card-blue">
+  右尾機率 P(χ² &gt; χ²<sub>α,ν</sub>) = α，表格中的數值為臨界值 <strong>χ²<sub>α,ν</sub></strong>。<br>
+  查表步驟：① 確認自由度 ν（列）→ ② 選定顯著水準 α（欄）→ ③ 交叉格即為臨界值。
+</div>
+
+<div class="lookup-row">
+  <label>自由度 ν（1–30）
+    <input type="number" id="chiLookupDf" min="1" max="30" value="5" oninput="highlightChi()">
+  </label>
+  <label>顯著水準 α
+    <select id="chiLookupAlpha" onchange="highlightChi()">
+      <option value="0">0.995</option>
+      <option value="1">0.990</option>
+      <option value="2">0.975</option>
+      <option value="3">0.950</option>
+      <option value="4" selected>0.050</option>
+      <option value="5">0.025</option>
+      <option value="6">0.010</option>
+      <option value="7">0.005</option>
+    </select>
+  </label>
+  <span class="lookup-result" id="chiLookupResult">χ²₀.₀₅, ν=5 = 11.070</span>
+</div>
+
+<div class="tab-row" id="chi-tab-row">
+  <button class="tab-btn active" onclick="switchTab('chi','t1',this)">ν = 1–15</button>
+  <button class="tab-btn" onclick="switchTab('chi','t2',this)">ν = 16–30</button>
+</div>
+<div class="tab-panel active" id="chi-t1" style="max-height:420px; overflow-y:auto;">
+  <table class="stat-table" id="chiTable1"></table>
+</div>
+<div class="tab-panel" id="chi-t2" style="max-height:420px; overflow-y:auto;">
+  <table class="stat-table" id="chiTable2"></table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     §3  F 分配
+═══════════════════════════════════════════════════ -->
+<hr class="divider">
+<div class="section-header" id="sec-f">
+  <span class="section-badge badge-f">F</span>
+  <span class="section-title">F 分配（F Distribution）</span>
+</div>
+
+<div class="card card-green">
+  <strong>定義</strong>：若 χ²(d₁) 與 χ²(d₂) 為兩個<strong>獨立的卡方隨機變數</strong>，則其比值
+  <div class="formula-box">F(d₁, d₂) = [ χ²(d₁) / d₁ ] / [ χ²(d₂) / d₂ ]</div>
+  所服從的分配稱為<strong>分子自由度 d₁、分母自由度 d₂ 的 F 分配</strong>，記作 F(d₁, d₂)。
+</div>
+
+<p class="sub-label">基本性質</p>
+<div class="prop-grid">
+  <div class="prop-card"><div class="prop-label">定義域</div><div class="prop-val">F ≥ 0（僅非負值）</div></div>
+  <div class="prop-card"><div class="prop-label">平均數 E(F)</div><div class="prop-val">= d₂ / (d₂ − 2)，d₂ > 2</div></div>
+  <div class="prop-card"><div class="prop-label">形狀</div><div class="prop-val">右偏；自由度大趨近對稱</div></div>
+  <div class="prop-card"><div class="prop-label">倒數關係</div><div class="prop-val">1/F(d₁,d₂) ~ F(d₂,d₁)</div></div>
+  <div class="prop-card"><div class="prop-label">與 t 的關係</div><div class="prop-val">t²(ν) = F(1, ν)</div></div>
+  <div class="prop-card"><div class="prop-label">與卡方的關係</div><div class="prop-val">由兩個 χ² 比值構成</div></div>
+  <div class="prop-card"><div class="prop-label">左尾臨界值</div><div class="prop-val">F₁₋α,d₁,d₂ = 1/Fα,d₂,d₁</div></div>
+  <div class="prop-card"><div class="prop-label">常見應用</div><div class="prop-val">ANOVA、比較兩母體變異數</div></div>
+</div>
+
+<p class="sub-label">密度函數（PDF）</p>
+<div class="card card-green">
+  <div class="formula-box">f(x; d₁,d₂) = √[ (d₁x)^d₁ · d₂^d₂ / (d₁x+d₂)^(d₁+d₂) ] / [ x · B(d₁/2, d₂/2) ]，x > 0</div>
+  其中 B(·,·) 為 Beta 函數。分子/分母自由度各別決定曲線的偏斜程度。
+</div>
+
+<p class="sub-label">互動圖形：調整分子／分母自由度</p>
+<div class="controls">
+  <span>分子自由度 d₁ =</span>
+  <input type="range" min="1" max="20" value="5" id="fDf1" oninput="drawF()">
+  <span class="val-badge" id="fDf1Val">5</span>
+  &nbsp;
+  <span>分母自由度 d₂ =</span>
+  <input type="range" min="2" max="40" value="10" id="fDf2" oninput="drawF()">
+  <span class="val-badge" id="fDf2Val">10</span>
+  <span class="hint">（紅色陰影 = α=0.05 右尾拒絕域）</span>
+</div>
+<div class="chart-wrap"><canvas id="fChart"></canvas></div>
+<p class="note">▲ 藍綠色粗線：當前選定組合；灰色細線：F(2,10)、F(5,20) 參照線。</p>
+
+<div class="card card-green">
+  <strong>與 ANOVA（變異數分析）的關聯</strong>
+  <p>在單因子 ANOVA 中，檢定統計量為：</p>
+  <div class="formula-box">F = MST / MSE = SST/(k−1) / SSE/(n−k)</div>
+  <p>其中 MST 為處理間均方（分子自由度 = k−1），MSE 為誤差均方（分母自由度 = n−k）。若 F 落入右尾拒絕域（F &gt; F<sub>α,k−1,n−k</sub>），則拒絕 H₀，推論各組平均數間存在顯著差異。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     §4  F 分配表
+═══════════════════════════════════════════════════ -->
+<hr class="divider">
+<div class="section-header" id="sec-f-table">
+  <span class="section-badge badge-f">表</span>
+  <span class="section-title">F 分配表（右尾臨界值）</span>
+</div>
+
+<div class="card card-green">
+  右尾機率 P(F &gt; F<sub>α,d₁,d₂</sub>) = α，表格<strong>欄</strong>為分子自由度 d₁，<strong>列</strong>為分母自由度 d₂。<br>
+  查表步驟：① 選定 α → ② 找分子自由度欄（d₁）→ ③ 找分母自由度列（d₂）→ ④ 交叉格即為 F<sub>α</sub>。
+</div>
+
+<div class="lookup-row">
+  <label>分子自由度 d₁
+    <select id="fLookupD1" onchange="highlightF()">
+      <option value="0">1</option><option value="1">2</option><option value="2">3</option>
+      <option value="3">4</option><option value="4" selected>5</option><option value="5">6</option>
+      <option value="6">7</option><option value="7">8</option><option value="8">9</option>
+      <option value="9">10</option><option value="10">12</option><option value="11">15</option>
+      <option value="12">20</option>
+    </select>
+  </label>
+  <label>分母自由度 d₂（1–120）
+    <input type="number" id="fLookupD2" min="1" max="120" value="10" oninput="highlightF()">
+  </label>
+  <label>顯著水準 α
+    <select id="fLookupAlpha" onchange="buildFTable(); highlightF()">
+      <option value="0.10">0.10</option>
+      <option value="0.05" selected>0.05</option>
+      <option value="0.025">0.025</option>
+      <option value="0.01">0.01</option>
+    </select>
+  </label>
+  <span class="lookup-result" id="fLookupResult">F₀.₀₅, d₁=5, d₂=10 = 3.33</span>
+</div>
+
+<div class="tab-row" id="f-tab-row">
+  <button class="tab-btn active" onclick="switchTab('f','t1',this)">d₂ = 1–20</button>
+  <button class="tab-btn" onclick="switchTab('f','t2',this)">d₂ = 21–40</button>
+  <button class="tab-btn" onclick="switchTab('f','t3',this)">d₂ = 40–120</button>
+</div>
+<div class="tab-panel active" id="f-t1" style="max-height:440px; overflow-y:auto;">
+  <table class="stat-table" id="fTable1"></table>
+</div>
+<div class="tab-panel" id="f-t2" style="max-height:440px; overflow-y:auto;">
+  <table class="stat-table" id="fTable2"></table>
+</div>
+<div class="tab-panel" id="f-t3" style="max-height:440px; overflow-y:auto;">
+  <table class="stat-table" id="fTable3"></table>
+</div>
+
+<div class="card card-amber" style="margin-top:1.5rem">
+  <strong>查表注意事項</strong>
+  <p>① 左尾臨界值：F<sub>1−α, d₁, d₂</sub> = 1 / F<sub>α, d₂, d₁</sub>（互換分子分母自由度後取倒數）。</p>
+  <p>② 若表中無精確的自由度，可取較保守（較大）的臨界值，或利用線性內插法估算。</p>
+  <p>③ 雙尾檢定（比較兩母體變異數）時，以 α/2 查表。</p>
+</div>
+
+</main>
+
+<footer class="page-footer">
+  本講義僅供教學參考使用。表格數值由數值方法計算，精確度至小數點後第三位。
+</footer>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─────────────────────────────────────────────────────────────
+//  數學函數
+// ─────────────────────────────────────────────────────────────
+function lgamma(x) {
+  const c = [76.18009172947146,-86.50532032941677,24.01409824083091,
+             -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y = x, tmp = x + 5.5;
+  tmp -= (x + 0.5) * Math.log(tmp);
+  let ser = 1.000000000190015;
+  for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+  return -tmp + Math.log(2.5066282746310005 * ser / x);
+}
+
+// 不完全 Gamma（正規化）— 數列展開
+function gammaIncLower(a, x, iter=300) {
+  if (x <= 0) return 0;
+  let sum = 1/a, term = 1/a;
+  for (let n = 1; n < iter; n++) {
+    term *= x / (a + n);
+    sum  += term;
+    if (Math.abs(term) < 1e-13) break;
+  }
+  return Math.exp(-x + a * Math.log(x) - lgamma(a)) * sum;
+}
+
+function chi2cdf(x, k) { return gammaIncLower(k/2, x/2); }
+function chi2pdf(x, k) {
+  if (x <= 0) return 0;
+  const a = k/2;
+  return Math.exp((a-1)*Math.log(x) - x/2 - a*Math.log(2) - lgamma(a));
+}
+function chi2inv(p, k, tol=1e-7) {
+  let lo = 0, hi = Math.max(k * 5, 150);
+  for (let i = 0; i < 100; i++) {
+    const mid = (lo + hi) / 2;
+    chi2cdf(mid, k) < p ? (lo = mid) : (hi = mid);
+    if (hi - lo < tol) break;
+  }
+  return (lo + hi) / 2;
+}
+
+// 不完全 Beta（正規化）— 連分數展開（Lentz）
+function ibeta(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  // 用連分數：Numerical Recipes 6.4
+  const lbeta = lgamma(a) + lgamma(b) - lgamma(a+b);
+  const front  = Math.exp(a*Math.log(x) + b*Math.log(1-x) - lbeta) / a;
+
+  // Continued fraction (modified Lentz)
+  const TINY = 1e-30;
+  let C = 1, D = 1 - (a+b)*x/(a+1);
+  if (Math.abs(D) < TINY) D = TINY;
+  D = 1/D;
+  let h = D;
+  for (let m = 1; m <= 200; m++) {
+    // Even step
+    let aa = m*(b-m)*x / ((a+2*m-1)*(a+2*m));
+    D = 1 + aa*D; if (Math.abs(D)<TINY) D=TINY;
+    C = 1 + aa/C; if (Math.abs(C)<TINY) C=TINY;
+    D = 1/D; h *= D*C;
+    // Odd step
+    aa = -(a+m)*(a+b+m)*x / ((a+2*m)*(a+2*m+1));
+    D = 1 + aa*D; if (Math.abs(D)<TINY) D=TINY;
+    C = 1 + aa/C; if (Math.abs(C)<TINY) C=TINY;
+    D = 1/D;
+    const delta = D*C;
+    h *= delta;
+    if (Math.abs(delta-1) < 1e-13) break;
+  }
+  return front * h;
+}
+
+function betacdf(x, a, b) {
+  // Use symmetry for better convergence
+  if (x < (a+1)/(a+b+2)) return ibeta(x, a, b);
+  return 1 - ibeta(1-x, b, a);
+}
+
+function fpdf(x, d1, d2) {
+  if (x <= 0) return 0;
+  const lv = (d1/2)*Math.log(d1/d2) + (d1/2-1)*Math.log(x)
+           - lgamma(d1/2) - lgamma(d2/2) + lgamma((d1+d2)/2)
+           - (d1/2+d2/2)*Math.log(1 + d1*x/d2);
+  return Math.exp(lv);
+}
+function fcdf(f, d1, d2) {
+  const x = (d1*f) / (d1*f + d2);
+  return betacdf(x, d1/2, d2/2);
+}
+function finv(p, d1, d2, tol=1e-6) {
+  let lo = 0, hi = 100;
+  for (let i = 0; i < 120; i++) {
+    const mid = (lo + hi) / 2;
+    fcdf(mid, d1, d2) < p ? (lo = mid) : (hi = mid);
+    if (hi - lo < tol) break;
+  }
+  return (lo + hi) / 2;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Chi-Square 表格
+// ─────────────────────────────────────────────────────────────
+const CHI_ALPHAS  = [0.995, 0.990, 0.975, 0.950, 0.050, 0.025, 0.010, 0.005];
+const CHI_LABELS  = ['0.995','0.990','0.975','0.950','0.050','0.025','0.010','0.005'];
+
+function chiCrit(df, alpha) { return chi2inv(1 - alpha, df); }
+
+function buildChiTable() {
+  [[1,15,'chiTable1'],[16,30,'chiTable2']].forEach(([s,e,id]) => {
+    const t = document.getElementById(id);
+    let html = '<tr><th>ν \\ α</th>' + CHI_LABELS.map(a=>`<th>${a}</th>`).join('') + '</tr>';
+    for (let df = s; df <= e; df++) {
+      html += `<tr><td class="row-head">${df}</td>`;
+      CHI_ALPHAS.forEach(a => {
+        html += `<td id="chi-${df}-${a.toFixed(3)}">${chiCrit(df,a).toFixed(3)}</td>`;
+      });
+      html += '</tr>';
+    }
+    t.innerHTML = html;
+  });
+}
+
+function highlightChi() {
+  document.querySelectorAll('[id^="chi-"]').forEach(el => el.classList.remove('highlight-cell'));
+  const df    = Math.min(Math.max(parseInt(document.getElementById('chiLookupDf').value)||5, 1), 30);
+  const ai    = parseInt(document.getElementById('chiLookupAlpha').value);
+  const alpha = CHI_ALPHAS[ai];
+  const val   = chiCrit(df, alpha);
+  document.getElementById('chiLookupResult').textContent = `χ²${CHI_LABELS[ai]}, ν=${df} = ${val.toFixed(3)}`;
+  const cell = document.getElementById(`chi-${df}-${alpha.toFixed(3)}`);
+  if (cell) {
+    cell.classList.add('highlight-cell');
+    // switch to correct tab
+    if (df <= 15 && !document.getElementById('chi-t1').classList.contains('active')) {
+      activateTab('chi','t1');
+    } else if (df > 15 && !document.getElementById('chi-t2').classList.contains('active')) {
+      activateTab('chi','t2');
+    }
+    cell.scrollIntoView({ block:'nearest' });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  F 表格
+// ─────────────────────────────────────────────────────────────
+const F_D1_COLS  = [1,2,3,4,5,6,7,8,9,10,12,15,20];
+const F_D2_ROWS1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+const F_D2_ROWS2 = [21,22,23,24,25,26,27,28,29,30,32,35,40];
+const F_D2_ROWS3 = [40,50,60,80,100,120];
+
+function getFAlpha() { return parseFloat(document.getElementById('fLookupAlpha').value) || 0.05; }
+
+function buildFTableSection(rows, tid) {
+  const alpha = getFAlpha();
+  const t = document.getElementById(tid);
+  let html = '<tr><th>d₂ \\ d₁</th>' + F_D1_COLS.map(d=>`<th>${d}</th>`).join('') + '</tr>';
+  rows.forEach(d2 => {
+    html += `<tr><td class="row-head">${d2}</td>`;
+    F_D1_COLS.forEach(d1 => {
+      const v = finv(1 - alpha, d1, d2);
+      html += `<td id="f-${d1}-${d2}">${v.toFixed(2)}</td>`;
+    });
+    html += '</tr>';
+  });
+  t.innerHTML = html;
+}
+
+function buildFTable() {
+  buildFTableSection(F_D2_ROWS1, 'fTable1');
+  buildFTableSection(F_D2_ROWS2, 'fTable2');
+  buildFTableSection(F_D2_ROWS3, 'fTable3');
+}
+
+function highlightF() {
+  document.querySelectorAll('[id^="f-"]').forEach(el => el.classList.remove('highlight-cell'));
+  const d1idx = parseInt(document.getElementById('fLookupD1').value);
+  const d1    = F_D1_COLS[d1idx];
+  const d2raw = parseInt(document.getElementById('fLookupD2').value) || 10;
+  const alpha = getFAlpha();
+
+  // find nearest d2 in table
+  const allRows = [...F_D2_ROWS1, ...F_D2_ROWS2, ...F_D2_ROWS3];
+  const nearest = allRows.reduce((prev,curr) => Math.abs(curr-d2raw)<Math.abs(prev-d2raw)?curr:prev);
+  const val = finv(1 - alpha, d1, d2raw);
+  document.getElementById('fLookupResult').textContent = `F${alpha}, d₁=${d1}, d₂=${d2raw} = ${val.toFixed(2)}`;
+
+  const cell = document.getElementById(`f-${d1}-${nearest}`);
+  if (cell) {
+    cell.classList.add('highlight-cell');
+    cell.scrollIntoView({ block:'nearest' });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Tabs
+// ─────────────────────────────────────────────────────────────
+function activateTab(prefix, suffix) {
+  ['t1','t2','t3'].forEach(s => {
+    const p = document.getElementById(`${prefix}-${s}`);
+    if (p) p.classList.remove('active');
+  });
+  const p = document.getElementById(`${prefix}-${suffix}`);
+  if (p) p.classList.add('active');
+}
+
+function switchTab(prefix, suffix, btn) {
+  activateTab(prefix, suffix);
+  const rowId = prefix === 'chi' ? 'chi-tab-row' : 'f-tab-row';
+  document.getElementById(rowId).querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Charts
+// ─────────────────────────────────────────────────────────────
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+const tickColor = isDark ? '#b4b2a9' : '#5F5E5A';
+
+function makeRange(lo, hi, n) {
+  const r = [];
+  for (let i = 0; i <= n; i++) r.push(lo + (hi - lo) * i / n);
+  return r;
+}
+
+let chiChartInst = null;
+function drawChi() {
+  const df = parseInt(document.getElementById('chiDf').value);
+  document.getElementById('chiDfVal').textContent = df;
+  const xMax = Math.max(df * 3.5, 25);
+  const xs = makeRange(0.01, xMax, 500);
+  const critVal = chi2inv(0.95, df);
+
+  const mainData   = xs.map(x => ({ x, y: chi2pdf(x, df) }));
+  const shadedData = xs.filter(x => x >= critVal).map(x => ({ x, y: chi2pdf(x, df) }));
+  const refDfs     = [1, 3, 10].filter(d => d !== df);
+
+  const yPeak = chi2pdf(Math.max(df - 2, 0.3), df);
+  const yMax  = Math.min(yPeak * 1.2, 0.55);
+
+  const datasets = [
+    { label: `χ²(ν=${df})`, data: mainData,   borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.09)', fill:true, tension:0.4, borderWidth:2.5, pointRadius:0 },
+    { label: 'α=0.05 拒絕域',   data: shadedData, borderColor:'#E24B4A', backgroundColor:'rgba(226,75,74,0.22)', fill:true, tension:0.4, borderWidth:1.5, pointRadius:0 },
+    ...refDfs.map(d => ({
+      label: `χ²(ν=${d})`, data: xs.map(x => ({ x, y: chi2pdf(x, d) })),
+      borderColor:'rgba(136,135,128,0.5)', backgroundColor:'transparent',
+      fill:false, tension:0.4, borderWidth:1, pointRadius:0, borderDash:[4,3]
+    }))
+  ];
+
+  if (chiChartInst) chiChartInst.destroy();
+  chiChartInst = new Chart(document.getElementById('chiChart'), {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      parsing: { xAxisKey:'x', yAxisKey:'y' },
+      plugins: {
+        legend: { display:true, position:'top', labels:{ color:tickColor, font:{size:11}, boxWidth:16, padding:8 } },
+        tooltip: { mode:'index', intersect:false }
+      },
+      scales: {
+        x: { type:'linear', min:0, max:xMax, title:{display:true, text:'χ² 值', color:tickColor}, ticks:{color:tickColor, font:{size:11}}, grid:{color:gridColor} },
+        y: { min:0, max:yMax||0.4, title:{display:true, text:'密度 f(x)', color:tickColor}, ticks:{color:tickColor, font:{size:11}}, grid:{color:gridColor} }
+      }
+    }
+  });
+}
+
+let fChartInst = null;
+function drawF() {
+  const d1 = parseInt(document.getElementById('fDf1').value);
+  const d2 = parseInt(document.getElementById('fDf2').value);
+  document.getElementById('fDf1Val').textContent = d1;
+  document.getElementById('fDf2Val').textContent = d2;
+  const xMax = 8;
+  const xs = makeRange(0.02, xMax, 600);
+  const critVal = finv(0.95, d1, d2);
+
+  const mainData   = xs.map(x => ({ x, y: fpdf(x, d1, d2) }));
+  const shadedData = xs.filter(x => x >= critVal).map(x => ({ x, y: fpdf(x, d1, d2) }));
+  const refs       = [[2,10],[5,20]].filter(([a,b]) => !(a===d1 && b===d2));
+
+  const modeX  = d1 > 2 ? (d1-2)/d1 * d2/(d2+2) : 0.1;
+  const yPeak  = fpdf(modeX, d1, d2);
+  const yMax   = Math.min(yPeak * 1.2, 3.0);
+
+  const datasets = [
+    { label: `F(d₁=${d1}, d₂=${d2})`, data: mainData,   borderColor:'#3B6D11', backgroundColor:'rgba(59,109,17,0.09)', fill:true, tension:0.4, borderWidth:2.5, pointRadius:0 },
+    { label: 'α=0.05 拒絕域',           data: shadedData, borderColor:'#E24B4A', backgroundColor:'rgba(226,75,74,0.22)', fill:true, tension:0.4, borderWidth:1.5, pointRadius:0 },
+    ...refs.map(([a,b]) => ({
+      label: `F(${a},${b})`, data: xs.map(x => ({ x, y: fpdf(x, a, b) })),
+      borderColor:'rgba(136,135,128,0.5)', backgroundColor:'transparent',
+      fill:false, tension:0.4, borderWidth:1, pointRadius:0, borderDash:[4,3]
+    }))
+  ];
+
+  if (fChartInst) fChartInst.destroy();
+  fChartInst = new Chart(document.getElementById('fChart'), {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      parsing: { xAxisKey:'x', yAxisKey:'y' },
+      plugins: {
+        legend: { display:true, position:'top', labels:{ color:tickColor, font:{size:11}, boxWidth:16, padding:8 } },
+        tooltip: { mode:'index', intersect:false }
+      },
+      scales: {
+        x: { type:'linear', min:0, max:xMax, title:{display:true, text:'F 值', color:tickColor}, ticks:{color:tickColor, font:{size:11}}, grid:{color:gridColor} },
+        y: { min:0, max:yMax||1, title:{display:true, text:'密度 f(x)', color:tickColor}, ticks:{color:tickColor, font:{size:11}}, grid:{color:gridColor} }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Init
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildChiTable();
+  buildFTable();
+  drawChi();
+  drawF();
+  highlightChi();
+  highlightF();
+});
+</script>
+</body>
+</html>
