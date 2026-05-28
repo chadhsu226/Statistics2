@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12　單一母體的推論</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false, strict: "ignore"
+            });
+        });
+    </script>
+    <style>
+        :root {
+            --navy: #1a3a6b; --blue: #2e6cb8; --blue-light: #4a90d9;
+            --accent: #c0392b; --gold: #d4a017; --green: #27ae60;
+            --bg: #f7f9fc; --card: #ffffff; --border: #d0dcea;
+            --text: #2c3e50; --muted: #5a6a7a; --math-bg: #eaf3ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans TC','Source Serif 4',Georgia,serif; background:var(--bg); color:var(--text); line-height:1.8; max-width:900px; margin:0 auto; padding:36px 24px 80px; }
+        h1 { font-family:'Source Serif 4',serif; font-size:2rem; font-weight:700; color:var(--navy); border-bottom:4px solid var(--blue-light); padding-bottom:12px; margin-bottom:20px; }
+        h2 { font-family:'Source Serif 4',serif; font-size:1.45rem; font-weight:600; color:var(--navy); margin-top:48px; margin-bottom:14px; border-left:5px solid var(--blue-light); padding-left:12px; }
+        h3 { font-size:1.1rem; font-weight:700; color:var(--blue); margin-top:28px; margin-bottom:10px; }
+        h4 { font-size:1rem; font-weight:700; color:var(--navy); margin-top:18px; margin-bottom:8px; }
+        p { margin-bottom:12px; } ul,ol { margin-left:24px; margin-bottom:12px; } li { margin-bottom:6px; }
+        hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+        .chapter-intro { font-size:1.05rem; color:var(--muted); border-left:3px solid var(--blue-light); padding:10px 16px; background:#eef4fb; border-radius:0 6px 6px 0; margin-bottom:24px; }
+        .learning-goals { background:#fffbea; border:1.5px solid var(--gold); border-radius:8px; padding:18px 22px; margin:24px 0; }
+        .learning-goals h3 { color:#8a6000; margin-top:0; }
+        .toc { background:var(--card); border:1.5px solid var(--border); border-radius:8px; padding:18px 24px; margin:24px 0; box-shadow:0 2px 8px rgba(30,60,110,0.06); }
+        .toc h3 { color:var(--navy); margin-top:0; } .toc a { color:var(--blue); text-decoration:none; } .toc a:hover { text-decoration:underline; }
+        .highlight { background:#fffbe6; border-left:4px solid var(--gold); padding:12px 16px; margin:16px 0; border-radius:0 6px 6px 0; }
+        .math-block { background:var(--math-bg); border-radius:6px; padding:14px 18px; margin:14px 0; overflow-x:auto; font-size:1.05em; text-align:center; }
+        .formula-card { background:var(--card); border:2px solid var(--blue-light); border-radius:10px; padding:18px 22px; margin:20px 0; box-shadow:0 2px 8px rgba(74,144,217,0.1); }
+        .formula-card h3 { margin-top:0; color:var(--navy); }
+        .formula-card .note { font-size:0.9em; color:var(--muted); background:#f0f6ff; border-left:3px solid #aac4ee; padding:8px 12px; margin-top:10px; border-radius:0 4px 4px 0; }
+        .steps-box { background:#f4f6ff; border:1px solid #b0bce8; border-radius:8px; padding:16px 20px; margin:16px 0; }
+        .steps-box h3 { color:var(--navy); margin-top:0; } .steps-box ol { margin-bottom:0; } .steps-box li { margin-bottom:10px; }
+        .example-block { background:#f0faff; border-left:5px solid var(--blue-light); border-radius:0 8px 8px 0; padding:18px 22px; margin:20px 0; }
+        .example-block h3 { color:var(--navy); margin-top:0; }
+        .example-block .note { font-size:0.92em; color:#333; background:#e6f7e6; border-left:3px solid var(--green); padding:10px 14px; margin-top:10px; border-radius:0 4px 4px 0; }
+        .example-block .warn { font-size:0.92em; background:#fff3cd; border-left:3px solid var(--gold); padding:10px 14px; margin-top:10px; border-radius:0 4px 4px 0; }
+        .scenario { background:#f8f4ff; border:1.5px dashed #9b7fd4; border-radius:8px; padding:12px 18px; margin-bottom:14px; font-size:0.97em; color:#3d2070; }
+        .scenario strong { color:#6a3fbf; }
+        table { width:100%; border-collapse:collapse; margin:14px 0; font-size:0.95em; }
+        th,td { border:1px solid #c8d8ec; padding:8px 12px; text-align:center; }
+        th { background:#ddeeff; color:var(--navy); font-weight:600; }
+        tr:nth-child(even) { background:#f5f8ff; }
+        .quiz-box { background:#f0f6ff; border:1.5px solid var(--blue-light); border-radius:10px; padding:22px 26px; margin:28px 0; }
+        .quiz-box h3 { color:var(--navy); margin-top:0; }
+        .quiz-q { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:16px; }
+        .quiz-q p { font-weight:600; margin-bottom:10px; }
+        .quiz-q label { display:block; margin:6px 0; cursor:pointer; font-size:0.97em; }
+        .quiz-q button { margin-top:10px; padding:7px 18px; background:var(--blue); color:white; border:none; border-radius:5px; cursor:pointer; font-size:0.9em; }
+        .quiz-q button:hover { background:var(--navy); }
+        .quiz-feedback { display:none; margin-top:10px; padding:10px 14px; border-radius:6px; font-size:0.95em; }
+        .quiz-feedback.correct { background:#d4edda; border-left:4px solid var(--green); color:#155724; }
+        .quiz-feedback.wrong { background:#f8d7da; border-left:4px solid var(--accent); color:#721c24; }
+        .exercises-list { counter-reset:ex-counter; list-style:none; padding:0; }
+        .exercises-list > li { counter-increment:ex-counter; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:16px; }
+        .exercises-list > li strong { color:var(--navy); }
+        details summary { cursor:pointer; color:var(--blue); font-weight:700; margin-top:12px; user-select:none; }
+        details summary:hover { color:var(--navy); }
+        details > div { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+        .summary { background:var(--navy); color:#e8f0fc; border-radius:10px; padding:22px 26px; margin-top:40px; }
+        .summary h2 { color:#c8dcf8; border-left-color:#6aaae8; }
+        .summary ul { margin-bottom:0; } .summary li { margin-bottom:10px; color:#d8e8f8; } .summary strong { color:#a8d0f8; }
+        .calc-box { background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:22px 26px; margin:20px 0; box-shadow:0 2px 8px rgba(30,60,110,0.06); }
+        .calc-box h3 { margin-top:0; color:var(--navy); }
+        .inputs-row { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; }
+        .inputs-row label { display:flex; flex-direction:column; font-size:0.9em; color:var(--muted); min-width:110px; }
+        .inputs-row input,.inputs-row select { margin-top:4px; padding:6px 8px; border:1px solid var(--border); border-radius:5px; font-size:1em; width:100%; }
+        .calc-box button { padding:8px 22px; background:var(--blue); color:white; border:none; border-radius:6px; cursor:pointer; font-size:0.95em; }
+        .calc-box button:hover { background:var(--navy); }
+        .calc-result { display:none; margin-top:14px; background:#f0f6ff; border-left:4px solid var(--blue-light); padding:12px 16px; border-radius:0 6px 6px 0; font-family:'JetBrains Mono',monospace; font-size:0.93em; white-space:pre-line; }
+        .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+        .col-box { border:1px solid var(--border); border-radius:8px; padding:14px 16px; background:#fafbff; }
+        .col-box h3 { font-size:0.98em; margin-top:0; text-align:center; }
+        .note-inline { font-size:0.9em; color:var(--muted); background:#f0f6ff; border-left:3px solid #aac4ee; padding:8px 12px; margin-top:10px; border-radius:0 4px 4px 0; }
+        @media(max-width:640px){ .two-col{grid-template-columns:1fr;} body{padding:20px 14px 60px;} }
+    </style>
+</head>
+<body>
+
+<h1>Chapter 12　單一母體的推論 (Inference About a Single Population)</h1>
+
+<p class="chapter-intro">本章在<strong>母體標準差未知</strong>的實際情境下，學習如何推論單一母體平均數（使用 t 分配）、母體比例（使用常態近似），以及母體變異數（使用卡方分配）。</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>理解 t 分配的特性，能說明其與標準常態分配的差異及自由度的意義。</li>
+    <li>能在 $\sigma$ 未知時，使用 t 統計量進行單一母體平均數的假設檢定與信賴區間估計。</li>
+    <li>能使用 z 統計量進行單一母體比例的假設檢定與信賴區間估計，並計算所需樣本大小。</li>
+    <li>能使用卡方統計量對單一母體變異數（或標準差）進行假設檢定與信賴區間估計。</li>
+    <li>能辨別何時使用 t 分配、z 分配或卡方分配，並了解各自的使用條件。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#sec12-1">§12.1　母體標準差未知時，單一母體平均數的推論（t 分配）</a>
+        <ol style="margin-top:4px;">
+            <li>t 分配特性與自由度</li>
+            <li>核心公式（假設檢定 ＋ 信賴區間）</li>
+            <li>四個主範例（雙尾、右尾、左尾、信賴區間）</li>
+            <li>大樣本下的處理方式</li>
+            <li>使用條件</li>
+        </ol>
+    </li>
+    <li><a href="#sec12-3">§12.3　單一母體比例的推論</a>
+        <ol style="margin-top:4px;">
+            <li>z 統計量與常態近似</li>
+            <li>核心公式（假設檢定 ＋ 信賴區間）</li>
+            <li>三個主範例（右尾、左尾、雙尾＋信賴區間）</li>
+            <li>選擇樣本大小</li>
+            <li>使用條件</li>
+        </ol>
+    </li>
+    <li><a href="#sec12-4">§12.4　單一母體變異數的推論（卡方分配）</a>
+        <ol style="margin-top:4px;">
+            <li>卡方分配特性</li>
+            <li>核心公式（假設檢定 ＋ 信賴區間）</li>
+            <li>兩個主範例（雙尾、單尾）</li>
+        </ol>
+    </li>
+    <li><a href="#calc">🔢 互動計算機</a></li>
+    <li><a href="#quiz">🧠 Quick Quiz</a></li>
+    <li><a href="#exercises">📚 綜合演練</a></li>
+    <li><a href="#summary">📌 Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     §12.1  t 推論
+══════════════════════════════════════════ -->
+<h2 id="sec12-1">§12.1　母體標準差未知時，單一母體平均數的推論</h2>
+
+<h3>一、t 分配 (Student's t-distribution)</h3>
+<p>在第 11 章，我們假設母體標準差 $\sigma$ 已知，使用 z 統計量。但在現實中，$\sigma$ 幾乎不可能事先知道——我們只能以<strong>樣本標準差 $s$</strong> 來估計它。這個替換使統計量的分配從標準常態分配，變成了 <strong>t 分配</strong>：</p>
+
+<div class="math-block">
+$$z = \frac{\bar{X} - \mu_0}{\sigma / \sqrt{n}} \xrightarrow{\sigma \text{ 未知，用 } s \text{ 代替}} t = \frac{\bar{X} - \mu_0}{s / \sqrt{n}} \sim t_{\nu = n-1}$$
+</div>
+
+<canvas id="tDistCanvas" width="680" height="240" style="display:block;margin:18px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p style="text-align:center;font-size:0.88em;color:#666;margin-top:-8px;">圖：標準常態分配（Z）vs. 不同自由度的 t 分配。自由度愈小，尾部愈厚；$\nu \to \infty$ 時 t 分配趨近 Z 分配。</p>
+
+<div class="highlight">
+<strong>💡 t 分配的兩個核心特性：</strong>
+<ul style="margin-bottom:0;">
+    <li><strong>尾部更厚：</strong>以 $s$ 估計未知 $\sigma$ 引入了額外的不確定性，因此 t 分配的尾部比 Z 分配更厚、臨界值更大。</li>
+    <li><strong>自由度決定形狀：</strong>自由度 $\nu = n-1$。$n$ 愈大，t 分配愈接近 Z 分配；$\nu = \infty$ 時，t 分配等同於標準常態分配。</li>
+</ul>
+</div>
+
+<h4>自由度 (Degrees of Freedom)</h4>
+<p>計算 $s$ 時，需先求 $\bar{X}$，再計算 $n$ 個觀測值與 $\bar{X}$ 的偏差。由於所有偏差之和必須等於 0，知道前 $n-1$ 個偏差後，第 $n$ 個就已固定，因此「自由的資訊量」只有 $n-1$ 個。</p>
+<p class="note-inline">💡 例：$n=4$，$\bar{X}=70$。若前三個偏差為 $+8, -5, +3$，則第四個必然為 $-6$（無自由選擇），自由度 $= 3 = n-1$。</p>
+
+<h3>二、核心公式</h3>
+
+<div class="formula-card">
+<h3>📐 $\sigma$ 未知時的核心公式</h3>
+<p><strong>假設檢定統計量：</strong></p>
+<div class="math-block">$$t = \frac{\bar{X} - \mu_0}{s / \sqrt{n}}, \quad \text{自由度 } \nu = n - 1$$</div>
+<p><strong>母體平均數的信賴區間估計：</strong></p>
+<div class="math-block">$$\bar{X} \pm t_{\alpha/2,\, n-1} \cdot \frac{s}{\sqrt{n}}$$</div>
+<table style="margin-top:12px;">
+    <thead><tr><th>對立假設 $H_1$</th><th>臨界值法拒絕域</th><th>p 值計算</th></tr></thead>
+    <tbody>
+        <tr><td>$\mu \neq \mu_0$（雙尾）</td><td>$|t| > t_{\alpha/2,\, n-1}$</td><td>$2 \cdot P(T_{n-1} > |t|)$</td></tr>
+        <tr><td>$\mu > \mu_0$（右尾）</td><td>$t > t_{\alpha,\, n-1}$</td><td>$P(T_{n-1} > t)$</td></tr>
+        <tr><td>$\mu < \mu_0$（左尾）</td><td>$t < -t_{\alpha,\, n-1}$</td><td>$P(T_{n-1} < t)$</td></tr>
+    </tbody>
+</table>
+<p class="note">⚠️ <strong>p 值查表的限制：</strong>t 表只能判斷 p 值落在哪個範圍（如 $0.01 < p < 0.05$），無法給出精確值；精確 p 值須用統計軟體（Excel、R 等）計算。</p>
+</div>
+
+<p>以下提供常用 t 分配臨界值表，供查閱使用：</p>
+<div style="overflow-x:auto;margin:16px 0;">
+<table style="font-size:0.88em;min-width:560px;">
+    <thead>
+        <tr>
+            <th rowspan="2" style="width:55px;">$\nu$</th>
+            <th colspan="5" style="background:#d0e8ff;">右尾面積 $\alpha$（單尾）／ 雙尾面積 $= 2\alpha$</th>
+        </tr>
+        <tr>
+            <th style="background:#e8f4ff;">0.100</th><th style="background:#e8f4ff;">0.050</th>
+            <th style="background:#e8f4ff;">0.025</th><th style="background:#e8f4ff;">0.010</th><th style="background:#e8f4ff;">0.005</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>1</strong></td><td>3.078</td><td>6.314</td><td>12.706</td><td>31.821</td><td>63.657</td></tr>
+        <tr><td><strong>2</strong></td><td>1.886</td><td>2.920</td><td>4.303</td><td>6.965</td><td>9.925</td></tr>
+        <tr><td><strong>3</strong></td><td>1.638</td><td>2.353</td><td>3.182</td><td>4.541</td><td>5.841</td></tr>
+        <tr><td><strong>4</strong></td><td>1.533</td><td>2.132</td><td>2.776</td><td>3.747</td><td>4.604</td></tr>
+        <tr><td><strong>5</strong></td><td>1.476</td><td>2.015</td><td>2.571</td><td>3.365</td><td>4.032</td></tr>
+        <tr><td><strong>8</strong></td><td>1.397</td><td>1.860</td><td>2.306</td><td>2.896</td><td>3.355</td></tr>
+        <tr><td><strong>10</strong></td><td>1.372</td><td>1.812</td><td>2.228</td><td>2.764</td><td>3.169</td></tr>
+        <tr><td><strong>15</strong></td><td>1.341</td><td>1.753</td><td>2.131</td><td>2.602</td><td>2.947</td></tr>
+        <tr><td><strong>19</strong></td><td>1.328</td><td>1.729</td><td>2.093</td><td>2.539</td><td>2.861</td></tr>
+        <tr><td><strong>20</strong></td><td>1.325</td><td>1.725</td><td>2.086</td><td>2.528</td><td>2.845</td></tr>
+        <tr><td><strong>24</strong></td><td>1.318</td><td>1.711</td><td>2.064</td><td>2.492</td><td>2.797</td></tr>
+        <tr><td><strong>25</strong></td><td>1.316</td><td>1.708</td><td>2.060</td><td>2.485</td><td>2.787</td></tr>
+        <tr><td><strong>30</strong></td><td>1.310</td><td>1.697</td><td>2.042</td><td>2.457</td><td>2.750</td></tr>
+        <tr><td><strong>35</strong></td><td>1.306</td><td>1.690</td><td>2.030</td><td>2.438</td><td>2.724</td></tr>
+        <tr><td><strong>40</strong></td><td>1.303</td><td>1.684</td><td>2.021</td><td>2.423</td><td>2.704</td></tr>
+        <tr><td><strong>60</strong></td><td>1.296</td><td>1.671</td><td>2.000</td><td>2.390</td><td>2.660</td></tr>
+        <tr><td><strong>99</strong></td><td>1.290</td><td>1.660</td><td>1.984</td><td>2.365</td><td>2.626</td></tr>
+        <tr><td><strong>120</strong></td><td>1.289</td><td>1.658</td><td>1.980</td><td>2.358</td><td>2.617</td></tr>
+        <tr style="background:#fffbe6;"><td><strong>∞ (Z)</strong></td><td>1.282</td><td>1.645</td><td>1.960</td><td>2.326</td><td>2.576</td></tr>
+    </tbody>
+</table>
+</div>
+
+<h3>三、主範例（雙尾、右尾、左尾 ＋ 信賴區間）</h3>
+
+<!-- ── 主範例 A：雙尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 A　統計學成績是否偏離全校標準？（雙尾 t 檢定）</h3>
+<canvas id="tCanvasA" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某大學統計學課程的全校歷年期末考平均成績為 <strong>65 分</strong>。今年某班導師想了解今年這門課（全校共 $N$ 班）的成績分布是否出現顯著偏移。從全校修課學生中隨機抽取 <strong>$n = 100$ 人</strong>，得到樣本平均 $\bar{X} = 61.66$ 分，樣本標準差 $s = 11.55$ 分。在 $\alpha = 0.05$ 下，今年成績是否與歷年有顯著差異？
+</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<div class="math-block">$$H_0: \mu = 65 \qquad H_1: \mu \neq 65 \qquad \alpha = 0.05,\; \nu = 99$$</div>
+
+<p><strong>步驟 2　計算 t 統計量</strong></p>
+<div class="math-block">$$t = \frac{\bar{X} - \mu_0}{s / \sqrt{n}} = \frac{61.66 - 65}{11.55 / \sqrt{100}} = \frac{-3.34}{1.155} \approx -2.892$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：雙尾拒絕域為 $|t| > t_{0.025,\,99} \approx 1.984$</p>
+<p>$|{-2.892}| = 2.892 > 1.984$ → 落入拒絕域 → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值法</strong></p>
+<p>$p\text{-value} = 2 \times P(T_{99} > 2.892) \approx 0.0047$（由軟體計算）</p>
+<p>由 t 表：$t = 2.892$ 落在 $t_{0.005,\,99} \approx 2.626$ 之右，故 $p < 0.01$。</p>
+<p>$p \approx 0.0047 < 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+
+<div class="note">✅ 在 5%（甚至 1%）的顯著水準下，有強烈的統計證據推論今年統計學成績（平均 61.66 分）與歷年平均 65 分有顯著差異，且呈現下滑趨勢。</div>
+
+<p><strong>延伸：95% 信賴區間</strong></p>
+<div class="math-block">$$61.66 \pm 1.984 \times \frac{11.55}{\sqrt{100}} = 61.66 \pm 2.291 \implies [59.37,\; 63.95]$$</div>
+<div class="warn">📌 信賴區間 $[59.37, 63.95]$ 不包含 $\mu_0 = 65$，與雙尾檢定拒絕 $H_0$ 的結論一致。</div>
+</div>
+
+<!-- ── 主範例 B：右尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 B　學生平均成績是否超過 60 分？（右尾 t 檢定）</h3>
+<canvas id="tCanvasB" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某系所規定，期末考平均成績須達 60 分以上，系所才不需要召開課程改善會議。系主任從修課學生中隨機抽取 <strong>$n = 20$ 人</strong>的成績，得到樣本平均 $\bar{X} = 62.90$ 分，樣本標準差 $s = 11.58$ 分。在 $\alpha = 0.05$ 下，是否有足夠的統計證據支持「平均成績超過 60 分」？
+</div>
+
+<p><strong>步驟 1　設定假設（右尾）</strong></p>
+<div class="math-block">$$H_0: \mu \leq 60 \qquad H_1: \mu > 60 \qquad \alpha = 0.05,\; \nu = 19$$</div>
+
+<p><strong>步驟 2　計算 t 統計量</strong></p>
+<div class="math-block">$$t = \frac{62.90 - 60}{11.58 / \sqrt{20}} = \frac{2.90}{2.589} \approx 1.120$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：右尾拒絕域為 $t > t_{0.05,\,19} = 1.729$</p>
+<p>$1.120 < 1.729$ → 未落入拒絕域 → <strong>不拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值法</strong></p>
+<p>$p\text{-value} = P(T_{19} > 1.120) \approx 0.138$（由 t 表：$t=1.120$ 介於 $t_{0.15} \approx 1.066$ 與 $t_{0.10} = 1.328$ 之間，故 $0.10 < p < 0.15$）</p>
+<p>$p \approx 0.138 > 0.05$ → <strong>不拒絕 $H_0$</strong>。</p>
+
+<div class="note">❌ 在 5% 的顯著水準下，沒有足夠的統計證據推論平均成績超過 60 分。雖然樣本平均 62.90 分高於門檻，但考慮到 $n=20$ 的樣本變異，差距尚未達到統計顯著性。系所目前不需召開課程改善會議，但宜持續監控。</div>
+</div>
+
+<!-- ── 主範例 C：左尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 C　管理學院女生身高是否低於全校標準？（左尾 t 檢定）</h3>
+<canvas id="tCanvasC" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>全校女學生平均身高為 <strong>164 公分</strong>。某研究者認為，管理學院的女生平均身高可能<strong>低於</strong>全校平均。隨機抽取管理學院 <strong>$n = 36$ 位</strong>女生，測得樣本平均身高 $\bar{X} = 161.92$ 公分，樣本標準差 $s = 6.12$ 公分。在 $\alpha = 0.05$ 下進行左尾 t 檢定。
+</div>
+
+<p><strong>步驟 1　設定假設（左尾）</strong></p>
+<div class="math-block">$$H_0: \mu \geq 164 \qquad H_1: \mu < 164 \qquad \alpha = 0.05,\; \nu = 35$$</div>
+
+<p><strong>步驟 2　計算 t 統計量</strong></p>
+<div class="math-block">$$t = \frac{161.92 - 164}{6.12 / \sqrt{36}} = \frac{-2.08}{1.02} \approx -2.039$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：左尾拒絕域為 $t < -t_{0.05,\,35} \approx -1.690$</p>
+<p>$-2.039 < -1.690$ → 落入拒絕域 → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值法</strong></p>
+<p>$p\text{-value} = P(T_{35} < -2.039) \approx 0.024$（由 t 表：$t=2.039$ 介於 $t_{0.025,35} \approx 2.030$ 與 $t_{0.02,35} \approx 2.147$ 之間，故 $0.02 < p < 0.025$）</p>
+<p>$p \approx 0.024 < 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論管理學院女生的平均身高（約 161.92 公分）低於全校平均 164 公分。</div>
+</div>
+
+<!-- ── 主範例 D：CI 信賴區間 ── -->
+<div class="example-block">
+<h3>📝 主範例 D　估計模擬考成績的母體平均數（信賴區間）</h3>
+<div class="scenario">
+<strong>情境：</strong>輔導室想了解參加模擬考的學生成績分布，從參加模擬考的學生中隨機抽取 <strong>$n = 25$ 人</strong>，得到樣本平均成績 $\bar{X} = 64.8$ 分，樣本標準差 $s = 12.4$ 分。請以 <strong>95%</strong> 與 <strong>99%</strong> 的信心水準分別估計母體平均成績。
+</div>
+
+<p><strong>查 t 臨界值</strong>（$\nu = 24$）：$t_{0.025,24} = 2.064$；$t_{0.005,24} = 2.797$</p>
+<p><strong>標準誤</strong>：$SE = s/\sqrt{n} = 12.4 / \sqrt{25} = 2.48$</p>
+
+<p><strong>95% 信賴區間：</strong></p>
+<div class="math-block">$$64.8 \pm 2.064 \times 2.48 = 64.8 \pm 5.12 \implies [59.68,\; 69.92]$$</div>
+
+<p><strong>99% 信賴區間：</strong></p>
+<div class="math-block">$$64.8 \pm 2.797 \times 2.48 = 64.8 \pm 6.94 \implies [57.86,\; 71.74]$$</div>
+
+<div class="note">✅ 以 95% 信心，估計母體平均成績落在 59.68 到 69.92 分之間；以 99% 信心則落在 57.86 到 71.74 分之間。<br>📌 <strong>信賴水準越高，區間越寬</strong>：為換取更高的把握度，必須接受更大的估計誤差範圍。</div>
+</div>
+
+<h3>四、大樣本下的處理方式</h3>
+<div class="highlight">
+<strong>📋 查表的實際限制</strong><br>
+一般 t 表的自由度通常只列到 $\nu = 120$ 左右。當 $\nu$ 很大（如主範例 A 的 $\nu = 99$）時，可直接查 $\nu = 99$ 列；若表中無對應列，可用 <strong>Z 臨界值</strong>（t 表最後一列 $\nu = \infty$）代替，誤差極小。
+</div>
+
+<h3>五、使用 t 分配的必要條件</h3>
+<div class="highlight">
+<strong>⚠️ 必要條件：</strong>t 分配理論上要求抽樣母體為<strong>常態分配</strong>。<br><br>
+但 t 分配具有<strong>穩健性（robustness）</strong>——只要母體不是極端偏態（如指數分配），t 檢定在大多數情況下仍然適用。<br><br>
+<strong>實務做法：</strong>繪製樣本直方圖，若呈鐘形或接近鐘形，即可放心使用 t 分配；若嚴重偏態，考慮無母數方法。
+</div>
+
+<hr>
+<!-- ══════════════════════════════════════════
+     §12.3  比例推論
+══════════════════════════════════════════ -->
+<h2 id="sec12-3">§12.3　單一母體比例的推論</h2>
+
+<h3>一、z 統計量與常態近似</h3>
+<p>當資料是<strong>名目（類別）尺度</strong>時（如：滿意／不滿意、良品／不良品），我們關心的是某類別在母體中出現的<strong>比例 $p$</strong>。</p>
+<p>以樣本比例 $\hat{p} = x/n$ 作為 $p$ 的點估計。在條件滿足時，$\hat{p}$ 的抽樣分配近似常態，因此比例推論直接使用 <strong>z 統計量</strong>（不需要 t 分配）。</p>
+
+<div class="two-col">
+    <div class="col-box" style="background:#fafbff;">
+        <h3>均值推論（§12.1）</h3>
+        <ul style="font-size:0.9em;margin-bottom:0;">
+            <li>資料：區間／比率尺度</li>
+            <li>參數：母體平均數 $\mu$</li>
+            <li>點估計：$\bar{X}$</li>
+            <li>分配：<strong>t 分配</strong>（$\nu = n-1$）</li>
+            <li>條件：母體近似常態</li>
+        </ul>
+    </div>
+    <div class="col-box" style="background:#fafbff;">
+        <h3>比例推論（§12.3）</h3>
+        <ul style="font-size:0.9em;margin-bottom:0;">
+            <li>資料：名目（類別）尺度</li>
+            <li>參數：母體比例 $p$</li>
+            <li>點估計：$\hat{p} = x/n$</li>
+            <li>分配：<strong>Z 分配</strong>（常態近似）</li>
+            <li>條件：$np_0>5$ 且 $n(1-p_0)>5$</li>
+        </ul>
+    </div>
+</div>
+
+<h3>二、核心公式</h3>
+
+<div class="formula-card">
+<h3>📐 母體比例 $p$ 的核心公式</h3>
+<p><strong>假設檢定統計量：</strong>（分母代入虛無假設值 $p_0$）</p>
+<div class="math-block">$$z = \frac{\hat{p} - p_0}{\sqrt{p_0(1-p_0)/n}}$$</div>
+<p><strong>母體比例的信賴區間估計：</strong>（分母改用 $\hat{p}$）</p>
+<div class="math-block">$$\hat{p} \pm z_{\alpha/2} \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$</div>
+<p class="note">⚠️ <strong>常見混淆：</strong>兩個公式的分母看似相同，但代入的值不同。檢定時 $H_0$ 為真、$p = p_0$ 是「已知的」，故代 $p_0$；信賴區間時 $p$ 未知，只能用 $\hat{p}$ 估計。</p>
+</div>
+
+<h3>三、主範例（右尾、左尾、雙尾 ＋ 信賴區間）</h3>
+
+<!-- ── 比例範例 E：右尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 E　網路購物回購率是否超過五成？（右尾比例檢定）</h3>
+<canvas id="zCanvasE" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某電商平台聲稱其顧客<strong>回購率超過 50%</strong>（即超過一半的顧客會再次購買）。獨立市調機構為驗證此說法，隨機抽取 <strong>$n = 400$ 筆</strong>訂單，其中 <strong>218 筆</strong>來自回購顧客。在 $\alpha = 0.05$ 下，是否有足夠的統計證據支持平台的宣稱？
+</div>
+
+<p><strong>步驟 1　設定假設（右尾）</strong></p>
+<p>驗證條件：$np_0 = 400 \times 0.5 = 200 > 5$，$n(1-p_0) = 200 > 5$ ✅</p>
+<div class="math-block">$$H_0: p \leq 0.50 \qquad H_1: p > 0.50 \qquad \alpha = 0.05$$</div>
+
+<p><strong>步驟 2　計算統計量</strong></p>
+<div class="math-block">$$\hat{p} = \frac{218}{400} = 0.545, \quad z = \frac{0.545 - 0.50}{\sqrt{0.50 \times 0.50 / 400}} = \frac{0.045}{0.025} = 1.80$$</div>
+
+<p><strong>步驟 3　臨界值法 ＋ p 值法</strong></p>
+<p>右尾臨界值 $z_{0.05} = 1.645$；$z = 1.80 > 1.645$ → <strong>拒絕 $H_0$</strong></p>
+<p>p 值 $= P(Z > 1.80) = 0.0359 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據支持電商平台的宣稱——回購率確實超過 50%。p 值 ≈ 0.036，屬「強烈」的統計證據。</div>
+</div>
+
+<!-- ── 比例範例 F：左尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 F　課程不及格率是否低於系所標準？（左尾比例檢定）</h3>
+<canvas id="zCanvasF" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某系所擔憂課程難度過高，規定若不及格率超過 20%，須召開課程檢討會議。某教師認為自己的課程不及格率應<strong>低於</strong> 20%，以此申請豁免。從近三年修課記錄中隨機抽取 <strong>$n = 200$ 人</strong>，其中有 <strong>32 人</strong>不及格。在 $\alpha = 0.05$ 下，是否有統計依據支持教師的申請？
+</div>
+
+<p><strong>步驟 1　設定假設（左尾）</strong></p>
+<p>驗證條件：$np_0 = 200 \times 0.20 = 40 > 5$，$n(1-p_0) = 160 > 5$ ✅</p>
+<div class="math-block">$$H_0: p \geq 0.20 \qquad H_1: p < 0.20 \qquad \alpha = 0.05$$</div>
+
+<p><strong>步驟 2　計算統計量</strong></p>
+<div class="math-block">$$\hat{p} = \frac{32}{200} = 0.16, \quad z = \frac{0.16 - 0.20}{\sqrt{0.20 \times 0.80 / 200}} = \frac{-0.04}{0.02828} \approx -1.414$$</div>
+
+<p><strong>步驟 3　臨界值法 ＋ p 值法</strong></p>
+<p>左尾臨界值 $-z_{0.05} = -1.645$；$z = -1.414 > -1.645$ → 未落入拒絕域 → <strong>不拒絕 $H_0$</strong></p>
+<p>p 值 $= P(Z < -1.414) \approx 0.079 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<div class="note">❌ 在 5% 的顯著水準下，沒有足夠的統計證據支持教師的申請——無法統計確認不及格率低於 20%。雖然樣本不及格率 16% 低於 20%，但在 $n=200$ 的樣本下差距仍未達顯著水準。<br>📌 若改用 $\alpha = 0.10$（$-z_{0.10} = -1.282$），因 $-1.414 < -1.282$ 則拒絕 $H_0$，顯著水準的選擇影響結論。</div>
+</div>
+
+<!-- ── 比例範例 G：雙尾 + CI ── -->
+<div class="example-block">
+<h3>📝 主範例 G　App 用戶評分比例是否改變？（雙尾比例檢定 ＋ 信賴區間）</h3>
+<canvas id="zCanvasG" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某 App 過去的「4 星以上好評率」為 <strong>65%</strong>。App 大幅更新後，開發團隊想了解好評率是否有顯著改變（可能提升或下降）。從最新的 <strong>$n = 350$ 則</strong>評價中，有 <strong>245 則</strong>達 4 星以上。在 $\alpha = 0.05$ 下進行雙尾檢定，並建立 95% 信賴區間。
+</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<p>驗證條件：$np_0 = 350 \times 0.65 = 227.5 > 5$ ✅</p>
+<div class="math-block">$$H_0: p = 0.65 \qquad H_1: p \neq 0.65 \qquad \alpha = 0.05$$</div>
+
+<p><strong>步驟 2　計算統計量</strong></p>
+<div class="math-block">$$\hat{p} = \frac{245}{350} = 0.70, \quad z = \frac{0.70 - 0.65}{\sqrt{0.65 \times 0.35 / 350}} = \frac{0.05}{0.02550} \approx 1.961$$</div>
+
+<p><strong>步驟 3　臨界值法 ＋ p 值法</strong></p>
+<p>雙尾臨界值 $\pm z_{0.025} = \pm 1.96$；$|z| = 1.961 > 1.96$ → <strong>拒絕 $H_0$</strong>（極小的差距！）</p>
+<p>p 值 $= 2 \times P(Z > 1.961) \approx 0.0498 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　95% 信賴區間</strong></p>
+<div class="math-block">$$0.70 \pm 1.96 \times \sqrt{\frac{0.70 \times 0.30}{350}} = 0.70 \pm 1.96 \times 0.02449 = 0.70 \pm 0.048 \implies [0.652,\; 0.748]$$</div>
+
+<div class="note">✅ 在 5% 的顯著水準下，勉強有統計證據推論 App 更新後好評率有所改變（上升至 70%）。<br>⚠️ <strong>注意邊界情況：</strong>p 值 ≈ 0.050，幾乎恰好等於 $\alpha$，結論極不穩定。若改用 $\alpha = 0.01$，則 $|z|=1.961 < 2.576 = z_{0.005}$，不拒絕 $H_0$。此種邊界結果，應謹慎詮釋，不宜過度自信。<br>📌 95% 信賴區間 [65.2%, 74.8%] 不包含 $p_0 = 65\%$，與雙尾拒絕結論一致（但差距極小）。</div>
+</div>
+
+<h3>四、選擇樣本大小</h3>
+<p>事前決定所需樣本大小，使估計誤差（誤差界限）不超過 $B$：</p>
+<div class="math-block">$$n = \frac{z_{\alpha/2}^2 \cdot \hat{p}(1-\hat{p})}{B^2}$$</div>
+
+<table>
+    <thead><tr><th>方法</th><th>說明</th><th>計算例（$B=0.03$，95% 信心）</th></tr></thead>
+    <tbody>
+        <tr><td><strong>保守估計</strong>（無先驗資訊）</td><td>令 $\hat{p}=0.5$，$\hat{p}(1-\hat{p})$ 最大化</td><td>$n = 1.96^2 \times 0.25 / 0.03^2 \approx 1{,}068$</td></tr>
+        <tr><td><strong>利用先驗估計</strong></td><td>代入已知的 $\hat{p}$ 估計值</td><td>若 $\hat{p}=0.65$：$n \approx 971$</td></tr>
+    </tbody>
+</table>
+
+<h3>五、使用條件</h3>
+<div class="highlight">
+<strong>⚠️ 常態近似的條件：</strong>$np_0 > 5$ 且 $n(1-p_0) > 5$（假設檢定）；或 $n\hat{p} > 5$ 且 $n(1-\hat{p}) > 5$（信賴區間）。條件不滿足時，應改用二項分配精確計算。
+</div>
+
+<hr>
+<!-- ══════════════════════════════════════════
+     §12.4  變異數推論（卡方）
+══════════════════════════════════════════ -->
+<h2 id="sec12-4">§12.4　單一母體變異數的推論（卡方分配）</h2>
+<p>有時我們關心的不是「平均值」，而是資料的<strong>分散程度</strong>——例如生產線品質的一致性、金融資產的風險等。此時需要對母體變異數 $\sigma^2$ 進行推論，使用<strong>卡方分配（$\chi^2$ 分配）</strong>。</p>
+
+<h3>一、卡方分配特性</h3>
+<canvas id="chi2Canvas" width="640" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p style="text-align:center;font-size:0.88em;color:#666;margin-top:-8px;">圖：不同自由度的卡方分配。卡方分配為右偏分配，自由度增大時形狀趨近對稱。</p>
+
+<ul>
+    <li><strong>右偏（Skewed right）</strong>：卡方分配的值域為 $[0, +\infty)$，形狀為右偏，與 t 分配的左右對稱不同。</li>
+    <li><strong>自由度 $\nu = n-1$</strong>：與 t 分配相同，自由度等於樣本大小減 1。</li>
+    <li><strong>兩個臨界值</strong>：因為分配不對稱，雙尾檢定時需要查<strong>兩個不同的臨界值</strong>（$\chi^2_{\alpha/2}$ 和 $\chi^2_{1-\alpha/2}$）。</li>
+</ul>
+
+<h3>二、核心公式</h3>
+<div class="formula-card">
+<h3>📐 母體變異數 $\sigma^2$ 的核心公式</h3>
+<p><strong>假設檢定統計量：</strong></p>
+<div class="math-block">$$\chi^2 = \frac{(n-1)s^2}{\sigma_0^2}, \quad \text{自由度 } \nu = n-1$$</div>
+<p><strong>母體變異數的信賴區間估計：</strong></p>
+<div class="math-block">$$\left[\frac{(n-1)s^2}{\chi^2_{\alpha/2,\,n-1}},\; \frac{(n-1)s^2}{\chi^2_{1-\alpha/2,\,n-1}}\right]$$</div>
+<table style="margin-top:12px;">
+    <thead><tr><th>對立假設 $H_1$</th><th>拒絕域</th></tr></thead>
+    <tbody>
+        <tr><td>$\sigma^2 \neq \sigma_0^2$（雙尾）</td><td>$\chi^2 > \chi^2_{\alpha/2,\,n-1}$ 或 $\chi^2 < \chi^2_{1-\alpha/2,\,n-1}$</td></tr>
+        <tr><td>$\sigma^2 > \sigma_0^2$（右尾）</td><td>$\chi^2 > \chi^2_{\alpha,\,n-1}$</td></tr>
+        <tr><td>$\sigma^2 < \sigma_0^2$（左尾）</td><td>$\chi^2 < \chi^2_{1-\alpha,\,n-1}$</td></tr>
+    </tbody>
+</table>
+<p class="note">⚠️ <strong>注意符號：</strong>$\chi^2_{\alpha/2}$ 是<strong>右尾面積</strong>為 $\alpha/2$ 的臨界值（較大）；$\chi^2_{1-\alpha/2}$ 是右尾面積為 $1-\alpha/2$ 的臨界值（較小）。信賴區間的下限使用較大的卡方值、上限使用較小的卡方值。</p>
+</div>
+
+<p>以下提供常用卡方分配臨界值（右尾面積）：</p>
+<div style="overflow-x:auto;margin:16px 0;">
+<table style="font-size:0.88em;min-width:580px;">
+    <thead>
+        <tr>
+            <th rowspan="2">$\nu$</th>
+            <th colspan="5" style="background:#d0e8ff;">右尾面積 $\alpha$</th>
+        </tr>
+        <tr>
+            <th style="background:#e8f4ff;">0.995</th><th style="background:#e8f4ff;">0.975</th>
+            <th style="background:#e8f4ff;">0.050</th><th style="background:#e8f4ff;">0.025</th><th style="background:#e8f4ff;">0.010</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>5</strong></td><td>0.412</td><td>0.831</td><td>11.070</td><td>12.833</td><td>15.086</td></tr>
+        <tr><td><strong>9</strong></td><td>1.735</td><td>2.700</td><td>16.919</td><td>19.023</td><td>21.666</td></tr>
+        <tr><td><strong>10</strong></td><td>2.156</td><td>3.247</td><td>18.307</td><td>20.483</td><td>23.209</td></tr>
+        <tr><td><strong>14</strong></td><td>4.075</td><td>5.629</td><td>23.685</td><td>26.119</td><td>29.141</td></tr>
+        <tr><td><strong>15</strong></td><td>4.601</td><td>6.262</td><td>24.996</td><td>27.488</td><td>30.578</td></tr>
+        <tr><td><strong>19</strong></td><td>6.844</td><td>8.907</td><td>30.144</td><td>32.852</td><td>36.191</td></tr>
+        <tr><td><strong>24</strong></td><td>9.886</td><td>12.401</td><td>36.415</td><td>39.364</td><td>42.980</td></tr>
+        <tr><td><strong>29</strong></td><td>13.121</td><td>16.047</td><td>42.557</td><td>45.722</td><td>49.588</td></tr>
+    </tbody>
+</table>
+</div>
+<p class="note-inline">💡 雙尾 95% 信賴區間（$\alpha = 0.05$）：上方查「0.025」列（較大臨界值），下方查「0.975」列（較小臨界值）。</p>
+
+<!-- ── 卡方範例 H：生產線品質 ── -->
+<div class="example-block">
+<h3>📝 主範例 H　飲料瓶裝填量的一致性（雙尾 $\chi^2$ 檢定 ＋ 信賴區間）</h3>
+<div class="scenario">
+<strong>情境：</strong>某飲料廠的裝填機規格要求每瓶裝填量的變異數<strong>不超過 $625$ mL²</strong>（即標準差不超過 25 mL）。品管人員懷疑最近這台機器的一致性發生了變化（可能變好或變差），隨機抽取 <strong>$n = 20$ 瓶</strong>，測得樣本變異數 $s^2 = 810$ mL²。在 $\alpha = 0.05$ 下進行雙尾檢定，並建立 95% 信賴區間。
+</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<div class="math-block">$$H_0: \sigma^2 = 625 \qquad H_1: \sigma^2 \neq 625 \qquad \alpha = 0.05,\; \nu = 19$$</div>
+
+<p><strong>步驟 2　計算卡方統計量</strong></p>
+<div class="math-block">$$\chi^2 = \frac{(n-1)s^2}{\sigma_0^2} = \frac{19 \times 810}{625} = \frac{15{,}390}{625} = 24.624$$</div>
+
+<p><strong>步驟 3　查臨界值（$\nu = 19$，$\alpha = 0.05$）</strong></p>
+<p>上側臨界值：$\chi^2_{0.025,\,19} = 32.852$；下側臨界值：$\chi^2_{0.975,\,19} = 8.907$</p>
+<p>雙尾拒絕域：$\chi^2 > 32.852$ 或 $\chi^2 < 8.907$</p>
+<p>$\chi^2 = 24.624$，落在 $[8.907, 32.852]$ 之間 → <strong>不拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　95% 信賴區間</strong></p>
+<div class="math-block">$$\left[\frac{19 \times 810}{32.852},\; \frac{19 \times 810}{8.907}\right] = \left[\frac{15390}{32.852},\; \frac{15390}{8.907}\right] = [468.4,\; 1727.5]$$</div>
+<p>對標準差而言：$[\sqrt{468.4},\; \sqrt{1727.5}] = [21.6,\; 41.6]$ mL</p>
+
+<div class="note">❌ 在 5% 的顯著水準下，沒有足夠的統計證據推論裝填機的變異數發生了顯著改變。<br>📌 95% 信賴區間為 [468.4, 1727.5] mL²；標準差的信賴區間為 [21.6, 41.6] mL，包含了規格值 $\sigma = 25$ mL，與不拒絕結論一致。</div>
+</div>
+
+<!-- ── 卡方範例 I：右尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 I　服務等待時間的穩定性（右尾 $\chi^2$ 檢定）</h3>
+<div class="scenario">
+<strong>情境：</strong>某銀行的顧客服務培訓規定，服務等待時間的標準差應不超過 <strong>3 分鐘</strong>（即 $\sigma^2 \leq 9$）。主管擔心最近等待時間的波動<strong>增加</strong>，從本週的服務記錄中隨機抽取 <strong>$n = 16$ 筆</strong>，計算得樣本標準差 $s = 4.2$ 分鐘（即 $s^2 = 17.64$）。在 $\alpha = 0.05$ 下，波動是否顯著超過標準？
+</div>
+
+<p><strong>步驟 1　設定假設（右尾）</strong></p>
+<div class="math-block">$$H_0: \sigma^2 \leq 9 \qquad H_1: \sigma^2 > 9 \qquad \alpha = 0.05,\; \nu = 15$$</div>
+
+<p><strong>步驟 2　計算卡方統計量</strong></p>
+<div class="math-block">$$\chi^2 = \frac{(n-1)s^2}{\sigma_0^2} = \frac{15 \times 17.64}{9} = \frac{264.6}{9} = 29.4$$</div>
+
+<p><strong>步驟 3　查臨界值（$\nu = 15$，右尾 $\alpha = 0.05$）</strong></p>
+<p>右尾臨界值：$\chi^2_{0.05,\,15} = 24.996$</p>
+<p>$\chi^2 = 29.4 > 24.996$ → 落入拒絕域 → <strong>拒絕 $H_0$</strong></p>
+<p>p 值 $= P(\chi^2_{15} > 29.4) \approx 0.014 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論服務等待時間的波動（變異數）已超過規格上限，主管應採取改善措施以降低服務時間的不穩定性。</div>
+</div>
+
+<hr>
+<!-- ══ 計算機 ══ -->
+<h2 id="calc">🔢 互動計算機</h2>
+
+<div class="calc-box">
+<h3>🔢 計算機 A　t 統計量與信賴區間（$\sigma$ 未知）</h3>
+<div class="inputs-row">
+    <label>樣本平均數 $\bar{X}$<br><input type="number" id="xbar" value="61.66" step="any"></label>
+    <label>虛無假設值 $\mu_0$<br><input type="number" id="mu0" value="65" step="any"></label>
+    <label>樣本標準差 $s$<br><input type="number" id="s_val" value="11.55" step="any" min="0.001"></label>
+    <label>樣本大小 $n$<br><input type="number" id="n_val" value="100" min="2"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="alpha_sel">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>檢定方向<br>
+        <select id="tail_sel">
+            <option value="two" selected>雙尾（μ ≠ μ₀）</option>
+            <option value="right">右尾（μ &gt; μ₀）</option>
+            <option value="left">左尾（μ &lt; μ₀）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcT()">計算</button>
+<div class="calc-result" id="t-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 計算機 B　比例 z 統計量與信賴區間</h3>
+<div class="inputs-row">
+    <label>成功次數 $x$<br><input type="number" id="x_prop" value="218" min="0"></label>
+    <label>樣本大小 $n$<br><input type="number" id="n_prop" value="400" min="1"></label>
+    <label>虛無假設值 $p_0$<br><input type="number" id="p0_val" value="0.50" step="0.01" min="0" max="1"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="alpha_prop">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>檢定方向<br>
+        <select id="tail_prop">
+            <option value="two">雙尾（p ≠ p₀）</option>
+            <option value="right" selected>右尾（p &gt; p₀）</option>
+            <option value="left">左尾（p &lt; p₀）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcProp()">計算</button>
+<div class="calc-result" id="prop-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 計算機 C　卡方統計量與信賴區間（母體變異數）</h3>
+<div class="inputs-row">
+    <label>樣本變異數 $s^2$<br><input type="number" id="s2_chi" value="810" step="any" min="0"></label>
+    <label>虛無假設值 $\sigma_0^2$<br><input type="number" id="sig0_chi" value="625" step="any" min="0.001"></label>
+    <label>樣本大小 $n$<br><input type="number" id="n_chi" value="20" min="2"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="alpha_chi">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>檢定方向<br>
+        <select id="tail_chi">
+            <option value="two" selected>雙尾（σ² ≠ σ₀²）</option>
+            <option value="right">右尾（σ² &gt; σ₀²）</option>
+            <option value="left">左尾（σ² &lt; σ₀²）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcChi2()">計算</button>
+<div class="calc-result" id="chi2-result"></div>
+</div>
+
+<hr>
+
+<!-- ══ Quiz ══ -->
+<div class="quiz-box" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+    <p>Q1. 母體標準差 $\sigma$ 未知時，單一母體平均數的推論應使用哪種統計量？</p>
+    <label><input type="radio" name="q1" value="a"> A. z 統計量（使用 $\sigma$）</label>
+    <label><input type="radio" name="q1" value="b"> B. t 統計量（使用 $s$），服從 t 分配，$\nu = n-1$</label>
+    <label><input type="radio" name="q1" value="c"> C. 卡方統計量</label>
+    <label><input type="radio" name="q1" value="d"> D. F 統計量</label>
+    <button onclick="checkQ('q1','b','✅ 正確！$\\sigma$ 未知時以樣本標準差 $s$ 代入，使用 t 統計量，自由度 $\\nu = n-1$。')">Submit</button>
+    <div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q2. 比例推論（$\S$12.3）的假設檢定統計量分母為何使用 $p_0$ 而非 $\hat{p}$？</p>
+    <label><input type="radio" name="q2" value="a"> A. 因為 $p_0$ 永遠比 $\hat{p}$ 精確</label>
+    <label><input type="radio" name="q2" value="b"> B. 假設檢定在「$H_0$ 為真（$p = p_0$）」的前提下計算統計量，$p_0$ 是已知的</label>
+    <label><input type="radio" name="q2" value="c"> C. 因為 $\hat{p}$ 計算困難</label>
+    <label><input type="radio" name="q2" value="d"> D. 兩者代入結果相同</label>
+    <button onclick="checkQ('q2','b','✅ 正確！假設檢定假設 $H_0$ 為真，此時 $p = p_0$ 是已知的，代入分母；信賴區間目的是估計未知 $p$，才改用 $\\hat{p}$ 代替。')">Submit</button>
+    <div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q3. 主範例 B（右尾 t 檢定，$n=20$，$t=1.120$）的結論為「不拒絕 $H_0$」。若將樣本增加到 $n=80$，其他條件不變（$\bar{X}=62.90$，$s=11.58$），t 統計量會如何變化？結論可能改變嗎？</p>
+    <label><input type="radio" name="q3" value="a"> A. t 不變，結論不變</label>
+    <label><input type="radio" name="q3" value="b"> B. t 增大，可能改為拒絕 $H_0$</label>
+    <label><input type="radio" name="q3" value="c"> C. t 縮小，更難拒絕</label>
+    <label><input type="radio" name="q3" value="d"> D. t 改變方向</label>
+    <button onclick="checkQ('q3','b','✅ 正確！$n=80$ 時：$t = (62.90-60)/(11.58/\\sqrt{80}) = 2.90/1.294 \\approx 2.24 > t_{0.05,79} \\approx 1.664$，改為拒絕 $H_0$。增加樣本大小可提升檢定力，偵測到原本無顯著的差異。')">Submit</button>
+    <div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q4. 卡方分配與 t 分配最重要的形狀差異是什麼？</p>
+    <label><input type="radio" name="q4" value="a"> A. 卡方分配是左右對稱的，t 分配是右偏的</label>
+    <label><input type="radio" name="q4" value="b"> B. 卡方分配是右偏的，值域為 $[0, +\infty)$；t 分配以 0 為中心、左右對稱</label>
+    <label><input type="radio" name="q4" value="c"> C. 兩者形狀相同，只是自由度不同</label>
+    <label><input type="radio" name="q4" value="d"> D. 卡方分配用於均值推論，t 分配用於變異數推論</label>
+    <button onclick="checkQ('q4','b','✅ 正確！卡方分配右偏且值域非負，因此雙尾檢定的兩個臨界值不對稱（$\\chi^2_{\\alpha/2} \\neq -\\chi^2_{1-\\alpha/2}$）。t 分配對稱，只需一個臨界值（$\\pm t_{\\alpha/2}$）。')">Submit</button>
+    <div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q5. 以 95% 信心估計母體比例 $p$，且沒有任何先驗資訊，誤差界限 $B = 0.04$，最少需要多大的樣本？</p>
+    <label><input type="radio" name="q5" value="a"> A. 約 423 人</label>
+    <label><input type="radio" name="q5" value="b"> B. 約 601 人</label>
+    <label><input type="radio" name="q5" value="c"> C. 約 601 人</label>
+    <label><input type="radio" name="q5" value="d"> D. 約 1,537 人（取 $B=0.025$ 計算）</label>
+    <button onclick="checkQ('q5','b','✅ 正確！$n = z_{0.025}^2 \\times 0.25 / B^2 = 1.96^2 \\times 0.25 / 0.04^2 = 3.8416 \\times 0.25 / 0.0016 = 600.25$，無條件進位為 $n = 601$。')">Submit</button>
+    <div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- ══ Exercises ══ -->
+<h2 id="exercises">📚 綜合演練 (Comprehensive Practice)</h2>
+<p>以下題目涵蓋 t 推論（均值）、z 推論（比例）、$\chi^2$ 推論（變異數）三大主題，包含雙尾、右尾、左尾三種尾別及信賴區間估計。</p>
+
+<h3>I. 概念複習</h3>
+<ol class="exercises-list">
+    <li>
+        <p>z 統計量與 t 統計量的主要差異是什麼？何時應使用 t 統計量？為何用 $s$ 代替 $\sigma$ 後，分配從 Z 變成 t？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <ul>
+                <li><strong>z 統計量：</strong>$\sigma$ 已知，服從 $N(0,1)$。</li>
+                <li><strong>t 統計量：</strong>$\sigma$ 未知，以 $s$ 代替，服從 $t_{\nu = n-1}$。</li>
+                <li><strong>分配改變的原因：</strong>t 統計量的分子 $\bar{X}$ 和分母 $s$ <strong>兩者都是隨機變數</strong>，每次抽樣同時波動，引入額外不確定性。$n$ 越大，$s$ 越穩定，t 分配越接近 Z 分配。</li>
+            </ul>
+        </div></details>
+    </li>
+    <li>
+        <p>比例推論的假設檢定分母為何使用 $p_0$，而信賴區間改用 $\hat{p}$？請說明背後邏輯。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <ul>
+                <li><strong>假設檢定：</strong>在「$H_0$ 為真（$p = p_0$）」的前提下推導，$p_0$ 是已知的，代入分母計算標準誤。</li>
+                <li><strong>信賴區間：</strong>目的是估計未知的 $p$，此時沒有 $H_0$，只能以手邊最佳的估計值 $\hat{p}$ 代入。</li>
+            </ul>
+        </div></details>
+    </li>
+    <li>
+        <p>為什麼卡方分配的雙尾信賴區間需要查兩個不同的臨界值，而 t 分配只需要查一個？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>t 分配<strong>左右對稱</strong>，以 0 為中心，故 $+t_{\alpha/2}$ 和 $-t_{\alpha/2}$ 絕對值相同，只需查一個。</p>
+            <p>卡方分配<strong>右偏且值域為 $[0,+\infty)$</strong>，不對稱，$\chi^2_{\alpha/2}$ 和 $\chi^2_{1-\alpha/2}$ 的值不同，必須分別查表。信賴區間的下限使用較大的卡方值（$\chi^2_{\alpha/2}$），上限使用較小的卡方值（$\chi^2_{1-\alpha/2}$）。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>II. t 推論計算題</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>12.1　學生每週讀書時間是否超過 10 小時？（右尾 t 檢定）</strong>
+        <p>一位教育研究者認為，大學生每週的平均自主讀書時間<strong>超過 10 小時</strong>。隨機抽取 <strong>$n = 16$ 位</strong>學生，調查每週讀書時間（小時）如下：</p>
+        <p style="text-align:center;font-family:monospace;background:#f5f5f5;padding:10px;border-radius:6px;">
+            14 &nbsp; 8 &nbsp; 12 &nbsp; 10 &nbsp; 16 &nbsp; 9 &nbsp; 11 &nbsp; 15<br>
+            7 &nbsp; 13 &nbsp; 10 &nbsp; 12 &nbsp; 18 &nbsp; 9 &nbsp; 11 &nbsp; 14
+        </p>
+        <p>在 $\alpha = 0.05$ 下，是否有足夠的統計證據支持研究者的宣稱？</p>
+        <ul>
+            <li>a. 設定 $H_0$ 與 $H_1$。</li>
+            <li>b. 計算 $\bar{X}$、$s$，再計算 t 統計量（$\nu = 15$）。</li>
+            <li>c. 臨界值法做出決策（$t_{0.05,15} = 1.753$）。</li>
+            <li>d. 計算 p 值範圍，說明證據強度，並以情境說明結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p><strong>a.</strong> $H_0: \mu \leq 10$；$H_1: \mu > 10$（右尾）</p>
+            <p><strong>b.</strong> 總和 $= 14+8+12+10+16+9+11+15+7+13+10+12+18+9+11+14 = 189$</p>
+            <div class="math-block">$$\bar{X} = 189/16 = 11.8125 \text{ 小時}$$</div>
+            <p>計算 $s$：各值與平均數差的平方和 $\approx 148.44$，故 $s = \sqrt{148.44/15} \approx 3.147$</p>
+            <div class="math-block">$$t = \frac{11.8125 - 10}{3.147/\sqrt{16}} = \frac{1.8125}{0.787} \approx 2.303$$</div>
+            <p><strong>c.</strong> 右尾拒絕域：$t > 1.753$；$2.303 > 1.753$ → <strong>拒絕 $H_0$</strong>。</p>
+            <p><strong>d.</strong> $t=2.303$ 介於 $t_{0.025,15}=2.131$ 與 $t_{0.01,15}=2.602$ 之間，故 $0.01 < p < 0.025$，屬「強烈」的統計證據。</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 5% 的顯著水準下，有足夠的統計證據支持研究者的宣稱——大學生每週平均讀書時間超過 10 小時。</p>
+        </div></details>
+    </li>
+
+    <li>
+        <strong>12.2　咖啡店等候時間是否超過規定？（左尾 t 檢定）</strong>
+        <p>某連鎖咖啡店承諾，顧客點餐後的等候時間平均<strong>少於 5 分鐘</strong>。消費者服務部門為驗證此承諾，隨機記錄 <strong>$n = 12$ 次</strong>等候時間（分鐘）：</p>
+        <p style="text-align:center;font-family:monospace;background:#f5f5f5;padding:10px;border-radius:6px;">
+            4.2 &nbsp; 5.8 &nbsp; 3.9 &nbsp; 6.1 &nbsp; 4.7 &nbsp; 5.3<br>
+            3.6 &nbsp; 4.9 &nbsp; 5.5 &nbsp; 4.1 &nbsp; 6.2 &nbsp; 4.8
+        </p>
+        <p>在 $\alpha = 0.05$ 下，承諾是否成立？</p>
+        <ul>
+            <li>a. 設定 $H_0$ 與 $H_1$（承諾為 $H_1$）。</li>
+            <li>b. 計算 $\bar{X}$、$s$ 與 t 統計量（$\nu = 11$）。</li>
+            <li>c. 臨界值法 ＋ p 值範圍，做出決策並解釋結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p><strong>a.</strong> $H_0: \mu \geq 5$；$H_1: \mu < 5$（左尾）</p>
+            <p><strong>b.</strong> 總和 $= 59.1$；$\bar{X} = 59.1/12 \approx 4.925$ 分鐘；$s \approx 0.797$ 分鐘</p>
+            <div class="math-block">$$t = \frac{4.925 - 5}{0.797/\sqrt{12}} = \frac{-0.075}{0.230} \approx -0.326$$</div>
+            <p><strong>c.</strong> 左尾臨界值 $-t_{0.05,11} = -1.796$；$-0.326 > -1.796$ → <strong>不拒絕 $H_0$</strong>。</p>
+            <p>$|t| = 0.326$，遠小於任何臨界值，p 值 $> 0.10$，幾乎沒有反對 $H_0$ 的證據。</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">❌ 在 5% 的顯著水準下，沒有足夠的統計證據支持「平均等候時間少於 5 分鐘」的承諾。雖然樣本平均 4.93 分鐘略低於 5 分鐘，但差距極小，不具統計顯著性。</p>
+        </div></details>
+    </li>
+
+    <li>
+        <strong>12.3　新訓練課程對員工績效的影響（雙尾 t 檢定 ＋ 信賴區間）</strong>
+        <p>某公司引入新的員工訓練課程。過去員工的績效評分平均為 <strong>72 分</strong>。人資部門從接受新訓練的員工中隨機抽取 $n = 25$ 人，得到平均績效分數 $\bar{X} = 75.6$ 分，標準差 $s = 9.8$ 分。在 $\alpha = 0.05$ 下，新訓練課程是否顯著改變員工績效？並建立 95% 信賴區間。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$H_0: \mu = 72$；$H_1: \mu \neq 72$（雙尾），$\nu = 24$</p>
+            <div class="math-block">$$t = \frac{75.6 - 72}{9.8/\sqrt{25}} = \frac{3.6}{1.96} \approx 1.837$$</div>
+            <p>雙尾臨界值 $t_{0.025,24} = 2.064$；$|1.837| < 2.064$ → <strong>不拒絕 $H_0$</strong></p>
+            <p>p 值範圍：$t=1.837$ 介於 $t_{0.05,24}=1.711$ 與 $t_{0.025,24}=2.064$ 之間，故 $0.05 < p < 0.10$（屬「弱」的證據）。</p>
+            <p><strong>95% 信賴區間：</strong></p>
+            <div class="math-block">$$75.6 \pm 2.064 \times 1.96 = 75.6 \pm 4.05 \implies [71.55,\; 79.65]$$</div>
+            <p class="note" style="background:#fff3cd;border-left:3px solid #d4a017;padding:8px 12px;border-radius:0 4px 4px 0;">⚠️ 在 5% 的顯著水準下，沒有足夠的統計證據推論新訓練課程顯著改變績效。95% 信賴區間 [71.55, 79.65] 包含 $\mu_0 = 72$，與不拒絕 $H_0$ 的結論一致。但 p 值介於 0.05 與 0.10 之間，差距尚未達到 5% 的顯著水準，若改用 $\alpha = 0.10$ 則結論相反。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>III. 比例推論計算題</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>12.4　行動支付使用率是否超過六成？（右尾比例檢定）</strong>
+        <p>某金融機構調查顯示，過去全國消費者行動支付使用率約為 60%。研究者認為，年輕族群（18–35 歲）的使用率應<strong>高於</strong>全國平均。隨機抽取 <strong>$n = 300$ 位</strong>年輕消費者，發現有 <strong>192 人</strong>使用行動支付。在 $\alpha = 0.05$ 下進行檢定，並建立 95% 信賴區間。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$H_0: p \leq 0.60$；$H_1: p > 0.60$（右尾）</p>
+            <p>驗證：$np_0 = 180 > 5$，$n(1-p_0) = 120 > 5$ ✅</p>
+            <div class="math-block">$$\hat{p} = 192/300 = 0.64, \quad z = \frac{0.64-0.60}{\sqrt{0.60\times0.40/300}} = \frac{0.04}{0.02828} \approx 1.414$$</div>
+            <p>右尾臨界值 $z_{0.05} = 1.645$；$1.414 < 1.645$ → <strong>不拒絕 $H_0$</strong></p>
+            <p>p 值 $= P(Z > 1.414) \approx 0.079 > 0.05$ → 不拒絕 $H_0$（屬「弱」的證據）</p>
+            <p>95% 信賴區間：</p>
+            <div class="math-block">$$0.64 \pm 1.96\sqrt{\frac{0.64\times0.36}{300}} = 0.64 \pm 0.054 \implies [58.6\%,\; 69.4\%]$$</div>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">❌ 在 5% 顯著水準下，沒有足夠的統計證據推論年輕族群使用率顯著高於 60%。95% 信賴區間包含 60%，與不拒絕結論一致。</p>
+        </div></details>
+    </li>
+
+    <li>
+        <strong>12.5　線上課程完課率調查（信賴區間 ＋ 樣本大小）</strong>
+        <p>某 MOOC 平台想估計線上課程的完課率。隨機抽取 <strong>$n = 250$ 位</strong>學員，其中 <strong>$x = 88$ 位</strong>完成了課程。</p>
+        <ul>
+            <li>a. 計算 $\hat{p}$，驗證常態近似條件。</li>
+            <li>b. 建立 95% 信賴區間，說明其實際意義。</li>
+            <li>c. 若平台想在 95% 的信心下，將誤差控制在 $\pm 3\%$ 以內，需要多大的樣本？（利用 b 小題的 $\hat{p}$ 作為先驗估計）</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p><strong>a.</strong> $\hat{p} = 88/250 = 0.352$；$n\hat{p} = 88 > 5$，$n(1-\hat{p}) = 162 > 5$ ✅</p>
+            <p><strong>b.</strong></p>
+            <div class="math-block">$$0.352 \pm 1.96\sqrt{\frac{0.352\times0.648}{250}} = 0.352 \pm 0.059 \implies [29.3\%,\; 41.1\%]$$</div>
+            <p>以 95% 信心估計，該平台線上課程的完課率介於 29.3% 到 41.1% 之間。</p>
+            <p><strong>c.</strong> 利用 $\hat{p} = 0.352$：</p>
+            <div class="math-block">$$n = \frac{1.96^2 \times 0.352 \times 0.648}{0.03^2} = \frac{3.8416 \times 0.2280}{0.0009} \approx 972.9 \implies n = 973$$</div>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 需要至少 973 位學員的樣本，才能在 95% 的信心下將完課率估計誤差控制在 ±3% 以內。若無先驗估計（令 $\hat{p}=0.5$），所需樣本為 $n=1{,}068$，較保守。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>IV. 卡方推論計算題</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>12.6　食品包裝重量的一致性（雙尾 $\chi^2$ 檢定）</strong>
+        <p>某食品廠規定包裝重量的標準差應在 <strong>5 公克</strong>以內（即 $\sigma^2 \leq 25$）。品管人員從今日生產的產品中隨機抽取 <strong>$n = 30$ 包</strong>，計算得樣本標準差 $s = 6.2$ 公克。在 $\alpha = 0.05$ 下，雙尾檢定包裝重量的變異數是否顯著不同於 25 公克²？</p>
+        <ul>
+            <li>a. 設定假設，計算 $\chi^2$ 統計量（$\nu = 29$）。</li>
+            <li>b. 查臨界值：$\chi^2_{0.025,29} = 45.722$，$\chi^2_{0.975,29} = 16.047$，做出決策。</li>
+            <li>c. 建立 95% 信賴區間（對 $\sigma^2$），說明結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p><strong>a.</strong> $H_0: \sigma^2 = 25$；$H_1: \sigma^2 \neq 25$</p>
+            <div class="math-block">$$\chi^2 = \frac{29 \times 6.2^2}{25} = \frac{29 \times 38.44}{25} = \frac{1114.76}{25} = 44.59$$</div>
+            <p><strong>b.</strong> 雙尾拒絕域：$\chi^2 > 45.722$ 或 $\chi^2 < 16.047$。</p>
+            <p>$\chi^2 = 44.59$，未超過 45.722 → <strong>不拒絕 $H_0$</strong>（但極為接近！）</p>
+            <p><strong>c.</strong></p>
+            <div class="math-block">$$\left[\frac{29 \times 38.44}{45.722},\; \frac{29 \times 38.44}{16.047}\right] = [24.38,\; 69.47]$$</div>
+            <p>對標準差：$[\sqrt{24.38},\; \sqrt{69.47}] = [4.94,\; 8.34]$ 公克</p>
+            <p class="note" style="background:#fff3cd;border-left:3px solid #d4a017;padding:8px 12px;border-radius:0 4px 4px 0;">⚠️ 在 5% 的顯著水準下，勉強不拒絕 $H_0$（$\chi^2 = 44.59$ 非常接近臨界值 45.722）。95% 信賴區間 [24.38, 69.47] 包含 $\sigma_0^2 = 25$，與不拒絕結論一致。但信賴區間上限遠高於 25，建議持續監控生產品質。</p>
+        </div></details>
+    </li>
+</ol>
+
+<hr>
+
+<div class="summary" id="summary">
+<h2>📌 Chapter Summary</h2>
+<ul>
+    <li><strong>t 推論（§12.1）：</strong>$\sigma$ 未知時，以 $s$ 代入，使用 $t = (\bar{X}-\mu_0)/(s/\sqrt{n})$，自由度 $\nu = n-1$。t 分配尾部比 Z 厚，$n$ 增大時趨近 Z 分配。信賴區間為 $\bar{X} \pm t_{\alpha/2, n-1} \cdot s/\sqrt{n}$。</li>
+    <li><strong>比例推論（§12.3）：</strong>名目資料，使用 $z = (\hat{p}-p_0)/\sqrt{p_0(1-p_0)/n}$（檢定用 $p_0$，信賴區間用 $\hat{p}$）。條件：$np_0>5$ 且 $n(1-p_0)>5$。所需樣本大小：$n = z_{\alpha/2}^2 \hat{p}(1-\hat{p})/B^2$（無先驗時令 $\hat{p}=0.5$）。</li>
+    <li><strong>變異數推論（§12.4）：</strong>使用 $\chi^2 = (n-1)s^2/\sigma_0^2$，自由度 $\nu = n-1$。卡方分配右偏、值域非負，雙尾需查兩個不同臨界值。信賴區間下限用較大的 $\chi^2_{\alpha/2}$，上限用較小的 $\chi^2_{1-\alpha/2}$。</li>
+    <li><strong>三種推論的對比：</strong>關心均值用 t（或 z，$\sigma$ 已知）；關心比例用 z；關心變異程度用 $\chi^2$。選擇統計量前先確認資料尺度與研究問題。</li>
+</ul>
+</div>
+
+<script>
+// ─── KaTeX render ───
+document.addEventListener("DOMContentLoaded", function(){
+    renderMathInElement(document.body,{
+        delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],
+        throwOnError:false, strict:"ignore"
+    });
+});
+
+// ─── Normal PDF/CDF ───
+function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+function normCDF(z){
+    const t=1/(1+0.2316419*Math.abs(z));
+    const p=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+    const c=1-normPDF(z)*p; return z>=0?c:1-c;
+}
+function normInv(p){
+    const m={0.10:1.282,0.05:1.645,0.025:1.960,0.01:2.326,0.005:2.576};
+    return m[p]||1.96;
+}
+
+// ─── t PDF ───
+function tPDF(x,df){
+    if(df>=120)return normPDF(x);
+    const g1=lgamma((df+1)/2), g2=lgamma(df/2);
+    return Math.exp(g1-g2)*Math.pow(1+x*x/df,-(df+1)/2)/Math.sqrt(df*Math.PI);
+}
+function lgamma(z){
+    const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,
+             0.1208650973866179e-2,-0.5395239384953e-5];
+    let y=z,x=z,tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp);
+    let ser=1.000000000190015;
+    for(let j=0;j<6;j++){y+=1;ser+=c[j]/y;}
+    return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+
+// ─── t CDF (approx) ───
+function tCDF(t, df){
+    const x = df/(df+t*t);
+    const a = incompleteBeta(x, df/2, 0.5);
+    return t>=0 ? 1-a/2 : a/2;
+}
+function incompleteBeta(x, a, b){
+    // simple continued fraction approximation
+    let result = 0;
+    try {
+        // Use normal approx for large df
+        if(a > 30) return normCDF(((x/(1-x))/(a/b)-1)/Math.sqrt(2/(9*(a/b))));
+        const bt = Math.exp(a*Math.log(x)+b*Math.log(1-x)-lbeta(a,b));
+        if(x<(a+1)/(a+b+2)) return bt*betacf(x,a,b)/a;
+        return 1-bt*betacf(1-x,b,a)/b;
+    } catch(e){ return 0.5; }
+}
+function lbeta(a,b){return lgamma(a)+lgamma(b)-lgamma(a+b);}
+function betacf(x,a,b){
+    const MAXIT=100,EPS=3e-7;
+    let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+    if(Math.abs(d)<1e-30)d=1e-30; d=1/d; let h=d;
+    for(let m=1;m<=MAXIT;m++){
+        const m2=2*m;
+        let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+        d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30;
+        c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30;
+        d=1/d; h*=d*c;
+        aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+        d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30;
+        c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30;
+        d=1/d; const del=d*c; h*=del;
+        if(Math.abs(del-1)<EPS)break;
+    }
+    return h;
+}
+
+// ─── t critical value lookup ───
+function tCritical(alpha, df){
+    if(df>=120) return normInv(alpha);
+    const table={
+        0.10:[3.078,1.886,1.638,1.533,1.476,1.440,1.415,1.397,1.383,1.372,1.363,1.356,1.350,1.345,1.341,1.337,1.333,1.330,1.328,1.325,1.323,1.321,1.319,1.318,1.316,1.315,1.314,1.313,1.311,1.310],
+        0.05:[6.314,2.920,2.353,2.132,2.015,1.943,1.895,1.860,1.833,1.812,1.796,1.782,1.771,1.761,1.753,1.746,1.740,1.734,1.729,1.725,1.721,1.717,1.714,1.711,1.708,1.706,1.703,1.701,1.699,1.697],
+        0.01:[31.821,6.965,4.541,3.747,3.365,3.143,2.998,2.896,2.821,2.764,2.718,2.681,2.650,2.624,2.602,2.583,2.567,2.552,2.539,2.528,2.518,2.508,2.500,2.492,2.485,2.479,2.473,2.467,2.462,2.457]
+    };
+    const row=table[alpha]||table[0.05];
+    return row[Math.min(df-1,29)];
+}
+
+// ─── Drawing functions ───
+function drawDist(id,stat,cv,tail,type,df,label){
+    const canvas=document.getElementById(id);if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=58,pR=28,pT=38,pB=58;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=-4.5,xMax=4.5,yMax=0.44;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    function pdf(x){return type==='z'?normPDF(x):tPDF(x,df);}
+    const axisY=py(0);
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+    function fillArea(x1,x2,col){
+        ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(px(x1),axisY);
+        for(let i=0;i<=300;i++){const x=x1+i/300*(x2-x1);ctx.lineTo(px(x),py(pdf(x)));}
+        ctx.lineTo(px(x2),axisY);ctx.closePath();ctx.fill();
+    }
+    if(tail==='right')fillArea(cv,xMax,'rgba(200,40,30,0.18)');
+    else if(tail==='left')fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');
+    else{fillArea(Math.abs(cv),xMax,'rgba(200,40,30,0.18)');fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');}
+    ctx.beginPath();ctx.strokeStyle='#1a4faa';ctx.lineWidth=2.2;
+    for(let i=0;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin);i===0?ctx.moveTo(px(x),py(pdf(x))):ctx.lineTo(px(x),py(pdf(x)));}
+    ctx.stroke();
+    ctx.strokeStyle='#888';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pL,axisY);ctx.lineTo(W-pR,axisY);ctx.stroke();
+    ctx.fillStyle='#555';ctx.font='12px sans-serif';ctx.textAlign='center';
+    [-4,-3,-2,-1,0,1,2,3,4].forEach(x=>{
+        ctx.beginPath();ctx.strokeStyle='#bbb';ctx.lineWidth=0.8;
+        ctx.moveTo(px(x),axisY);ctx.lineTo(px(x),axisY+5);ctx.stroke();
+        ctx.fillText(x,px(x),axisY+19);
+    });
+    function drawCV(v,labelStr){
+        const x0=px(v);
+        ctx.beginPath();ctx.strokeStyle='#c0392b';ctx.lineWidth=1.8;
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,axisY+9);ctx.stroke();
+        const yTop=py(pdf(v)),yHint=axisY-(axisY-yTop)*0.28;
+        ctx.beginPath();ctx.strokeStyle='rgba(192,57,43,0.35)';ctx.lineWidth=0.9;ctx.setLineDash([3,3]);
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,yHint);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#c0392b';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+        ctx.fillText(labelStr,x0,axisY+36);
+    }
+    if(tail==='right')drawCV(cv,''+cv);
+    else if(tail==='left')drawCV(-Math.abs(cv),'−'+Math.abs(cv));
+    else{drawCV(Math.abs(cv),''+cv);drawCV(-Math.abs(cv),'−'+cv);}
+    const statLabel=label?label:'t';
+    const sx=px(stat),dotY=axisY;
+    const curvY=py(pdf(stat)),labelY=curvY-18;
+    ctx.beginPath();ctx.strokeStyle='rgba(26,158,110,0.65)';ctx.lineWidth=1.2;ctx.setLineDash([3,2]);
+    ctx.moveTo(sx,dotY-6);ctx.lineTo(sx,labelY+4);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.fillStyle='#1a9e6e';
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.stroke();
+    ctx.fillStyle='#0d7a52';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+    ctx.fillText(statLabel+' = '+stat.toFixed(3),sx,labelY);
+}
+
+function drawTDistComparison(){
+    const canvas=document.getElementById('tDistCanvas'); if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=52,pR=22,pT=24,pB=36;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=-4.5,xMax=4.5,yMax=0.44;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafcff'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='#eee'; ctx.lineWidth=1;
+    [0.1,0.2,0.3,0.4].forEach(y=>{ctx.beginPath();ctx.moveTo(pL,py(y));ctx.lineTo(W-pR,py(y));ctx.stroke();});
+    const curves=[
+        {df:2,   color:'#e07020', label:'t(ν=2)'},
+        {df:5,   color:'#27ae60', label:'t(ν=5)'},
+        {df:20,  color:'#9b59b6', label:'t(ν=20)'},
+        {df:9999,color:'#2266cc', label:'Z (∞)'}
+    ];
+    curves.forEach(c=>{
+        ctx.beginPath(); ctx.strokeStyle=c.color; ctx.lineWidth=2;
+        for(let i=0;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin); const y=tPDF(x,c.df); i===0?ctx.moveTo(px(x),py(y)):ctx.lineTo(px(x),py(y));} ctx.stroke();
+    });
+    // legend
+    let lx=pL+10;
+    curves.forEach(c=>{
+        ctx.fillStyle=c.color; ctx.fillRect(lx,pT+4,18,3); lx+=4;
+        ctx.fillStyle='#333'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(c.label,lx+18,pT+10); lx+=70;
+    });
+    ctx.strokeStyle='#555'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(pL,py(0)); ctx.lineTo(W-pR,py(0)); ctx.stroke();
+    ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    [-4,-3,-2,-1,0,1,2,3,4].forEach(x=>{ctx.fillText(x,px(x),py(0)+14);});
+}
+
+// ─── Chi-squared canvas ───
+function chi2PDF(x,df){
+    if(x<=0)return 0;
+    return Math.exp((df/2-1)*Math.log(x)-x/2-lgamma(df/2)-(df/2)*Math.log(2));
+}
+function drawChi2Canvas(){
+    const canvas=document.getElementById('chi2Canvas'); if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=52,pR=22,pT=24,pB=36;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=0,xMax=30,yMax=0.20;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafcff'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='#eee'; ctx.lineWidth=1;
+    [0.05,0.10,0.15,0.20].forEach(y=>{ctx.beginPath();ctx.moveTo(pL,py(y));ctx.lineTo(W-pR,py(y));ctx.stroke();});
+    const curves=[
+        {df:2,color:'#e07020',label:'χ²(ν=2)'},
+        {df:5,color:'#27ae60',label:'χ²(ν=5)'},
+        {df:10,color:'#9b59b6',label:'χ²(ν=10)'},
+        {df:20,color:'#2266cc',label:'χ²(ν=20)'}
+    ];
+    curves.forEach(c=>{
+        ctx.beginPath(); ctx.strokeStyle=c.color; ctx.lineWidth=2;
+        for(let i=1;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin); const y=Math.min(chi2PDF(x,c.df),yMax); i===1?ctx.moveTo(px(x),py(y)):ctx.lineTo(px(x),py(y));} ctx.stroke();
+    });
+    let lx=pL+10;
+    curves.forEach(c=>{
+        ctx.fillStyle=c.color; ctx.fillRect(lx,pT+4,18,3); lx+=4;
+        ctx.fillStyle='#333'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(c.label,lx+18,pT+10); lx+=80;
+    });
+    ctx.strokeStyle='#555'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(pL,py(0)); ctx.lineTo(W-pR,py(0)); ctx.stroke();
+    ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    [0,5,10,15,20,25,30].forEach(x=>{ctx.fillText(x,px(x),py(0)+14);});
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+    drawTDistComparison();
+    drawChi2Canvas();
+    drawDist('tCanvasA', -2.892, 1.984, 'two', 't', 99, 't');
+    drawDist('tCanvasB',  1.120, 1.729, 'right','t', 19, 't');
+    drawDist('tCanvasC', -2.039, 1.690, 'left', 't', 35, 't');
+    drawDist('zCanvasE',  1.80,  1.645, 'right','z', 999,'z');
+    drawDist('zCanvasF', -1.414, 1.645, 'left', 'z', 999,'z');
+    drawDist('zCanvasG',  1.961, 1.960, 'two',  'z', 999,'z');
+});
+
+// ─── Quiz ───
+function checkQ(qid, correct, msg){
+    const sel=document.querySelector(`input[name="${qid}"]:checked`);
+    const fb=document.getElementById(`${qid}-fb`);
+    if(!sel){fb.style.display='block';fb.className='quiz-feedback wrong';fb.textContent='請先選擇一個答案。';return;}
+    fb.style.display='block';
+    if(sel.value===correct){fb.className='quiz-feedback correct';fb.innerHTML=msg;}
+    else{fb.className='quiz-feedback wrong';fb.innerHTML='❌ 不正確，請再想想。提示：'+msg;}
+}
+
+// ─── Calculator A: t ───
+function calcT(){
+    const xbar=parseFloat(document.getElementById('xbar').value);
+    const mu0=parseFloat(document.getElementById('mu0').value);
+    const s=parseFloat(document.getElementById('s_val').value);
+    const n=parseInt(document.getElementById('n_val').value);
+    const alpha=parseFloat(document.getElementById('alpha_sel').value);
+    const tail=document.getElementById('tail_sel').value;
+    const se=s/Math.sqrt(n), t=(xbar-mu0)/se, df=n-1;
+    let cv,decision,tailLabel,pval;
+    if(tail==='two'){
+        cv=tCritical(alpha/2,df); decision=Math.abs(t)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='雙尾';
+        pval=2*(1-tCDF(Math.abs(t),df));
+    }else if(tail==='right'){
+        cv=tCritical(alpha,df); decision=t>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='右尾';
+        pval=1-tCDF(t,df);
+    }else{
+        cv=tCritical(alpha,df); decision=t<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='左尾';
+        pval=tCDF(t,df);
+    }
+    const ciCV=tCritical(alpha/2,df);
+    const res=document.getElementById('t-result');
+    res.style.display='block';
+    res.innerHTML=`SE = s/√n = ${se.toFixed(4)}
+t 統計量 = ${t.toFixed(4)}（自由度 ν = ${df}）
+臨界值 = ${tail==='two'?'±':(tail==='left'?'−':'')}${cv.toFixed(4)}（${tailLabel}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間：[${(xbar-ciCV*se).toFixed(4)}, ${(xbar+ciCV*se).toFixed(4)}]`;
+}
+
+// ─── Calculator B: proportion ───
+function calcProp(){
+    const x=parseInt(document.getElementById('x_prop').value);
+    const n=parseInt(document.getElementById('n_prop').value);
+    const p0=parseFloat(document.getElementById('p0_val').value);
+    const alpha=parseFloat(document.getElementById('alpha_prop').value);
+    const tail=document.getElementById('tail_prop').value;
+    const phat=x/n, se=Math.sqrt(p0*(1-p0)/n), z=(phat-p0)/se;
+    const cz=normInv(alpha), cz2=normInv(alpha/2);
+    let cv,decision,tailLabel,pval;
+    if(tail==='two'){cv=cz2;decision=Math.abs(z)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';tailLabel='雙尾';pval=2*(1-normCDF(Math.abs(z)));}
+    else if(tail==='right'){cv=cz;decision=z>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';tailLabel='右尾';pval=1-normCDF(z);}
+    else{cv=cz;decision=z<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';tailLabel='左尾';pval=normCDF(z);}
+    const seCi=Math.sqrt(phat*(1-phat)/n);
+    const cond=(n*p0>5&&n*(1-p0)>5)?'✅ 常態近似條件滿足':'⚠️ 常態近似條件不足';
+    const res=document.getElementById('prop-result');
+    res.style.display='block';
+    res.innerHTML=`p̂ = x/n = ${phat.toFixed(4)}（${cond}）
+z 統計量 = ${z.toFixed(4)}
+臨界值 = ${tail==='two'?'±':(tail==='left'?'−':'')}${cv.toFixed(4)}（${tailLabel}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間：[${(phat-normInv(alpha/2)*seCi).toFixed(4)}, ${(phat+normInv(alpha/2)*seCi).toFixed(4)}]`;
+}
+
+// ─── Calculator C: chi-squared ───
+function chi2CDF(x, df){
+    if(x<=0)return 0;
+    // regularized incomplete gamma function P(df/2, x/2)
+    return regularizedGamma(df/2, x/2);
+}
+function regularizedGamma(a, x){
+    if(x<0)return 0; if(x===0)return 0;
+    if(x<a+1){
+        // series
+        let term=Math.exp(a*Math.log(x)-x-lgamma(a+1));
+        let sum=term;
+        for(let n=1;n<200;n++){term*=x/(a+n);sum+=term;if(term<sum*1e-8)break;}
+        return sum;
+    } else {
+        // continued fraction
+        let b=x+1-a, c=1e30, d=1/b, h=d;
+        for(let i=1;i<=200;i++){const an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-30)d=1e-30;c=b+an/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-8)break;}
+        return 1-Math.exp(a*Math.log(x)-x-lgamma(a))*h;
+    }
+}
+function chi2Critical(alpha, df){
+    // Newton's method to find chi2 such that 1-CDF = alpha
+    let x=df*(1-2/(9*df)+normInv(alpha)*Math.sqrt(2/(9*df)))**3;
+    if(x<0)x=0.01;
+    for(let i=0;i<50;i++){
+        const f=1-chi2CDF(x,df)-alpha;
+        const fp=-chi2PDF(x,df); // pdf is negative direction
+        const dx=-f/fp;
+        x+=dx;
+        if(x<1e-10)x=1e-10;
+        if(Math.abs(dx)<1e-6)break;
+    }
+    return x;
+}
+function calcChi2(){
+    const s2=parseFloat(document.getElementById('s2_chi').value);
+    const sig0=parseFloat(document.getElementById('sig0_chi').value);
+    const n=parseInt(document.getElementById('n_chi').value);
+    const alpha=parseFloat(document.getElementById('alpha_chi').value);
+    const tail=document.getElementById('tail_chi').value;
+    const df=n-1, chi2=(df*s2)/sig0;
+    let cv1,cv2,decision,pval;
+    if(tail==='two'){
+        cv1=chi2Critical(alpha/2,df); cv2=chi2Critical(1-alpha/2,df);
+        decision=(chi2>cv1||chi2<cv2)?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';
+        pval=2*Math.min(1-chi2CDF(chi2,df),chi2CDF(chi2,df));
+    }else if(tail==='right'){
+        cv1=chi2Critical(alpha,df); cv2=null;
+        decision=chi2>cv1?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';
+        pval=1-chi2CDF(chi2,df);
+    }else{
+        cv1=null; cv2=chi2Critical(1-alpha,df);
+        decision=chi2<cv2?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';
+        pval=chi2CDF(chi2,df);
+    }
+    const ci_lo=(df*s2)/chi2Critical(alpha/2,df);
+    const ci_hi=(df*s2)/chi2Critical(1-alpha/2,df);
+    const res=document.getElementById('chi2-result');
+    res.style.display='block';
+    let cvStr=tail==='two'?`下側臨界值：${cv2.toFixed(3)}，上側臨界值：${cv1.toFixed(3)}`:
+              tail==='right'?`臨界值：${cv1.toFixed(3)}`:`臨界值：${cv2.toFixed(3)}`;
+    res.innerHTML=`χ² 統計量 = (n-1)s²/σ₀² = ${chi2.toFixed(4)}（自由度 ν = ${df}）
+${cvStr}
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間（σ²）：[${ci_lo.toFixed(4)}, ${ci_hi.toFixed(4)}]
+${(1-alpha)*100}% 信賴區間（σ）：[${Math.sqrt(ci_lo).toFixed(4)}, ${Math.sqrt(ci_hi).toFixed(4)}]`;
+}
+</script>
+</body>
+</html>

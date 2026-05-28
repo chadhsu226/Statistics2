@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11　假設檢定的介紹</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false,
+                strict: "ignore"
+            });
+        });
+    </script>
+    <style>
+        :root {
+            --navy: #1a3a6b;
+            --blue: #2e6cb8;
+            --blue-light: #4a90d9;
+            --accent: #c0392b;
+            --gold: #d4a017;
+            --green: #27ae60;
+            --bg: #f7f9fc;
+            --card: #ffffff;
+            --border: #d0dcea;
+            --text: #2c3e50;
+            --muted: #5a6a7a;
+            --math-bg: #eaf3ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans TC', 'Source Serif 4', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 24px 80px;
+        }
+        h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 2rem; font-weight: 700;
+            color: var(--navy);
+            border-bottom: 4px solid var(--blue-light);
+            padding-bottom: 12px; margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.45rem; font-weight: 600;
+            color: var(--navy);
+            margin-top: 48px; margin-bottom: 14px;
+            border-left: 5px solid var(--blue-light);
+            padding-left: 12px;
+        }
+        h3 { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin-top: 28px; margin-bottom: 10px; }
+        p { margin-bottom: 12px; }
+        ul, ol { margin-left: 24px; margin-bottom: 12px; }
+        li { margin-bottom: 6px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+        .chapter-intro {
+            font-size: 1.05rem; color: var(--muted);
+            border-left: 3px solid var(--blue-light);
+            padding: 10px 16px; background: #eef4fb;
+            border-radius: 0 6px 6px 0; margin-bottom: 24px;
+        }
+        .learning-goals {
+            background: #fffbea; border: 1.5px solid var(--gold);
+            border-radius: 8px; padding: 18px 22px; margin: 24px 0;
+        }
+        .learning-goals h3 { color: #8a6000; margin-top: 0; }
+        .toc {
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 8px; padding: 18px 24px; margin: 24px 0;
+            box-shadow: 0 2px 8px rgba(30,60,110,0.06);
+        }
+        .toc h3 { color: var(--navy); margin-top: 0; }
+        .toc a { color: var(--blue); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .highlight {
+            background: #fffbe6; border-left: 4px solid var(--gold);
+            padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+        }
+        .math-block {
+            background: var(--math-bg); border-radius: 6px;
+            padding: 14px 18px; margin: 14px 0;
+            overflow-x: auto; font-size: 1.05em; text-align: center;
+        }
+        .formula-card {
+            background: var(--card); border: 2px solid var(--blue-light);
+            border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(74,144,217,0.1);
+        }
+        .formula-card h3 { margin-top: 0; color: var(--navy); }
+        .formula-card .note {
+            font-size: 0.9em; color: var(--muted);
+            background: #f0f6ff; border-left: 3px solid #aac4ee;
+            padding: 8px 12px; margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+        .steps-box {
+            background: #f4f6ff; border: 1px solid #b0bce8;
+            border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        }
+        .steps-box h3 { color: var(--navy); margin-top: 0; }
+        .steps-box ol { margin-bottom: 0; }
+        .steps-box li { margin-bottom: 10px; }
+        .example-block {
+            background: #f0faff; border-left: 5px solid var(--blue-light);
+            border-radius: 0 8px 8px 0; padding: 18px 22px; margin: 20px 0;
+        }
+        .example-block h3 { color: var(--navy); margin-top: 0; }
+        .example-block .note {
+            font-size: 0.92em; color: #333;
+            background: #e6f7e6; border-left: 3px solid var(--green);
+            padding: 10px 14px; margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+        .example-block .warn {
+            font-size: 0.92em; background: #fff3cd;
+            border-left: 3px solid var(--gold);
+            padding: 10px 14px; margin-top: 10px; border-radius: 0 4px 4px 0;
+        }
+        .scenario {
+            background: #f8f4ff; border: 1.5px dashed #9b7fd4;
+            border-radius: 8px; padding: 12px 18px; margin-bottom: 14px;
+            font-size: 0.97em; color: #3d2070;
+        }
+        .scenario strong { color: #6a3fbf; }
+        table {
+            width: 100%; border-collapse: collapse;
+            margin: 14px 0; font-size: 0.95em;
+        }
+        th, td { border: 1px solid #c8d8ec; padding: 8px 12px; text-align: center; }
+        th { background: #ddeeff; color: var(--navy); font-weight: 600; }
+        tr:nth-child(even) { background: #f5f8ff; }
+
+        .error-table th { background: var(--navy); color: white; }
+        .error-table td:nth-child(2) { color: var(--accent); font-weight: 600; }
+        .error-table td:nth-child(3) { color: var(--green); font-weight: 600; }
+
+        /* ── Quiz ── */
+        .quiz-box {
+            background: #f0f6ff; border: 1.5px solid var(--blue-light);
+            border-radius: 10px; padding: 22px 26px; margin: 28px 0;
+        }
+        .quiz-box h3 { color: var(--navy); margin-top: 0; }
+        .quiz-q { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+        .quiz-q p { font-weight: 600; margin-bottom: 10px; }
+        .quiz-q label { display: block; margin: 6px 0; cursor: pointer; font-size: 0.97em; }
+        .quiz-q button { margin-top: 10px; padding: 7px 18px; background: var(--blue); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
+        .quiz-q button:hover { background: var(--navy); }
+        .quiz-feedback { display: none; margin-top: 10px; padding: 10px 14px; border-radius: 6px; font-size: 0.95em; }
+        .quiz-feedback.correct { background: #d4edda; border-left: 4px solid var(--green); color: #155724; }
+        .quiz-feedback.wrong { background: #f8d7da; border-left: 4px solid var(--accent); color: #721c24; }
+
+        /* ── Exercises ── */
+        .exercises-list { counter-reset: ex-counter; list-style: none; padding: 0; }
+        .exercises-list > li {
+            counter-increment: ex-counter;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px 20px; margin-bottom: 16px;
+        }
+        .exercises-list > li strong { color: var(--navy); }
+        details summary { cursor: pointer; color: var(--blue); font-weight: 700; margin-top: 12px; user-select: none; }
+        details summary:hover { color: var(--navy); }
+        details > div { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+        /* ── Summary ── */
+        .summary {
+            background: var(--navy); color: #e8f0fc;
+            border-radius: 10px; padding: 22px 26px; margin-top: 40px;
+        }
+        .summary h2 { color: #c8dcf8; border-left-color: #6aaae8; }
+        .summary ul { margin-bottom: 0; }
+        .summary li { margin-bottom: 10px; color: #d8e8f8; }
+        .summary strong { color: #a8d0f8; }
+
+        /* ── Two-col layout ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .col-box { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fafbff; }
+        .col-box h3 { font-size: 0.98em; margin-top: 0; text-align: center; }
+
+        /* ── Calculator ── */
+        .calc-box {
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: 10px; padding: 22px 26px; margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(30,60,110,0.06);
+        }
+        .calc-box h3 { margin-top: 0; color: var(--navy); }
+        .inputs-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+        .inputs-row label { display: flex; flex-direction: column; font-size: 0.9em; color: var(--muted); min-width: 110px; }
+        .inputs-row input, .inputs-row select {
+            margin-top: 4px; padding: 6px 8px;
+            border: 1px solid var(--border); border-radius: 5px;
+            font-size: 1em; width: 100%;
+        }
+        .calc-box button { padding: 8px 22px; background: var(--blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95em; }
+        .calc-box button:hover { background: var(--navy); }
+        .calc-result {
+            display: none; margin-top: 14px;
+            background: #f0f6ff; border-left: 4px solid var(--blue-light);
+            padding: 12px 16px; border-radius: 0 6px 6px 0;
+            font-family: monospace; font-size: 0.95em; white-space: pre-line;
+        }
+
+        .power-table { margin: 14px 0; }
+        .power-table th { background: #2e6cb8; color: white; }
+
+        @media (max-width: 640px) {
+            .two-col { grid-template-columns: 1fr; }
+            body { padding: 20px 14px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Chapter 11　假設檢定的介紹 (Introduction to Hypothesis Testing)</h1>
+
+<p class="chapter-intro">
+假設檢定 (Hypothesis Testing) 是統計推論的第二個通用程序，應用範圍極廣。本章將從直觀的非統計例子出發，建立假設檢定的完整觀念與方法，並以母體標準差已知的情境作為入門。
+</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>理解假設檢定的核心邏輯，包括虛無假設、對立假設，以及兩種決策結果的意義。</li>
+    <li>能正確辨別型 I 錯誤（$\alpha$）與型 II 錯誤（$\beta$），並理解其相互關係。</li>
+    <li>能使用<strong>臨界值法</strong>與 <strong>p 值法</strong>兩種方法進行假設檢定，並做出正確決策。</li>
+    <li>能正確設定單尾與雙尾假設，並解釋統計結論的實際意義。</li>
+    <li>理解並計算<strong>檢定力（Power of a Test）</strong>，以及影響 Power 的各項因素。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#s111">§11.1　假設檢定的概念</a>
+        <ol style="margin-top:4px;">
+            <li><a href="#s111-1">從刑事審判理解假設檢定</a></li>
+            <li><a href="#s111-2">假設檢定的重要觀念</a></li>
+            <li><a href="#s111-3">兩種錯誤型態</a></li>
+            <li><a href="#s111-4">假設的設定方法</a></li>
+        </ol>
+    </li>
+    <li><a href="#s112">§11.2　母體標準差已知下檢定母體平均數</a>
+        <ol style="margin-top:4px;">
+            <li><a href="#s112-stat">檢定統計量</a></li>
+            <li><a href="#s112-cv">臨界值法（六步驟 × 三個主範例）</a></li>
+            <li><a href="#s112-pv">p 值法（三個主範例）</a></li>
+            <li><a href="#s112-notes">詮釋檢定結果的注意事項</a></li>
+        </ol>
+    </li>
+    <li><a href="#s113">§11.3　檢定力 (Power of a Test)</a></li>
+    <li><a href="#calc">🔢 互動計算機</a></li>
+    <li><a href="#quiz">🧠 Quick Quiz</a></li>
+    <li><a href="#exercises">📚 綜合練習</a></li>
+    <li><a href="#summary">📌 Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     Section 11.1
+══════════════════════════════════════════ -->
+<h2 id="s111">§11.1　假設檢定的概念 (Concepts of Hypothesis Testing)</h2>
+
+<h3 id="s111-1">一、從刑事審判理解假設檢定</h3>
+<p>刑事審判是假設檢定最直觀的非統計例子。陪審團必須在兩個假設中做決定：</p>
+<ul>
+    <li><strong>虛無假設 (Null Hypothesis)，$H_0$：</strong>被告是無罪的。</li>
+    <li><strong>對立假設 (Alternative Hypothesis) / 研究假設 (Research Hypothesis)，$H_1$：</strong>被告是有罪的。</li>
+</ul>
+<p>陪審團並不知道哪一個假設是正確的，必須根據雙方提出的證據做決策。</p>
+<ul>
+    <li><strong>宣判有罪</strong>（等同於「拒絕虛無假設，支持對立假設」）：表示有足夠的證據支持對立假設。</li>
+    <li><strong>宣判無罪</strong>（等同於「不拒絕虛無假設」）：表示沒有足夠的證據支持對立假設。注意：這並非說被告真的無罪，只是<strong>證據不足</strong>。因此，我們從不說「接受虛無假設」。</li>
+</ul>
+
+<h3 id="s111-2">二、假設檢定的重要觀念</h3>
+<ol>
+    <li>有兩個假設：<strong>虛無假設 ($H_0$)</strong> 與 <strong>對立假設 ($H_1$)</strong>。</li>
+    <li>檢定程序以<strong>假設虛無假設為真</strong>開始。</li>
+    <li>目的是決定是否有足夠的證據推論<strong>對立假設為真</strong>。</li>
+    <li>有兩種可能的決策：
+        <ul>
+            <li>有足夠的統計證據 → <strong>拒絕 $H_0$，支持 $H_1$</strong></li>
+            <li>沒有足夠的統計證據 → <strong>不拒絕 $H_0$</strong></li>
+        </ul>
+    </li>
+    <li>任何檢定皆有兩種可能的錯誤。</li>
+</ol>
+
+<h3 id="s111-3">三、兩種錯誤型態 (Types of Errors)</h3>
+<p>由於我們是根據<strong>樣本</strong>做決策，而非整個母體，因此決策有可能出錯。</p>
+
+<table class="error-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>$H_0$ 實際上為真</th>
+            <th>$H_0$ 實際上為假</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>決策：拒絕 $H_0$</strong></td>
+            <td style="color:#c0392b;"><strong>型 I 錯誤 (Type I Error)</strong><br>機率 = $\alpha$（顯著水準）</td>
+            <td style="color:#27ae60;"><strong>正確決策</strong><br>機率 = $1 - \beta$（Power，檢定力）</td>
+        </tr>
+        <tr>
+            <td><strong>決策：不拒絕 $H_0$</strong></td>
+            <td style="color:#27ae60;"><strong>正確決策</strong><br>機率 = $1 - \alpha$</td>
+            <td style="color:#c0392b;"><strong>型 II 錯誤 (Type II Error)</strong><br>機率 = $\beta$</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="highlight">
+<strong>關鍵關係：</strong>在樣本大小 $n$ 固定的條件下，$\alpha$ 與 $\beta$ 反向相關——降低 $\alpha$（更嚴格的標準），會使 $\beta$ 增加（更容易漏掉真實差異）。唯有<strong>增加樣本大小</strong>，才能同時降低兩種錯誤的機率。
+</div>
+
+<h3 id="s111-4">四、假設的設定方法</h3>
+<p>$H_0$ 通常包含等號（$=$、$\leq$、$\geq$），$H_1$ 則對應「我們想要證明的方向」。</p>
+
+<div class="col-box" style="margin: 0 0 16px 0;">
+    <h3 style="text-align:center;">雙尾檢定（Two-tail）</h3>
+    <p style="text-align:center;">研究者認為母體平均數<strong>不等於</strong>某個值 $\mu_0$（方向不限）</p>
+    <div class="math-block">$H_0: \mu = \mu_0 \qquad H_1: \mu \neq \mu_0$</div>
+</div>
+<div class="two-col">
+    <div class="col-box">
+        <h3>右尾檢定（Right-tail）</h3>
+        <p>研究者認為母體平均數<strong>大於</strong>某個值 $\mu_0$</p>
+        <div class="math-block">$H_0: \mu \leq \mu_0$<br>$H_1: \mu > \mu_0$</div>
+    </div>
+    <div class="col-box">
+        <h3>左尾檢定（Left-tail）</h3>
+        <p>研究者認為母體平均數<strong>小於</strong>某個值 $\mu_0$</p>
+        <div class="math-block">$H_0: \mu \geq \mu_0$<br>$H_1: \mu < \mu_0$</div>
+    </div>
+</div>
+
+<div class="highlight">
+<strong>💡 設定 $H_1$ 的實務原則：</strong>將你「<em>想要證明的命題</em>」設為 $H_1$（對立假設），因為假設檢定的本質是在「尋找足夠的統計證據支持 $H_1$」。$H_0$ 是「預設立場」（status quo），需要有充分的反面證據才會被推翻。
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     Section 11.2
+══════════════════════════════════════════ -->
+<h2 id="s112">§11.2　母體標準差已知下檢定母體平均數</h2>
+<p>本節討論最基礎的情境：母體標準差 $\sigma$ <strong>已知</strong>，對母體平均數 $\mu$ 進行假設檢定，使用 <strong>z 統計量</strong>。</p>
+
+<h3 id="s112-stat">一、檢定統計量 (Test Statistic)</h3>
+
+<div class="formula-card">
+<h3>📐 z 檢定統計量（$\sigma$ 已知）</h3>
+<div class="math-block">
+$$z = \frac{\bar{X} - \mu_0}{\sigma / \sqrt{n}}$$
+</div>
+<ul>
+    <li>$\bar{X}$：樣本平均數</li>
+    <li>$\mu_0$：$H_0$ 所假設的母體平均數</li>
+    <li>$\sigma$：已知的母體標準差</li>
+    <li>$n$：樣本大小</li>
+</ul>
+<p class="note">在 $H_0$ 為真的假設下，z 統計量服從<strong>標準常態分配 $N(0,1)$</strong>。統計量的值越偏離 0，代表樣本資料與 $H_0$ 的差距越大。</p>
+</div>
+
+<h3 id="s112-cv">二、假設檢定方法——臨界值法 (Rejection Region Method)</h3>
+<p>臨界值法的核心思想是：預先劃定一個「拒絕域」，若檢定統計量落入拒絕域，則拒絕 $H_0$。</p>
+
+<div class="steps-box">
+<h3>📋 臨界值法 — 六步驟</h3>
+<ol>
+    <li><strong>Formulate hypotheses（設定假設）</strong>：寫出 $H_0$ 與 $H_1$，決定尾別。</li>
+    <li><strong>Identify the test statistic（選定統計量）</strong>：本章使用 $z = (\bar{X} - \mu_0) / (\sigma / \sqrt{n})$。</li>
+    <li><strong>Specify the significance level（設定顯著水準）</strong>：選定 $\alpha$，查表得臨界值 $z_\alpha$ 或 $z_{\alpha/2}$。</li>
+    <li><strong>Define the rejection region（設定拒絕域）</strong>：右尾 $z > z_\alpha$；左尾 $z < -z_\alpha$；雙尾 $|z| > z_{\alpha/2}$。</li>
+    <li><strong>Compute the test statistic（計算統計量）</strong>：代入公式計算 $z$ 值。</li>
+    <li><strong>Make a decision（做決策並解釋）</strong>：比較 $z$ 與臨界值，拒絕或不拒絕 $H_0$，並以原題語言說明結論。</li>
+</ol>
+</div>
+
+<p>以下透過三個主範例，分別示範<strong>雙尾、右尾、左尾</strong>三種情境。</p>
+
+<!-- ── 主範例 A：雙尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 A　統計學期中成績是否符合歷年平均？（雙尾檢定）</h3>
+<div class="scenario">
+<strong>情境：</strong>根據歷年紀錄，某大學統計學課程期中考的全校平均成績為 <strong>67 分</strong>，標準差 $\sigma = 8$ 分。今年新任教師懷疑今年成績分布可能有所不同（可能偏高或偏低），故從今年選修學生中隨機抽取 <strong>$n = 100$ 人</strong>，得到樣本平均成績 $\bar{X} = 68.0$ 分。在 $\alpha = 0.05$ 下進行檢定。
+</div>
+<canvas id="exACvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1　Formulate hypotheses</strong></p>
+<p>研究目的是確認成績「是否有差異」，方向不限，採雙尾。</p>
+<div class="math-block">$$H_0: \mu = 67 \qquad H_1: \mu \neq 67$$</div>
+
+<p><strong>Step 2–3　Test statistic &amp; Significance level</strong></p>
+<p>使用 z 統計量（$\sigma = 8$ 已知）；$\alpha = 0.05$，雙尾臨界值 $z_{0.025} = \pm 1.96$。</p>
+
+<p><strong>Step 4　Rejection region</strong></p>
+<div class="math-block">$$\text{拒絕域：} z > 1.96 \text{ 或 } z < -1.96$$</div>
+
+<p><strong>Step 5　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{\bar{X} - \mu_0}{\sigma / \sqrt{n}} = \frac{68.0 - 67}{8 / \sqrt{100}} = \frac{1.0}{0.8} = 1.25$$</div>
+
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$z = 1.25$，未落入拒絕域（$-1.96 \leq 1.25 \leq 1.96$） → <strong>不拒絕 $H_0$</strong>。</p>
+<div class="note">✅ 結論：在 5% 的顯著水準下，沒有足夠的統計證據推論今年期中考平均成績與歷年 67 分有顯著差異。樣本平均 68.0 分的偏差，可能只是隨機抽樣誤差所致。</div>
+</div>
+
+<!-- ── 主範例 B：右尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 B　外送平台平均送達時間是否超標？（右尾檢定）</h3>
+<div class="scenario">
+<strong>情境：</strong>某外送平台的廣告宣稱平均送達時間不超過 <strong>30 分鐘</strong>。消費者保護協會對此持懷疑態度，認為實際送達時間可能<strong>超過</strong> 30 分鐘。協會隨機抽取 <strong>$n = 64$ 筆</strong>訂單紀錄，測得樣本平均送達時間 $\bar{X} = 32.5$ 分鐘。根據長期資料，送達時間的母體標準差 $\sigma = 10$ 分鐘。在 $\alpha = 0.05$ 下進行檢定。
+</div>
+<canvas id="exBCvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1　Formulate hypotheses</strong></p>
+<p>研究目的是確認送達時間「是否超過 30 分鐘」，方向明確，採右尾。</p>
+<div class="math-block">$$H_0: \mu \leq 30 \qquad H_1: \mu > 30$$</div>
+
+<p><strong>Step 2–3　Test statistic &amp; Significance level</strong></p>
+<p>使用 z 統計量（$\sigma = 10$ 已知）；$\alpha = 0.05$，右尾臨界值 $z_{0.05} = 1.645$。</p>
+
+<p><strong>Step 4　Rejection region</strong></p>
+<div class="math-block">$$\text{拒絕域：} z > 1.645$$</div>
+
+<p><strong>Step 5　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{32.5 - 30}{10 / \sqrt{64}} = \frac{2.5}{1.25} = 2.00$$</div>
+
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$z = 2.00 > 1.645$，落入拒絕域 → <strong>拒絕 $H_0$</strong>。</p>
+<div class="note">✅ 結論：在 5% 的顯著水準下，有足夠的統計證據推論該外送平台的實際平均送達時間超過 30 分鐘，廣告宣稱可能有誤導之嫌。</div>
+</div>
+
+<!-- ── 主範例 C：左尾 ── -->
+<div class="example-block">
+<h3>📝 主範例 C　汽水裝填量是否低於標準？（左尾檢定）</h3>
+<div class="scenario">
+<strong>情境：</strong>某飲料廠生產 500 mL 罐裝汽水。品管規定每罐的裝填量平均應達到 <strong>2000 mL 的 1/4 桶裝標準（即 2000 mL）</strong>。根據長期製程資料，裝填量的標準差為 $\sigma = 25$ mL。品管人員懷疑某批次的裝填量<strong>不足</strong>，隨機抽取 <strong>$n = 50$ 罐</strong>，測得樣本平均裝填量 $\bar{X} = 1993.5$ mL。在 $\alpha = 0.05$ 下，判斷此批次是否存在裝填不足問題。
+</div>
+<canvas id="exCCvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1　Formulate hypotheses</strong></p>
+<p>研究目的是確認裝填量「是否低於標準」，方向明確，採左尾。</p>
+<div class="math-block">$$H_0: \mu \geq 2000 \qquad H_1: \mu < 2000$$</div>
+
+<p><strong>Step 2–3　Test statistic &amp; Significance level</strong></p>
+<p>使用 z 統計量（$\sigma = 25$ 已知）；$\alpha = 0.05$，左尾臨界值 $-z_{0.05} = -1.645$。</p>
+
+<p><strong>Step 4　Rejection region</strong></p>
+<div class="math-block">$$\text{拒絕域：} z < -1.645$$</div>
+
+<p><strong>Step 5　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{1993.5 - 2000}{25 / \sqrt{50}} = \frac{-6.5}{3.536} \approx -1.84$$</div>
+
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$z = -1.84 < -1.645$，落入拒絕域 → <strong>拒絕 $H_0$</strong>。</p>
+<div class="note">✅ 結論：在 5% 的顯著水準下，有足夠的統計證據推論此批次汽水的平均裝填量低於 2000 mL，品管人員應進一步調查生產流程。</div>
+</div>
+
+<!-- ══ p 值法 ══ -->
+<h3 id="s112-pv">三、假設檢定方法——p 值法 (p-value Method)</h3>
+
+<p><strong>p 值</strong>是在虛無假設為真的前提下，觀測到「與現有樣本結果一樣極端或更極端」的機率。p 值越小，反對 $H_0$ 的證據越強。</p>
+
+<div class="steps-box">
+<h3>📋 p 值法 — 六步驟</h3>
+<ol>
+    <li>設定 $H_0$ 與 $H_1$（與臨界值法相同）。</li>
+    <li>選定檢定統計量（與臨界值法相同）。</li>
+    <li>設定顯著水準 $\alpha$。</li>
+    <li>計算 p 值：
+        <ul>
+            <li>右尾：$p\text{-value} = P(Z > z_{\text{obs}})$</li>
+            <li>左尾：$p\text{-value} = P(Z < z_{\text{obs}})$</li>
+            <li>雙尾：$p\text{-value} = 2 \times P(Z > |z_{\text{obs}}|)$</li>
+        </ul>
+    </li>
+    <li>計算 p 值。</li>
+    <li>若 $p\text{-value} < \alpha$，則拒絕 $H_0$；否則不拒絕 $H_0$。</li>
+</ol>
+</div>
+
+<div class="highlight">
+<strong>p 值的證據強度判讀：</strong><br>
+$p < 0.01$：非常強烈的 (Very strong) 證據 ｜ $0.01 \leq p < 0.05$：強烈的 (Strong) 證據<br>
+$0.05 \leq p < 0.10$：弱的 (Weak) 證據 ｜ $p \geq 0.10$：幾乎沒有 (None) 反對 $H_0$ 的證據
+</div>
+
+<!-- ── 主範例 A（p 值法）── -->
+<div class="example-block">
+<h3>📝 主範例 A（續）　期中成績 — p 值法</h3>
+<canvas id="exAPvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1–3</strong>：$H_0: \mu = 67$，$H_1: \mu \neq 67$，$\alpha = 0.05$</p>
+<p><strong>Step 4　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{68.0 - 67}{8 / \sqrt{100}} = 1.25$$</div>
+<p><strong>Step 5　Obtain the p-value（雙尾）</strong></p>
+<div class="math-block">$$p\text{-value} = 2 \times P(Z > 1.25) = 2 \times 0.1056 = 0.2113$$</div>
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$p\text{-value} = 0.2113 > \alpha = 0.05$ → <strong>不拒絕 $H_0$</strong>。</p>
+<div class="note">p 值約 0.21，屬於「幾乎沒有」反對 $H_0$ 的證據，結論與臨界值法一致。</div>
+</div>
+
+<!-- ── 主範例 B（p 值法）── -->
+<div class="example-block">
+<h3>📝 主範例 B（續）　外送時間 — p 值法</h3>
+<canvas id="exBPvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1–3</strong>：$H_0: \mu \leq 30$，$H_1: \mu > 30$，$\alpha = 0.05$</p>
+<p><strong>Step 4　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{32.5 - 30}{10 / \sqrt{64}} = 2.00$$</div>
+<p><strong>Step 5　Obtain the p-value（右尾）</strong></p>
+<div class="math-block">$$p\text{-value} = P(Z > 2.00) = 0.0228$$</div>
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$p\text{-value} = 0.0228 < \alpha = 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+<div class="note">p 值約 0.023，介於 0.01 與 0.05 之間，屬於「強烈」反對 $H_0$ 的證據。</div>
+</div>
+
+<!-- ── 主範例 C（p 值法）── -->
+<div class="example-block">
+<h3>📝 主範例 C（續）　汽水裝填量 — p 值法</h3>
+<canvas id="exCPvCanvas" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<p><strong>Step 1–3</strong>：$H_0: \mu \geq 2000$，$H_1: \mu < 2000$，$\alpha = 0.05$</p>
+<p><strong>Step 4　Compute the test statistic</strong></p>
+<div class="math-block">$$z = \frac{1993.5 - 2000}{25 / \sqrt{50}} \approx -1.84$$</div>
+<p><strong>Step 5　Obtain the p-value（左尾）</strong></p>
+<div class="math-block">$$p\text{-value} = P(Z < -1.84) = 0.0329$$</div>
+<p><strong>Step 6　Make a decision</strong></p>
+<p>$p\text{-value} = 0.0329 < \alpha = 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+<div class="note">p 值約 0.033，屬於「強烈」的證據，兩種方法結論一致。</div>
+</div>
+
+<h3 id="s112-notes">四、詮釋檢定結果的注意事項</h3>
+<ol>
+    <li><strong>「不拒絕 $H_0$」≠「$H_0$ 為真」</strong>：只代表「樣本證據不夠充分」，無法排除 $H_0$ 為假的可能。</li>
+    <li><strong>統計顯著 ≠ 實際重要</strong>：樣本夠大時，連微小的差距也可能達到統計顯著，但實務意義可能有限。</li>
+    <li><strong>顯著水準 $\alpha$ 應事先決定</strong>：在看到資料之前就設定 $\alpha$，避免「事後調整以求顯著」的問題。</li>
+    <li><strong>兩種方法等價</strong>：臨界值法與 p 值法在同一 $\alpha$ 下，結論永遠一致。</li>
+</ol>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     Section 11.3  Power
+══════════════════════════════════════════ -->
+<h2 id="s113">§11.3　檢定力 (Power of a Test)</h2>
+
+<div class="formula-card">
+<h3>📐 Power 的定義</h3>
+<div class="math-block">
+$$\text{Power} = P(\text{拒絕 } H_0 \mid H_0 \text{ 為假}) = 1 - \beta$$
+</div>
+<p>Power 是「當對立假設確實為真時，檢定能正確拒絕 $H_0$ 的機率」。Power 越高，代表檢定越有能力偵測到真實差異。</p>
+</div>
+
+<h3>一、如何計算 Power</h3>
+
+<div class="steps-box">
+<h3>📋 Power 計算步驟（以右尾檢定為例）</h3>
+<ol>
+    <li>確定顯著水準 $\alpha$ 對應的<strong>臨界樣本平均數</strong> $\bar{x}^*$：
+        $$\bar{x}^* = \mu_0 + z_\alpha \cdot \frac{\sigma}{\sqrt{n}}$$</li>
+    <li>假設真實母體平均數為 $\mu_a$（$\mu_a > \mu_0$ 右尾時），計算：
+        $$z^* = \frac{\bar{x}^* - \mu_a}{\sigma / \sqrt{n}}$$</li>
+    <li>Power $= P(\bar{X} > \bar{x}^* \mid \mu = \mu_a) = P(Z > z^*)$</li>
+</ol>
+</div>
+
+<!-- ── Power 範例 ── -->
+<div class="example-block">
+<h3>📝 Power 範例　外送時間（延伸主範例 B）</h3>
+<div class="scenario">
+<strong>問題：</strong>承主範例 B（外送時間）：$H_0: \mu \leq 30$，$H_1: \mu > 30$，$\sigma = 10$，$n = 64$，$\alpha = 0.05$。若母體平均送達時間的真實值為 $\mu_a = 33$ 分鐘，計算此次檢定的 Power。
+</div>
+
+<p><strong>Step 1　確定臨界樣本平均數 $\bar{x}^*$</strong></p>
+<div class="math-block">
+$$\bar{x}^* = \mu_0 + z_{0.05} \cdot \frac{\sigma}{\sqrt{n}} = 30 + 1.645 \times \frac{10}{\sqrt{64}} = 30 + 1.645 \times 1.25 = 32.056$$
+</div>
+
+<p><strong>Step 2　計算在 $\mu_a = 33$ 下的 z 值</strong></p>
+<div class="math-block">
+$$z^* = \frac{32.056 - 33}{10 / \sqrt{64}} = \frac{-0.944}{1.25} = -0.755$$
+</div>
+
+<p><strong>Step 3　計算 Power</strong></p>
+<div class="math-block">
+$$\text{Power} = P(Z > -0.755) = 1 - P(Z \leq -0.755) = 1 - 0.225 = 0.775$$
+</div>
+<div class="note">
+✅ 當真實平均送達時間為 33 分鐘時，此次檢定有約 <strong>77.5% 的機率</strong>能正確偵測到平台超標並拒絕 $H_0$。換句話說，有約 22.5% 的機率會發生型 II 錯誤（漏報）。
+</div>
+</div>
+
+<h3>二、影響 Power 的因素</h3>
+
+<table class="power-table">
+    <thead>
+        <tr>
+            <th>因素</th>
+            <th>變動方向</th>
+            <th>Power 的變化</th>
+            <th>說明</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>真實差距 $|\mu_a - \mu_0|$</td>
+            <td>↑ 增大</td>
+            <td>↑ 提高</td>
+            <td>真實差距越大，越容易被偵測</td>
+        </tr>
+        <tr>
+            <td>樣本大小 $n$</td>
+            <td>↑ 增大</td>
+            <td>↑ 提高</td>
+            <td>樣本越大，估計越精確，誤差越小</td>
+        </tr>
+        <tr>
+            <td>母體標準差 $\sigma$</td>
+            <td>↑ 增大</td>
+            <td>↓ 降低</td>
+            <td>資料越分散，訊號越難從雜訊中辨識</td>
+        </tr>
+        <tr>
+            <td>顯著水準 $\alpha$</td>
+            <td>↑ 增大</td>
+            <td>↑ 提高</td>
+            <td>$\alpha$ 越大，拒絕域越寬，更容易拒絕 $H_0$（但型 I 錯誤↑）</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>三、Power 的實務意義</h3>
+<p>在設計研究時，研究者通常希望 Power $\geq 0.80$（即 80% 的偵測能力）。若計算出 Power 過低，應考慮<strong>增加樣本大小</strong>或<strong>放寬顯著水準</strong>，以確保研究有足夠的統計效力。</p>
+
+<hr>
+
+<!-- ══ Quiz ══ -->
+<div class="quiz-box" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+    <p>Q1. 下列何者是「型 I 錯誤（Type I Error）」的正確描述？</p>
+    <label><input type="radio" name="q1" value="a"> A. $H_0$ 為假，但我們不拒絕 $H_0$</label>
+    <label><input type="radio" name="q1" value="b"> B. $H_0$ 為真，但我們拒絕 $H_0$</label>
+    <label><input type="radio" name="q1" value="c"> C. $H_1$ 為真，但我們接受 $H_1$</label>
+    <label><input type="radio" name="q1" value="d"> D. 樣本平均數等於母體平均數</label>
+    <button onclick="checkQ('q1','b','✅ 正確！型 I 錯誤是「$H_0$ 為真，但我們（錯誤地）拒絕了它」，機率等於顯著水準 $\\alpha$。就像把無罪的人判有罪。')">Submit</button>
+    <div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q2. 主範例 B 的外送平台檢定，若改用 $\alpha = 0.01$（$z_{0.01} = 2.326$），結論會如何？</p>
+    <label><input type="radio" name="q2" value="a"> A. 仍然拒絕 $H_0$，因為 z = 2.00 > 2.326</label>
+    <label><input type="radio" name="q2" value="b"> B. 不拒絕 $H_0$，因為 z = 2.00 < 2.326</label>
+    <label><input type="radio" name="q2" value="c"> C. 結論不受顯著水準影響</label>
+    <label><input type="radio" name="q2" value="d"> D. 需要重新計算樣本平均數</label>
+    <button onclick="checkQ('q2','b','✅ 正確！$z = 2.00 < 2.326 = z_{0.01}$，未落入拒絕域，故不拒絕 $H_0$。這說明顯著水準的選擇確實影響結論，且 $\\alpha$ 越小、標準越嚴格，越難拒絕 $H_0$。')">Submit</button>
+    <div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q3. 一個 p 值為 0.032 的雙尾 z 檢定，在 $\alpha = 0.05$ 下的結論是？</p>
+    <label><input type="radio" name="q3" value="a"> A. 不拒絕 $H_0$，因為 p 值 > 0.01</label>
+    <label><input type="radio" name="q3" value="b"> B. 拒絕 $H_0$，因為 p 值 < $\alpha = 0.05$</label>
+    <label><input type="radio" name="q3" value="c"> C. 接受 $H_0$，因為差距不大</label>
+    <label><input type="radio" name="q3" value="d"> D. 無法判斷</label>
+    <button onclick="checkQ('q3','b','✅ 正確！p 值 $= 0.032 < \\alpha = 0.05$，拒絕 $H_0$。p 值介於 0.01 與 0.05 之間，屬「強烈」的統計證據。')">Submit</button>
+    <div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q4. 下列哪個措施最能同時降低型 I 錯誤與型 II 錯誤？</p>
+    <label><input type="radio" name="q4" value="a"> A. 降低顯著水準 $\alpha$</label>
+    <label><input type="radio" name="q4" value="b"> B. 增加樣本大小 $n$</label>
+    <label><input type="radio" name="q4" value="c"> C. 提高顯著水準 $\alpha$</label>
+    <label><input type="radio" name="q4" value="d"> D. 增大母體標準差 $\sigma$</label>
+    <button onclick="checkQ('q4','b','✅ 正確！增加 $n$ 能使標準誤縮小，同時提高檢定的精確度。降低 $\\alpha$ 只會降低型 I 錯誤但增加型 II 錯誤；它們在 $n$ 固定時反向相關，唯有擴大樣本才能一起改善。')">Submit</button>
+    <div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q5. 某品管人員進行左尾檢定，計算得 $z = -1.20$，顯著水準 $\alpha = 0.05$（臨界值 $-1.645$）。請問 p 值的範圍及決策為何？</p>
+    <label><input type="radio" name="q5" value="a"> A. p 值 < 0.05，拒絕 $H_0$</label>
+    <label><input type="radio" name="q5" value="b"> B. p 值 > 0.05，不拒絕 $H_0$</label>
+    <label><input type="radio" name="q5" value="c"> C. p 值 = 0.05，恰好邊界</label>
+    <label><input type="radio" name="q5" value="d"> D. 無法計算 p 值</label>
+    <button onclick="checkQ('q5','b','✅ 正確！左尾 p 值 $= P(Z < -1.20) \\approx 0.115 > 0.05$，不落入拒絕域（$-1.20 > -1.645$），故不拒絕 $H_0$。也可直接判斷：$z = -1.20 > -1.645$，未進入拒絕域。')">Submit</button>
+    <div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- ══ Calculator ══ -->
+<h2 id="calc">🔢 互動計算機</h2>
+
+<div class="calc-box">
+<h3>🔢 計算機　z 統計量（母體標準差已知）</h3>
+<div class="inputs-row">
+    <label>樣本平均數 $\bar{X}$<br><input type="number" id="c11_xbar" value="32.5" step="any"></label>
+    <label>虛無假設值 $\mu_0$<br><input type="number" id="c11_mu0" value="30" step="any"></label>
+    <label>母體標準差 $\sigma$<br><input type="number" id="c11_sigma" value="10" step="any" min="0.001"></label>
+    <label>樣本大小 $n$<br><input type="number" id="c11_n" value="64" min="1"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="c11_alpha">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>檢定方向<br>
+        <select id="c11_tail">
+            <option value="right">右尾（μ &gt; μ₀）</option>
+            <option value="left">左尾（μ &lt; μ₀）</option>
+            <option value="two">雙尾（μ ≠ μ₀）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcZ11()">計算</button>
+<div class="calc-result" id="c11-result"></div>
+</div>
+
+<hr>
+
+<!-- ══ Exercises ══ -->
+<h2 id="exercises">📚 綜合練習 (Comprehensive Practice)</h2>
+<p>以下習題涵蓋假設檢定的概念理解與計算應用，請先獨立作答，再展開解答確認。</p>
+
+<h3>I. 概念複習</h3>
+<ol class="exercises-list">
+
+    <li>
+        <p>什麼是「型 I 錯誤」與「型 II 錯誤」？它們分別以什麼符號表示？兩者之間有何關係？</p>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <ul>
+                <li><strong>型 I 錯誤：</strong>拒絕了一個<strong>真實的</strong>虛無假設，機率以 $\alpha$（顯著水準）表示。如：網路速度其實達標，但檢定錯誤地認為不達標。</li>
+                <li><strong>型 II 錯誤：</strong>未能拒絕一個<strong>錯誤的</strong>虛無假設，機率以 $\beta$ 表示。如：裝填量確實不足，但檢定未能偵測到。</li>
+                <li><strong>關係：</strong>$\alpha$ 與 $\beta$ 反向相關——在 $n$ 固定時，降低 $\alpha$ 會使 $\beta$ 增加。欲同時降低兩者，唯有增加樣本大小 $n$。</li>
+            </ul>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <p>為什麼我們說「不拒絕虛無假設」而不說「接受虛無假設」？</p>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p>假設檢定的邏輯是：「若沒有足夠的<strong>反對</strong>虛無假設的證據，則不拒絕它。」如同法庭判決「無罪釋放」，陪審團並非宣告被告<em>真的無罪</em>，而是「證據不足以定罪」。</p>
+            <p>虛無假設可能是錯的，只是樣本證據不夠充分。說「接受 $H_0$」會誤導人以為已<em>證明</em> $H_0$ 為真，在統計邏輯上是錯誤的。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <p>如果一個假設檢定的 p 值為 0.04，在 $\alpha = 0.05$ 的顯著水準下，你的決策是什麼？這個 p 值代表什麼程度的證據？若改為 $\alpha = 0.01$，結論是否改變？</p>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <ul>
+                <li><strong>$\alpha = 0.05$</strong>：p 值 $= 0.04 < 0.05$，<strong>拒絕 $H_0$</strong>。p 值介於 0.01 與 0.05 之間，屬「強烈」的反對 $H_0$ 的證據。</li>
+                <li><strong>$\alpha = 0.01$</strong>：p 值 $= 0.04 > 0.01$，<strong>不拒絕 $H_0$</strong>。結論改變了。</li>
+                <li>這說明統計結論依賴顯著水準的選擇，應在蒐集資料<em>之前</em>設定 $\alpha$，不可事後調整。</li>
+            </ul>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <p>臨界值法與 p 值法的決策結論會一致嗎？請說明原因。</p>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>兩種方法結論永遠一致。</strong>以右尾為例：</p>
+            <ul>
+                <li>臨界值法拒絕的條件：$z > z_\alpha$</li>
+                <li>p 值法拒絕的條件：$P(Z > z) < \alpha$</li>
+                <li>當 $z > z_\alpha$ 時，$P(Z > z) < P(Z > z_\alpha) = \alpha$，兩者同時成立。</li>
+            </ul>
+            <p>本質上，兩種方法都是衡量「在 $H_0$ 為真的情況下，觀測到這樣的樣本結果有多不尋常」，只是呈現方式不同。</p>
+        </div>
+        </details>
+    </li>
+
+</ol>
+
+<h3>II. 計算題</h3>
+<ol class="exercises-list">
+
+    <li>
+        <strong>11.1　課程出席率是否符合全校標準？（雙尾檢定）</strong>
+        <p>某大學官方紀錄指出，全校各課程的平均出席率為 <strong>82%</strong>，標準差 $\sigma = 9\%$。某學院院長想了解該學院的出席率是否與全校有顯著差異。隨機抽取該學院 <strong>$n = 81$ 個班次</strong>，計算出樣本平均出席率 $\bar{X} = 80\%$。在 $\alpha = 0.05$ 下進行雙尾檢定。</p>
+        <ul>
+            <li>a. 設定 $H_0$ 與 $H_1$。</li>
+            <li>b. 計算 z 統計量。</li>
+            <li>c. 用臨界值法做出決策。</li>
+            <li>d. 計算 p 值，判斷證據強度，並說明結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>a.</strong> $H_0: \mu = 82\%$；$H_1: \mu \neq 82\%$（雙尾）</p>
+            <p><strong>b.</strong></p>
+            <div class="math-block">$$z = \frac{80 - 82}{9 / \sqrt{81}} = \frac{-2}{1} = -2.00$$</div>
+            <p><strong>c.</strong> 雙尾臨界值 $\pm 1.96$；$|z| = 2.00 > 1.96$ → <strong>拒絕 $H_0$</strong>。</p>
+            <p><strong>d.</strong> p 值 $= 2 \times P(Z > 2.00) = 2 \times 0.0228 = 0.0456$。屬「強烈」的統計證據。</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 5% 的顯著水準下，有足夠的統計證據推論該學院的平均出席率與全校標準（82%）有顯著差異。注意 p 值（0.046）非常接近 $\alpha$（0.05），應謹慎詮釋結論。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <strong>11.2　手搖飲製作時間是否超標？（右尾檢定）</strong>
+        <p>某連鎖手搖飲品牌要求每杯飲品的製作時間不超過 <strong>3 分鐘（180 秒）</strong>。品管人員懷疑某分店的製作速度偏慢，隨機記錄 <strong>$n = 49$ 杯</strong>的製作時間，得到樣本平均 $\bar{X} = 186$ 秒。已知制作時間的母體標準差 $\sigma = 21$ 秒。在 $\alpha = 0.01$ 下進行右尾檢定。</p>
+        <ul>
+            <li>a. 設定 $H_0$ 與 $H_1$。</li>
+            <li>b. 計算 z 統計量與 p 值。</li>
+            <li>c. 做出決策並解釋結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>a.</strong> $H_0: \mu \leq 180$；$H_1: \mu > 180$（右尾）</p>
+            <p><strong>b.</strong></p>
+            <div class="math-block">$$z = \frac{186 - 180}{21 / \sqrt{49}} = \frac{6}{3} = 2.00$$</div>
+            <p>p 值 $= P(Z > 2.00) = 0.0228$</p>
+            <p><strong>c.</strong> 右尾臨界值 $z_{0.01} = 2.326$；$z = 2.00 < 2.326$ → <strong>不拒絕 $H_0$</strong>。（p 值 $= 0.0228 > 0.01$）</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 1% 的顯著水準下，沒有足夠的統計證據推論該分店平均製作時間超過 180 秒。但注意：若改用 $\alpha = 0.05$，則 p 值 $= 0.023 < 0.05$，結論將改變，顯示顯著水準選擇的重要性。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <strong>11.3　健身房使用頻率是否下降？（左尾檢定）</strong>
+        <p>某健身房原本的會員平均每月到館次數為 <strong>10 次</strong>，標準差 $\sigma = 4$ 次。新冠疫情後，管理者擔心會員使用頻率<strong>下降</strong>，隨機抽取 <strong>$n = 100$ 位</strong>現有會員，得到樣本平均每月到館 $\bar{X} = 9.2$ 次。在 $\alpha = 0.05$ 下進行左尾檢定。</p>
+        <ul>
+            <li>a. 設定 $H_0$ 與 $H_1$。</li>
+            <li>b. 計算 z 統計量與 p 值。</li>
+            <li>c. 做出決策並解釋結論。</li>
+            <li>d. 若真實母體平均為 $\mu_a = 9$ 次，計算此次檢定的 Power。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>a.</strong> $H_0: \mu \geq 10$；$H_1: \mu < 10$（左尾）</p>
+            <p><strong>b.</strong></p>
+            <div class="math-block">$$z = \frac{9.2 - 10}{4 / \sqrt{100}} = \frac{-0.8}{0.4} = -2.00$$</div>
+            <p>p 值 $= P(Z < -2.00) = 0.0228$</p>
+            <p><strong>c.</strong> 左尾臨界值 $-1.645$；$z = -2.00 < -1.645$ → <strong>拒絕 $H_0$</strong>。在 5% 顯著水準下，有統計證據推論會員使用頻率已下降。</p>
+            <p><strong>d.</strong> Power 計算：</p>
+            <div class="math-block">$$\bar{x}^* = 10 - 1.645 \times \frac{4}{\sqrt{100}} = 10 - 0.658 = 9.342$$</div>
+            <div class="math-block">$$z^* = \frac{9.342 - 9}{4/\sqrt{100}} = \frac{0.342}{0.4} = 0.855$$</div>
+            <div class="math-block">$$\text{Power} = P(Z < -0.855) \approx 0.196$$</div>
+            <p class="note" style="background:#fff3cd;border-left:3px solid #d4a017;padding:8px 12px;border-radius:0 4px 4px 0;">⚠️ Power 僅約 19.6%，說明若真實均值只偏離 1 次，此次檢定偵測能力偏低。建議增加樣本大小以提升 Power。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <strong>11.4　大學生每日螢幕使用時間（雙尾，資料自行計算）</strong>
+        <p>根據教育部調查，大學生每日平均螢幕使用時間為 <strong>6 小時</strong>，已知標準差 $\sigma = 2$ 小時。某校健康促進中心認為該校學生的使用時間與全國平均不同，隨機調查 <strong>$n = 36$ 位</strong>學生，回答資料如下（單位：小時）：</p>
+        <p style="text-align:center; font-family:monospace; background:#f5f5f5; padding:10px; border-radius:6px;">
+            8 &nbsp; 5 &nbsp; 7 &nbsp; 6 &nbsp; 9 &nbsp; 4 &nbsp; 7 &nbsp; 8 &nbsp; 6 &nbsp; 10 &nbsp; 5 &nbsp; 7<br>
+            6 &nbsp; 8 &nbsp; 5 &nbsp; 9 &nbsp; 7 &nbsp; 6 &nbsp; 8 &nbsp; 4 &nbsp; 7 &nbsp; 8 &nbsp; 6 &nbsp; 9<br>
+            5 &nbsp; 7 &nbsp; 8 &nbsp; 6 &nbsp; 7 &nbsp; 5 &nbsp; 9 &nbsp; 6 &nbsp; 8 &nbsp; 7 &nbsp; 6 &nbsp; 8
+        </p>
+        <ul>
+            <li>a. 計算樣本平均數 $\bar{X}$。</li>
+            <li>b. 設定 $H_0$ 與 $H_1$（雙尾），在 $\alpha = 0.05$ 下計算 z 統計量。</li>
+            <li>c. 用 p 值法做出決策並解釋結論。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>a.</strong> 加總 = $8+5+7+6+9+4+7+8+6+10+5+7+6+8+5+9+7+6+8+4+7+8+6+9+5+7+8+6+7+5+9+6+8+7+6+8 = 250$</p>
+            <div class="math-block">$$\bar{X} = \frac{250}{36} \approx 6.94 \text{ 小時}$$</div>
+            <p><strong>b.</strong> $H_0: \mu = 6$；$H_1: \mu \neq 6$</p>
+            <div class="math-block">$$z = \frac{6.94 - 6}{2 / \sqrt{36}} = \frac{0.94}{0.333} \approx 2.82$$</div>
+            <p><strong>c.</strong> p 值 $= 2 \times P(Z > 2.82) = 2 \times 0.0024 = 0.0048$</p>
+            <p>$p = 0.0048 < 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ p 值 < 0.01，屬「非常強烈」的統計證據。在 5% 的顯著水準下，有極強的統計證據推論該校學生的每日螢幕使用時間（約 6.94 小時）與全國平均 6 小時有顯著差異，且高於全國平均。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <strong>11.5　電商平均評分是否達到優良標準？（右尾檢定）</strong>
+        <p>某電商平台規定，若店家平均顧客評分超過 <strong>4.5 分</strong>（滿分 5 分），可獲得「優良店家」認證。某店家申請認證，平台抽查該店最近 <strong>$n = 100$ 筆</strong>訂單的評分，得到 $\bar{X} = 4.62$ 分。根據平台資料，評分的標準差 $\sigma = 0.6$ 分。在 $\alpha = 0.05$ 下，判斷該店家是否符合認證標準。</p>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>假設</strong>：$H_0: \mu \leq 4.5$；$H_1: \mu > 4.5$（右尾）</p>
+            <div class="math-block">$$z = \frac{4.62 - 4.5}{0.6 / \sqrt{100}} = \frac{0.12}{0.06} = 2.00$$</div>
+            <p>p 值 $= P(Z > 2.00) = 0.0228 < 0.05$ → <strong>拒絕 $H_0$</strong>。</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 5% 的顯著水準下，有足夠的統計證據推論該店家的平均評分超過 4.5 分，應給予「優良店家」認證。</p>
+        </div>
+        </details>
+    </li>
+
+    <li>
+        <strong>11.6　宿舍網路下載速度是否低於承諾值？（左尾、Power 計算）</strong>
+        <p>某大學宿舍 Wi-Fi 服務商承諾平均下載速度至少達 <strong>100 Mbps</strong>，標準差 $\sigma = 20$ Mbps。學生自治會懷疑實際速度低於承諾，隨機測試 <strong>$n = 25$ 個</strong>時間點，得到樣本平均 $\bar{X} = 92$ Mbps。在 $\alpha = 0.05$ 下進行左尾檢定。</p>
+        <ul>
+            <li>a. 設定假設，計算 z 統計量與 p 值，做出決策。</li>
+            <li>b. 若真實母體平均速度為 $\mu_a = 90$ Mbps，計算 Power，並說明是否有足夠的檢定力。</li>
+        </ul>
+        <details><summary>▶ 點此展開解答</summary>
+        <div>
+            <p><strong>a.</strong> $H_0: \mu \geq 100$；$H_1: \mu < 100$</p>
+            <div class="math-block">$$z = \frac{92 - 100}{20 / \sqrt{25}} = \frac{-8}{4} = -2.00$$</div>
+            <p>p 值 $= P(Z < -2.00) = 0.0228 < 0.05$ → <strong>拒絕 $H_0$</strong>。在 5% 顯著水準下，有統計證據推論網路速度低於 100 Mbps。</p>
+
+            <p><strong>b.</strong> Power 計算（$\mu_a = 90$）：</p>
+            <div class="math-block">$$\bar{x}^* = 100 - 1.645 \times \frac{20}{\sqrt{25}} = 100 - 6.58 = 93.42$$</div>
+            <div class="math-block">$$z^* = \frac{93.42 - 90}{20/\sqrt{25}} = \frac{3.42}{4} = 0.855$$</div>
+            <div class="math-block">$$\text{Power} = P(Z < -0.855) \approx 0.196$$</div>
+            <p class="note" style="background:#fff3cd;border-left:3px solid #d4a017;padding:8px 12px;border-radius:0 4px 4px 0;">⚠️ Power 僅約 19.6%，不足 80% 的建議標準。即使速度真的只有 90 Mbps，此次 $n=25$ 的樣本也只有約 20% 的機率能正確偵測到。建議增加樣本量（可試算 $n = 100$ 時的 Power）以提升可靠性。</p>
+        </div>
+        </details>
+    </li>
+
+</ol>
+
+<hr>
+
+<!-- ══ Summary ══ -->
+<div class="summary" id="summary">
+<h2>📌 Chapter Summary</h2>
+<ul>
+    <li><strong>假設檢定的邏輯</strong>：以 $H_0$ 為真為出發點，尋找足夠的統計證據支持對立假設 $H_1$。結果只有「拒絕 $H_0$」或「不拒絕 $H_0$」，從不說「接受 $H_0$」。</li>
+    <li><strong>型 I 錯誤（$\alpha$）</strong>：$H_0$ 為真卻被拒絕；<strong>型 II 錯誤（$\beta$）</strong>：$H_0$ 為假卻未被拒絕。在 $n$ 固定時兩者反向相關，增加 $n$ 可同時降低。</li>
+    <li><strong>z 統計量（$\sigma$ 已知）</strong>：$z = (\bar{X} - \mu_0)/(\sigma/\sqrt{n})$，在 $H_0$ 為真時服從 $N(0,1)$。</li>
+    <li><strong>臨界值法</strong>：以 $z_\alpha$（或 $z_{\alpha/2}$）劃定拒絕域，統計量落入拒絕域則拒絕 $H_0$。</li>
+    <li><strong>p 值法</strong>：p 值為「假設 $H_0$ 為真，觀測到這樣極端或更極端結果的機率」；p 值 $< \alpha$ 則拒絕 $H_0$。兩種方法結論永遠一致。</li>
+    <li><strong>檢定力（Power = $1-\beta$）</strong>：當 $H_0$ 為假時正確拒絕的機率。增大 $n$、縮小 $\sigma$、放大真實差距、提高 $\alpha$ 均可提升 Power。</li>
+</ul>
+</div>
+
+<!-- ══ Scripts ══ -->
+<script>
+// ── Drawing engine ──
+(function(){
+function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+function normCDF(z){
+    const t=1/(1+0.2316419*Math.abs(z));
+    const poly=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+    const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+    const cdf=1-pdf*poly; return z>=0?cdf:1-cdf;
+}
+function drawZDiag(id,zstat,cv,tail,pvalMode){
+    const canvas=document.getElementById(id);if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=58,pR=28,pT=38,pB=58;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=-4.2,xMax=4.2,yMax=0.44;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    const axisY=py(0);
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+    function fillArea(x1,x2,col){
+        ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(px(x1),axisY);
+        for(let i=0;i<=300;i++){const x=x1+i/300*(x2-x1);ctx.lineTo(px(x),py(normPDF(x)));}
+        ctx.lineTo(px(x2),axisY);ctx.closePath();ctx.fill();
+    }
+    if(!pvalMode){
+        if(tail==='right')fillArea(cv,xMax,'rgba(200,40,30,0.18)');
+        else if(tail==='left')fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');
+        else{fillArea(Math.abs(cv),xMax,'rgba(200,40,30,0.18)');fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');}
+    } else {
+        if(tail==='right')fillArea(zstat,xMax,'rgba(200,40,30,0.40)');
+        else if(tail==='left')fillArea(xMin,zstat,'rgba(200,40,30,0.40)');
+        else{const az=Math.abs(zstat);fillArea(az,xMax,'rgba(200,40,30,0.40)');fillArea(xMin,-az,'rgba(200,40,30,0.40)');}
+    }
+    ctx.beginPath();ctx.strokeStyle='#1a4faa';ctx.lineWidth=2.2;
+    for(let i=0;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin);i===0?ctx.moveTo(px(x),py(normPDF(x))):ctx.lineTo(px(x),py(normPDF(x)));}
+    ctx.stroke();
+    ctx.strokeStyle='#888';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pL,axisY);ctx.lineTo(W-pR,axisY);ctx.stroke();
+    ctx.fillStyle='#555';ctx.font='12px sans-serif';ctx.textAlign='center';
+    [-4,-3,-2,-1,0,1,2,3,4].forEach(x=>{
+        ctx.beginPath();ctx.strokeStyle='#bbb';ctx.lineWidth=0.8;
+        ctx.moveTo(px(x),axisY);ctx.lineTo(px(x),axisY+5);ctx.stroke();
+        ctx.fillText(x,px(x),axisY+19);
+    });
+    function drawCV(v,labelStr){
+        const x0=px(v);
+        ctx.beginPath();ctx.strokeStyle='#c0392b';ctx.lineWidth=1.8;
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,axisY+9);ctx.stroke();
+        const yTop=py(normPDF(v)),yHint=axisY-(axisY-yTop)*0.28;
+        ctx.beginPath();ctx.strokeStyle='rgba(192,57,43,0.35)';ctx.lineWidth=0.9;ctx.setLineDash([3,3]);
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,yHint);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#c0392b';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+        ctx.fillText(labelStr,x0,axisY+36);
+    }
+    if(!pvalMode){
+        if(tail==='right')drawCV(cv,''+cv);
+        else if(tail==='left')drawCV(-Math.abs(cv),'−'+Math.abs(cv));
+        else{drawCV(Math.abs(cv),''+cv);drawCV(-Math.abs(cv),'−'+cv);}
+    }
+    const sx=px(zstat),dotY=axisY;
+    const curvY=py(normPDF(zstat)),labelY=curvY-18;
+    ctx.beginPath();ctx.strokeStyle='rgba(26,158,110,0.65)';ctx.lineWidth=1.2;ctx.setLineDash([3,2]);
+    ctx.moveTo(sx,dotY-6);ctx.lineTo(sx,labelY+4);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.fillStyle='#1a9e6e';
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.stroke();
+    ctx.fillStyle='#0d7a52';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+    ctx.fillText('z = '+zstat.toFixed(2),sx,labelY);
+    if(!pvalMode){
+        } else {
+        ctx.fillStyle='rgba(155,20,20,0.75)';ctx.font='12px sans-serif';
+        if(tail==='right')ctx.fillText('p 值',px((zstat+xMax)/2),pT+14);
+        else if(tail==='left')ctx.fillText('p 值',px((xMin+zstat)/2),pT+14);
+        else{const az=Math.abs(zstat);ctx.fillText('p/2',px((-az+xMin)/2),pT+14);ctx.fillText('p/2',px((az+xMax)/2),pT+14);}
+    }
+}
+window.drawZDiag=drawZDiag;
+window.normCDFglobal=normCDF;
+document.addEventListener('DOMContentLoaded',function(){
+    // Rejection region diagrams
+    drawZDiag('exACvCanvas', 1.25, 1.96, 'two', false);
+    drawZDiag('exBCvCanvas', 2.00, 1.645, 'right', false);
+    drawZDiag('exCCvCanvas', -1.84, 1.645, 'left', false);
+    // p-value diagrams
+    drawZDiag('exAPvCanvas', 1.25, 1.96, 'two', true);
+    drawZDiag('exBPvCanvas', 2.00, 1.645, 'right', true);
+    drawZDiag('exCPvCanvas', -1.84, 1.645, 'left', true);
+});
+})();
+
+// ── Quiz ──
+function checkQ(qid, correct, msg) {
+    const selected = document.querySelector(`input[name="${qid}"]:checked`);
+    const fb = document.getElementById(`${qid}-fb`);
+    if (!selected) { fb.style.display='block'; fb.className='quiz-feedback wrong'; fb.textContent='請先選擇一個答案。'; return; }
+    fb.style.display = 'block';
+    if (selected.value === correct) {
+        fb.className = 'quiz-feedback correct';
+        fb.innerHTML = msg;
+    } else {
+        fb.className = 'quiz-feedback wrong';
+        fb.innerHTML = '❌ 不正確，請再想想。提示：' + msg;
+    }
+}
+
+// ── Z Calculator ──
+function normCDF11calc(z){
+    const t=1/(1+0.2316419*Math.abs(z));
+    const poly=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+    const pdf=Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI);
+    const cdf=1-pdf*poly;
+    return z>=0?cdf:1-cdf;
+}
+function normInv11(p){
+    const map={0.10:1.282,0.05:1.645,0.025:1.960,0.01:2.326,0.005:2.576};
+    return map[p]||1.96;
+}
+function calcZ11(){
+    const xbar=parseFloat(document.getElementById('c11_xbar').value);
+    const mu0=parseFloat(document.getElementById('c11_mu0').value);
+    const sigma=parseFloat(document.getElementById('c11_sigma').value);
+    const n=parseInt(document.getElementById('c11_n').value);
+    const alpha=parseFloat(document.getElementById('c11_alpha').value);
+    const tail=document.getElementById('c11_tail').value;
+    const se=sigma/Math.sqrt(n);
+    const z=(xbar-mu0)/se;
+    const cvSingle=normInv11(alpha);
+    const cvHalf=normInv11(alpha/2);
+    let cv,decision,tailLabel,pval;
+    if(tail==='two'){
+        cv=cvHalf; decision=Math.abs(z)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='雙尾';
+        pval=2*(1-normCDF11calc(Math.abs(z)));
+    } else if(tail==='right'){
+        cv=cvSingle; decision=z>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='右尾';
+        pval=1-normCDF11calc(z);
+    } else {
+        cv=cvSingle; decision=z<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀'; tailLabel='左尾';
+        pval=normCDF11calc(z);
+    }
+    const cvCi=normInv11(alpha/2);
+    const res=document.getElementById('c11-result');
+    res.style.display='block';
+    res.innerHTML=`標準誤 SE = σ/√n = ${se.toFixed(4)}
+z 統計量 = ${z.toFixed(4)}
+臨界值 = ${tail==='two'?'±':(tail==='left'?'-':'')}${cv.toFixed(4)}（${tailLabel}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間：[${(xbar-cvCi*se).toFixed(4)}, ${(xbar+cvCi*se).toFixed(4)}]`;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13　兩母體的比較推論</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false, strict: "ignore"
+            });
+        });
+    </script>
+    <style>
+        :root {
+            --navy:#1a3a6b; --blue:#2e6cb8; --blue-light:#4a90d9;
+            --accent:#c0392b; --gold:#d4a017; --green:#27ae60;
+            --bg:#f7f9fc; --card:#ffffff; --border:#d0dcea;
+            --text:#2c3e50; --muted:#5a6a7a; --math-bg:#eaf3ff;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Noto Sans TC','Source Serif 4',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;max-width:900px;margin:0 auto;padding:36px 24px 80px;}
+        h1{font-family:'Source Serif 4',serif;font-size:2rem;font-weight:700;color:var(--navy);border-bottom:4px solid var(--blue-light);padding-bottom:12px;margin-bottom:20px;}
+        h2{font-family:'Source Serif 4',serif;font-size:1.45rem;font-weight:600;color:var(--navy);margin-top:48px;margin-bottom:14px;border-left:5px solid var(--blue-light);padding-left:12px;}
+        h3{font-size:1.1rem;font-weight:700;color:var(--blue);margin-top:28px;margin-bottom:10px;}
+        h4{font-size:1rem;font-weight:700;color:var(--navy);margin-top:18px;margin-bottom:8px;}
+        p{margin-bottom:12px;} ul,ol{margin-left:24px;margin-bottom:12px;} li{margin-bottom:6px;}
+        hr{border:none;border-top:1px solid var(--border);margin:48px 0;}
+        .chapter-intro{font-size:1.05rem;color:var(--muted);border-left:3px solid var(--blue-light);padding:10px 16px;background:#eef4fb;border-radius:0 6px 6px 0;margin-bottom:24px;}
+        .learning-goals{background:#fffbea;border:1.5px solid var(--gold);border-radius:8px;padding:18px 22px;margin:24px 0;}
+        .learning-goals h3{color:#8a6000;margin-top:0;}
+        .toc{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:18px 24px;margin:24px 0;box-shadow:0 2px 8px rgba(30,60,110,0.06);}
+        .toc h3{color:var(--navy);margin-top:0;} .toc a{color:var(--blue);text-decoration:none;} .toc a:hover{text-decoration:underline;}
+        .highlight{background:#fffbe6;border-left:4px solid var(--gold);padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;}
+        .math-block{background:var(--math-bg);border-radius:6px;padding:14px 18px;margin:14px 0;overflow-x:auto;font-size:1.05em;text-align:center;}
+        .formula-card{background:var(--card);border:2px solid var(--blue-light);border-radius:10px;padding:18px 22px;margin:20px 0;box-shadow:0 2px 8px rgba(74,144,217,0.1);}
+        .formula-card h3{margin-top:0;color:var(--navy);}
+        .formula-card .note{font-size:0.9em;color:var(--muted);background:#f0f6ff;border-left:3px solid #aac4ee;padding:8px 12px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .steps-box{background:#f4f6ff;border:1px solid #b0bce8;border-radius:8px;padding:16px 20px;margin:16px 0;}
+        .steps-box h3{color:var(--navy);margin-top:0;} .steps-box ol{margin-bottom:0;} .steps-box li{margin-bottom:10px;}
+        .example-block{background:#f0faff;border-left:5px solid var(--blue-light);border-radius:0 8px 8px 0;padding:18px 22px;margin:20px 0;}
+        .example-block h3{color:var(--navy);margin-top:0;}
+        .example-block .note{font-size:0.92em;color:#333;background:#e6f7e6;border-left:3px solid var(--green);padding:10px 14px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .example-block .warn{font-size:0.92em;background:#fff3cd;border-left:3px solid var(--gold);padding:10px 14px;margin-top:10px;border-radius:0 4px 4px 0;}
+        .scenario{background:#f8f4ff;border:1.5px dashed #9b7fd4;border-radius:8px;padding:12px 18px;margin-bottom:14px;font-size:0.97em;color:#3d2070;}
+        .scenario strong{color:#6a3fbf;}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.95em;}
+        th,td{border:1px solid #c8d8ec;padding:8px 12px;text-align:center;}
+        th{background:#ddeeff;color:var(--navy);font-weight:600;}
+        tr:nth-child(even){background:#f5f8ff;}
+        .decision-box{background:#f4f6ff;border:1.5px solid #b0bce8;border-radius:10px;padding:16px 22px;margin:20px 0;}
+        .decision-box h3{color:var(--navy);margin-top:0;}
+        .quiz-box{background:#f0f6ff;border:1.5px solid var(--blue-light);border-radius:10px;padding:22px 26px;margin:28px 0;}
+        .quiz-box h3{color:var(--navy);margin-top:0;}
+        .quiz-q{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:16px;}
+        .quiz-q p{font-weight:600;margin-bottom:10px;}
+        .quiz-q label{display:block;margin:6px 0;cursor:pointer;font-size:0.97em;}
+        .quiz-q button{margin-top:10px;padding:7px 18px;background:var(--blue);color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.9em;}
+        .quiz-q button:hover{background:var(--navy);}
+        .quiz-feedback{display:none;margin-top:10px;padding:10px 14px;border-radius:6px;font-size:0.95em;}
+        .quiz-feedback.correct{background:#d4edda;border-left:4px solid var(--green);color:#155724;}
+        .quiz-feedback.wrong{background:#f8d7da;border-left:4px solid var(--accent);color:#721c24;}
+        .exercises-list{counter-reset:ex-counter;list-style:none;padding:0;}
+        .exercises-list>li{counter-increment:ex-counter;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:16px;}
+        .exercises-list>li strong{color:var(--navy);}
+        details summary{cursor:pointer;color:var(--blue);font-weight:700;margin-top:12px;user-select:none;}
+        details summary:hover{color:var(--navy);}
+        details>div{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+        .summary{background:var(--navy);color:#e8f0fc;border-radius:10px;padding:22px 26px;margin-top:40px;}
+        .summary h2{color:#c8dcf8;border-left-color:#6aaae8;}
+        .summary ul{margin-bottom:0;} .summary li{margin-bottom:10px;color:#d8e8f8;} .summary strong{color:#a8d0f8;}
+        .calc-box{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:22px 26px;margin:20px 0;box-shadow:0 2px 8px rgba(30,60,110,0.06);}
+        .calc-box h3{margin-top:0;color:var(--navy);}
+        .inputs-row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+        .inputs-row label{display:flex;flex-direction:column;font-size:0.9em;color:var(--muted);min-width:110px;}
+        .inputs-row input,.inputs-row select{margin-top:4px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;font-size:1em;width:100%;}
+        .calc-box button{padding:8px 22px;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.95em;}
+        .calc-box button:hover{background:var(--navy);}
+        .calc-result{display:none;margin-top:14px;background:#f0f6ff;border-left:4px solid var(--blue-light);padding:12px 16px;border-radius:0 6px 6px 0;font-family:'JetBrains Mono',monospace;font-size:0.93em;white-space:pre-line;}
+        .note-inline{font-size:0.9em;color:var(--muted);background:#f0f6ff;border-left:3px solid #aac4ee;padding:8px 12px;margin-top:10px;border-radius:0 4px 4px 0;}
+        @media(max-width:640px){body{padding:20px 14px 60px;}}
+    </style>
+</head>
+<body>
+
+<h1>Chapter 13　兩母體的比較推論 (Comparing Two Populations)</h1>
+
+<p class="chapter-intro">本章從「單一母體推論」延伸到<strong>比較兩個母體</strong>：兩個獨立樣本的均值差（Pooled t、Welch t）、成對樣本的均值差、兩母體變異數比值（F 分配），以及兩母體比例差異。</p>
+
+<div class="learning-goals">
+<h3>🎯 Learning Objectives</h3>
+<ul>
+    <li>能根據研究設計（獨立樣本 vs. 成對樣本）選擇正確的統計方法。</li>
+    <li>能使用 Pooled t-test（相等變異數）與 Welch t-test（不等變異數）比較兩獨立母體的均值差，並解釋信賴區間。</li>
+    <li>能辨識成對樣本（Matched Pairs）設計，使用配對 t 統計量進行推論。</li>
+    <li>能使用 F 統計量比較兩母體變異數，並建立其信賴區間。</li>
+    <li>能使用 z 統計量比較兩母體比例差異，並建立信賴區間。</li>
+</ul>
+</div>
+
+<div class="toc">
+<h3>📋 本章內容</h3>
+<ol>
+    <li><a href="#sec13-1">§13.1　獨立樣本均值差推論</a>
+        <ol style="margin-top:4px;">
+            <li><a href="#sec13-1a">方法選擇指引（先做 F 檢定）</a></li>
+            <li><a href="#sec13-1b">Pooled t-test（相等變異數）</a></li>
+            <li><a href="#sec13-2">Welch t-test（不等變異數）</a></li>
+        </ol>
+    </li>
+    <li><a href="#sec13-3">§13.3　成對樣本（Matched Pairs）</a></li>
+    <li><a href="#sec13-4">§13.4　兩母體變異數比值推論（F 分配）</a></li>
+    <li><a href="#sec13-5">§13.5　兩母體比例差異推論</a></li>
+    <li><a href="#calc">🔢 互動計算機</a></li>
+    <li><a href="#quiz">🧠 Quick Quiz</a></li>
+    <li><a href="#exercises">📚 綜合練習</a></li>
+    <li><a href="#summary">📌 Chapter Summary</a></li>
+</ol>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     §13.1  獨立樣本均值差
+══════════════════════════════════════════ -->
+<h2 id="sec13-1">§13.1　獨立樣本均值差推論</h2>
+
+<p>當我們要比較<strong>兩個獨立群體</strong>的母體平均數時（例如：男女生成績、A/B 測試結果），使用兩樣本 t 檢定，推論參數為兩母體均值差 $\mu_1 - \mu_2$。</p>
+
+<h3 id="sec13-1a">一、方法選擇指引（先做 F 檢定判斷變異數相等性）</h3>
+
+<div class="decision-box">
+<h3>📊 分析流程</h3>
+<p style="margin-bottom:10px;">在計算 t 統計量之前，先用 <strong>F 檢定</strong>確認兩母體變異數是否相等，以決定使用哪種 t 統計量：</p>
+<div style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;background:#e8f7ee;border:1px solid #a8d8b5;border-radius:8px;padding:12px 16px;">
+        <strong style="color:#1a6b3a;">F 檢定不顯著（p ≥ α）</strong><br>
+        → 不拒絕「兩變異數相等」<br>
+        → 使用 <strong>Pooled t-test</strong><br>
+        自由度 $\nu = n_1 + n_2 - 2$
+    </div>
+    <div style="flex:1;min-width:200px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px 16px;">
+        <strong style="color:#856404;">F 檢定顯著（p &lt; α）</strong><br>
+        → 拒絕「兩變異數相等」<br>
+        → 使用 <strong>Welch t-test</strong><br>
+        自由度由 Satterthwaite 公式決定
+    </div>
+</div>
+</div>
+
+<h3 id="sec13-1b">二、Pooled t-test（相等變異數）</h3>
+
+<div class="formula-card">
+<h3>📐 Pooled t-test 公式</h3>
+<p><strong>混合變異數估計量：</strong>（加權平均兩組樣本變異數）</p>
+<div class="math-block">$$s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}$$</div>
+<p><strong>檢定統計量：</strong></p>
+<div class="math-block">$$t = \frac{(\bar{X}_1 - \bar{X}_2) - D_0}{s_p\sqrt{\dfrac{1}{n_1}+\dfrac{1}{n_2}}}, \quad \nu = n_1 + n_2 - 2$$</div>
+<p><strong>信賴區間估計：</strong></p>
+<div class="math-block">$$(\bar{X}_1 - \bar{X}_2) \pm t_{\alpha/2,\,n_1+n_2-2} \cdot s_p\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}$$</div>
+<p class="note">$D_0$：虛無假設中兩母體均值差的假設值，通常為 0。</p>
+</div>
+
+<!-- ── 主範例 A：Pooled ── -->
+<div class="example-block">
+<h3>📝 主範例 A　男女生成績差異——相等變異數（Pooled t 檢定）</h3>
+<canvas id="canvasA" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某系期末考後，系辦想了解男女生的成績是否有顯著差異。從男生中隨機抽取 <strong>$n_1 = 46$ 人</strong>，得到 $\bar{X}_1 = 66.02$ 分，$s_1 = 10.68$ 分；從女生中隨機抽取 <strong>$n_2 = 50$ 人</strong>，得到 $\bar{X}_2 = 70.34$ 分，$s_2 = 11.93$ 分。在 $\alpha = 0.05$ 下，男女生成績是否有顯著差異？
+</div>
+
+<p><strong>步驟 0　先確認：F 檢定判斷變異數</strong></p>
+<div class="math-block">$$F = \frac{s_2^2}{s_1^2} = \frac{11.93^2}{10.68^2} = \frac{142.32}{114.06} = 1.247$$</div>
+<p>$F_{0.025,\,49,\,45} \approx 1.79$；$F = 1.247 < 1.79$ → 不拒絕相等變異數 → <strong>使用 Pooled t-test</strong></p>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<div class="math-block">$$H_0: \mu_1 - \mu_2 = 0 \qquad H_1: \mu_1 - \mu_2 \neq 0 \qquad \alpha = 0.05,\; \nu = 94$$</div>
+
+<p><strong>步驟 2　計算 Pooled 統計量</strong></p>
+<div class="math-block">$$s_p^2 = \frac{45 \times 114.06 + 49 \times 142.32}{94} = \frac{5132.7 + 6973.7}{94} \approx 128.79, \quad s_p \approx 11.35$$</div>
+<div class="math-block">$$t = \frac{(66.02 - 70.34) - 0}{11.35\sqrt{\dfrac{1}{46}+\dfrac{1}{50}}} = \frac{-4.32}{11.35 \times 0.2041} = \frac{-4.32}{2.317} \approx -1.864$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：雙尾 $|t| > t_{0.025,\,94} \approx 1.986$</p>
+<p>$|{-1.864}| = 1.864 < 1.986$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值</strong>：$p \approx 2 \times P(T_{94} > 1.864) \approx 0.065 > 0.05$ → <strong>不拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 5　95% 信賴區間</strong></p>
+<div class="math-block">$$(66.02 - 70.34) \pm 1.986 \times 2.317 = -4.32 \pm 4.60 \implies [-8.92,\; 0.28]$$</div>
+
+<div class="note">❌ 在 5% 的顯著水準下，沒有足夠的統計證據推論男女生成績有顯著差異（p ≈ 0.065）。95% 信賴區間 [−8.92, 0.28] 包含 0，與不拒絕結論一致。<br>📌 注意：若改用 $\alpha = 0.10$（$t_{0.05,94} \approx 1.661$），結論會改變。</div>
+</div>
+
+<!-- ── §13.2 Welch ── -->
+<h2 id="sec13-2">§13.2　不等變異數（Welch t-test）</h2>
+
+<div class="formula-card">
+<h3>📐 Welch t-test 公式（不等變異數）</h3>
+<p><strong>檢定統計量：</strong></p>
+<div class="math-block">$$t = \frac{(\bar{X}_1 - \bar{X}_2) - D_0}{\sqrt{\dfrac{s_1^2}{n_1}+\dfrac{s_2^2}{n_2}}}$$</div>
+<p><strong>Satterthwaite 自由度公式：</strong></p>
+<div class="math-block">$$\nu = \frac{\left(\dfrac{s_1^2}{n_1}+\dfrac{s_2^2}{n_2}\right)^2}{\dfrac{(s_1^2/n_1)^2}{n_1-1}+\dfrac{(s_2^2/n_2)^2}{n_2-1}}$$</div>
+<p class="note">Welch 自由度通常不是整數，實際使用時<strong>向下取整</strong>（保守做法）。Welch t-test 是現代統計軟體的預設選項，因其不需要假設相等變異數。</p>
+</div>
+
+<!-- ── 主範例 B：Welch ── -->
+<div class="example-block">
+<h3>📝 主範例 B　修課成績比較——不等變異數（Welch t 檢定）</h3>
+<canvas id="canvasB" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>另一門課程中，研究者懷疑男女生的成績不僅平均不同，連分散程度也有差異。男生 <strong>$n_1 = 48$ 人</strong>，$\bar{X}_1 = 79.79$ 分，$s_1 = 4.04$ 分；女生 <strong>$n_2 = 52$ 人</strong>，$\bar{X}_2 = 81.58$ 分，$s_2 = 4.43$ 分。在 $\alpha = 0.05$ 下，兩組成績是否有顯著差異？
+</div>
+
+<p><strong>步驟 0　F 檢定</strong></p>
+<div class="math-block">$$F = \frac{s_2^2}{s_1^2} = \frac{4.43^2}{4.04^2} = \frac{19.62}{16.32} = 1.202$$</div>
+<p>$F_{0.025,\,51,\,47} \approx 1.72$；$F = 1.202 < 1.72$ → 看起來不顯著，但本範例刻意使用 Welch 以展示兩種方法的比較。</p>
+
+<div class="warn">💡 <strong>教學說明：</strong>即使 F 檢定不顯著，使用 Welch t-test 通常不會有實質損失（保守但穩健），而若誤用 Pooled（相等變異數假設其實不成立），則可能造成嚴重誤差。許多統計學家建議<strong>預設使用 Welch t-test</strong>。</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<div class="math-block">$$H_0: \mu_1 - \mu_2 = 0 \qquad H_1: \mu_1 - \mu_2 \neq 0 \qquad \alpha = 0.05$$</div>
+
+<p><strong>步驟 2　計算 Welch 統計量</strong></p>
+<div class="math-block">$$t = \frac{(79.79 - 81.58) - 0}{\sqrt{\dfrac{16.32}{48}+\dfrac{19.62}{52}}} = \frac{-1.79}{\sqrt{0.3400+0.3773}} = \frac{-1.79}{\sqrt{0.7173}} = \frac{-1.79}{0.8469} \approx -2.113$$</div>
+
+<p><strong>計算 Welch 自由度：</strong></p>
+<div class="math-block">$$\nu = \frac{(0.3400+0.3773)^2}{\dfrac{0.3400^2}{47}+\dfrac{0.3773^2}{51}} = \frac{0.5145}{0.002459+0.002792} \approx 98.0 \approx 98$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：雙尾 $|t| > t_{0.025,\,98} \approx 1.984$</p>
+<p>$|{-2.113}| = 2.113 > 1.984$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值</strong>：$p \approx 2 \times P(T_{98} > 2.113) \approx 0.037 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 5　95% 信賴區間</strong></p>
+<div class="math-block">$$(79.79 - 81.58) \pm 1.984 \times 0.8469 = -1.79 \pm 1.680 \implies [-3.47,\; -0.11]$$</div>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論兩組成績有顯著差異（女生成績略高）。95% 信賴區間 [−3.47, −0.11] 完全落在 0 的左側，與拒絕結論一致。</div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     §13.3  成對樣本
+══════════════════════════════════════════ -->
+<h2 id="sec13-3">§13.3　成對樣本（Matched Pairs Experiment）</h2>
+
+<p>在某些研究設計中，兩組觀測值是<strong>成對出現</strong>的——例如同一受試者接受兩種不同處理（前後測）、或依某一特徵配對的兩人接受不同實驗。此時應使用<strong>成對樣本 t 檢定</strong>，而非獨立樣本 t 檢定。</p>
+
+<div class="highlight">
+<strong>💡 為什麼要區分成對 vs. 獨立樣本？</strong><br>
+成對設計可以<strong>消除個體間的變異</strong>。例如比較「減肥藥前後體重」時，若用獨立樣本 t，人與人之間體重的巨大差距會掩蓋藥物效果；成對設計只看<strong>每人自己的變化量</strong>，大幅降低了誤差，使檢定更有效率（更高的 Power）。
+</div>
+
+<div class="formula-card">
+<h3>📐 成對樣本 t 統計量</h3>
+<p>先計算每對的差值 $D_i = X_{1i} - X_{2i}$，再對差值序列進行單一樣本 t 推論：</p>
+<div class="math-block">$$\bar{D} = \frac{\sum D_i}{n_D}, \quad s_D = \sqrt{\frac{\sum(D_i - \bar{D})^2}{n_D - 1}}$$</div>
+<div class="math-block">$$t = \frac{\bar{D} - D_0}{s_D / \sqrt{n_D}}, \quad \nu = n_D - 1$$</div>
+<p><strong>信賴區間：</strong></p>
+<div class="math-block">$$\bar{D} \pm t_{\alpha/2,\, n_D-1} \cdot \frac{s_D}{\sqrt{n_D}}$$</div>
+<p class="note">$n_D$ 是「成對數目」（不是總觀測數）；$D_0$ 通常為 0（假設兩組無差異）。</p>
+</div>
+
+<!-- ── 主範例 C：成對 ── -->
+<div class="example-block">
+<h3>📝 主範例 C　減肥藥有效性評估（成對樣本 t 檢定）</h3>
+<canvas id="canvasC" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某藥廠測試一款新型減肥藥的有效性。研究員選取 <strong>$n_D = 6$ 位</strong>受試者，記錄服藥前與服藥後（8 週）的體重（公斤）如下。在 $\alpha = 0.05$ 下，是否有足夠的統計證據推論該藥物有減重效果？
+</div>
+
+<table style="max-width:500px;margin:12px auto;">
+    <thead><tr><th>受試者</th><th>服藥前</th><th>服藥後</th><th>$D_i$（前 − 後）</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>60</td><td>54</td><td style="color:var(--blue);font-weight:700;">+6</td></tr>
+        <tr><td>2</td><td>50</td><td>52</td><td style="color:var(--accent);">−2</td></tr>
+        <tr><td>3</td><td>70</td><td>65</td><td style="color:var(--blue);font-weight:700;">+5</td></tr>
+        <tr><td>4</td><td>62</td><td>59</td><td style="color:var(--blue);font-weight:700;">+3</td></tr>
+        <tr><td>5</td><td>60</td><td>60</td><td>0</td></tr>
+        <tr><td>6</td><td>64</td><td>58</td><td style="color:var(--blue);font-weight:700;">+6</td></tr>
+        <tr style="background:#fffbe6;"><td><strong>統計量</strong></td><td></td><td></td><td><strong>$\bar{D} = 3.0$，$s_D = 3.347$</strong></td></tr>
+    </tbody>
+</table>
+
+<p><strong>步驟 1　設定假設（右尾）</strong></p>
+<p>$D_i =$ 服藥前 − 服藥後；若藥有效，則 $D_i > 0$（體重下降）→ 右尾</p>
+<div class="math-block">$$H_0: \mu_D \leq 0 \qquad H_1: \mu_D > 0 \qquad \alpha = 0.05,\; \nu = 5$$</div>
+
+<p><strong>步驟 2　計算 t 統計量</strong></p>
+<div class="math-block">$$t = \frac{\bar{D} - 0}{s_D / \sqrt{n_D}} = \frac{3.0}{3.347 / \sqrt{6}} = \frac{3.0}{1.367} \approx 2.196$$</div>
+
+<p><strong>步驟 3　臨界值法</strong>：右尾 $t > t_{0.05,\,5} = 2.015$</p>
+<p>$2.196 > 2.015$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值</strong>：$p = P(T_5 > 2.196) \approx 0.040 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 5　95% 信賴區間（對 $\mu_D$）</strong></p>
+<div class="math-block">$$3.0 \pm 2.571 \times 1.367 = 3.0 \pm 3.514 \implies [-0.51,\; 6.51]$$</div>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論該減肥藥有減重效果（平均減輕 3 公斤）。</div>
+<div class="warn">⚠️ 注意：95% 信賴區間 [−0.51, 6.51] 包含 0，卻與「拒絕 $H_0$」的單尾檢定並不矛盾——因為信賴區間對應的是<strong>雙尾</strong> 95% 信心，而我們的假設檢定是<strong>右尾</strong>、$\alpha = 0.05$。若改建立 90% 信賴區間（對應右尾 5%），則區間為 $[3.0 \pm 2.015 \times 1.367] = [0.25, 5.75]$，不包含 0，與單尾拒絕結論一致。</div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     §13.4  F 檢定（兩變異數）
+══════════════════════════════════════════ -->
+<h2 id="sec13-4">§13.4　兩母體變異數比值推論（F 分配）</h2>
+
+<p>比較兩個母體的<strong>分散程度</strong>（如：哪個班級成績更一致？哪台機器更穩定？），使用 <strong>F 統計量</strong>，服從 F 分配。F 分配有兩個自由度參數：分子自由度 $\nu_1 = n_1-1$ 和分母自由度 $\nu_2 = n_2-1$。</p>
+
+<div class="formula-card">
+<h3>📐 F 檢定：兩母體變異數比值</h3>
+<p><strong>慣例：令較大的樣本變異數為分子（$s_1^2 \geq s_2^2$），F $\geq 1$</strong></p>
+<div class="math-block">$$F = \frac{s_1^2}{s_2^2}, \quad \nu_1 = n_1-1,\; \nu_2 = n_2-1$$</div>
+<p><strong>信賴區間估計（$\sigma_1^2 / \sigma_2^2$ 的信賴區間）：</strong></p>
+<div class="math-block">$$\left[\frac{1}{F_{U}} \cdot \frac{s_1^2}{s_2^2},\; F_U \cdot \frac{s_1^2}{s_2^2}\right]$$</div>
+<p>其中 $F_U = F_{\alpha/2,\, n_1-1,\, n_2-1}$（查 F 表，右尾面積 $\alpha/2$）。</p>
+<table style="margin-top:10px;">
+    <thead><tr><th>$H_1$</th><th>拒絕域</th></tr></thead>
+    <tbody>
+        <tr><td>$\sigma_1^2/\sigma_2^2 \neq 1$（雙尾）</td><td>$F > F_{\alpha/2,\,\nu_1,\,\nu_2}$（分子為較大 $s^2$）</td></tr>
+        <tr><td>$\sigma_1^2/\sigma_2^2 > 1$（右尾）</td><td>$F > F_{\alpha,\,\nu_1,\,\nu_2}$</td></tr>
+        <tr><td>$\sigma_1^2/\sigma_2^2 < 1$（左尾）</td><td>轉換為右尾（見下方說明）</td></tr>
+    </tbody>
+</table>
+<p class="note">💡 <strong>左尾的處理：</strong>將兩組互換（原 $s_2^2$ 作分子），轉換成右尾問題，查 F 表即可。這也是慣例上令較大 $s^2$ 為分子的原因——所有問題都能轉換為右尾查表。</p>
+</div>
+
+<p>常用 F 分配右尾臨界值（$\alpha = 0.05$）：</p>
+<div style="overflow-x:auto;margin:12px 0;">
+<table style="font-size:0.85em;min-width:520px;">
+    <thead>
+        <tr><th rowspan="2">$\nu_2$ ↓</th><th colspan="8" style="background:#d0e8ff;">$\nu_1$（分子自由度）</th></tr>
+        <tr><th style="background:#e8f4ff;">1</th><th style="background:#e8f4ff;">2</th><th style="background:#e8f4ff;">3</th><th style="background:#e8f4ff;">4</th><th style="background:#e8f4ff;">5</th><th style="background:#e8f4ff;">10</th><th style="background:#e8f4ff;">20</th><th style="background:#e8f4ff;">∞</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>1</strong></td><td>161.4</td><td>199.5</td><td>215.7</td><td>224.6</td><td>230.2</td><td>241.9</td><td>248.0</td><td>254.3</td></tr>
+        <tr><td><strong>5</strong></td><td>6.61</td><td>5.79</td><td>5.41</td><td>5.19</td><td>5.05</td><td>4.74</td><td>4.56</td><td>4.36</td></tr>
+        <tr><td><strong>10</strong></td><td>4.96</td><td>4.10</td><td>3.71</td><td>3.48</td><td>3.33</td><td>2.98</td><td>2.77</td><td>2.54</td></tr>
+        <tr><td><strong>20</strong></td><td>4.35</td><td>3.49</td><td>3.10</td><td>2.87</td><td>2.71</td><td>2.35</td><td>2.12</td><td>1.84</td></tr>
+        <tr><td><strong>30</strong></td><td>4.17</td><td>3.32</td><td>2.92</td><td>2.69</td><td>2.53</td><td>2.16</td><td>1.93</td><td>1.62</td></tr>
+        <tr><td><strong>40</strong></td><td>4.08</td><td>3.23</td><td>2.84</td><td>2.61</td><td>2.45</td><td>2.08</td><td>1.84</td><td>1.51</td></tr>
+        <tr><td><strong>60</strong></td><td>4.00</td><td>3.15</td><td>2.76</td><td>2.53</td><td>2.37</td><td>1.99</td><td>1.75</td><td>1.39</td></tr>
+        <tr><td><strong>120</strong></td><td>3.92</td><td>3.07</td><td>2.68</td><td>2.45</td><td>2.29</td><td>1.91</td><td>1.66</td><td>1.25</td></tr>
+        <tr><td><strong>∞</strong></td><td>3.84</td><td>3.00</td><td>2.60</td><td>2.37</td><td>2.21</td><td>1.83</td><td>1.57</td><td>1.00</td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ── 主範例 D：F 檢定 ── -->
+<div class="example-block">
+<h3>📝 主範例 D　風保系 vs. 會計系成績穩定性（F 檢定）</h3>
+<canvas id="canvasD" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某教授注意到風保系與會計系的學生在同一門統計學課程中，成績的分散程度差異很大。風保系隨機抽取 <strong>$n_1 = 25$ 人</strong>，得到樣本變異數 $s_1^2 = 24.03$；會計系隨機抽取 <strong>$n_2 = 25$ 人</strong>，得到 $s_2^2 = 10.01$。在 $\alpha = 0.05$ 下，兩系成績的變異數是否有顯著差異？
+</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<p>令 $s_1^2 = 24.03$（較大）作分子：</p>
+<div class="math-block">$$H_0: \frac{\sigma_1^2}{\sigma_2^2} = 1 \qquad H_1: \frac{\sigma_1^2}{\sigma_2^2} \neq 1 \qquad \alpha = 0.05,\; \nu_1 = \nu_2 = 24$$</div>
+
+<p><strong>步驟 2　計算 F 統計量</strong></p>
+<div class="math-block">$$F = \frac{s_1^2}{s_2^2} = \frac{24.03}{10.01} \approx 2.400$$</div>
+
+<p><strong>步驟 3　查臨界值</strong>：$F_{0.025,\,24,\,24}$（右尾面積 0.025，雙尾 $\alpha = 0.05$）</p>
+<p>查 F 表（$\nu_1=24, \nu_2=24$，近似用 $\nu=20$ 列）：$F_{0.025,\,24,\,24} \approx 2.27$</p>
+<p>$F = 2.400 > 2.27$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　p 值</strong>：$p \approx 2 \times P(F_{24,24} > 2.400) \approx 0.044 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 5　95% 信賴區間（$\sigma_1^2/\sigma_2^2$）</strong></p>
+<div class="math-block">$$\left[\frac{1}{2.27} \times 2.400,\; 2.27 \times 2.400\right] = [1.057,\; 5.448]$$</div>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論風保系的成績分散程度顯著高於會計系（約為 2.4 倍）。95% 信賴區間 [1.057, 5.448] 完全超過 1，與拒絕結論一致。</div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════
+     §13.5  兩比例差異
+══════════════════════════════════════════ -->
+<h2 id="sec13-5">§13.5　兩母體比例差異推論</h2>
+
+<div class="formula-card">
+<h3>📐 兩比例差異推論</h3>
+<p><strong>情況 1：假設檢定（$H_0: p_1 - p_2 = 0$）</strong></p>
+<p>$H_0$ 假設兩比例相等，使用<strong>混合比例估計量</strong>計算標準誤：</p>
+<div class="math-block">$$\hat{p} = \frac{x_1 + x_2}{n_1 + n_2}, \quad z = \frac{(\hat{p}_1 - \hat{p}_2) - 0}{\sqrt{\hat{p}(1-\hat{p})\left(\dfrac{1}{n_1}+\dfrac{1}{n_2}\right)}}$$</div>
+<p><strong>情況 2：信賴區間估計（$D_0 \neq 0$ 或一般情況）</strong></p>
+<p>目的是估計未知的 $p_1 - p_2$，使用<strong>各自的 $\hat{p}_1, \hat{p}_2$</strong> 計算標準誤：</p>
+<div class="math-block">$$(\hat{p}_1 - \hat{p}_2) \pm z_{\alpha/2}\sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1}+\frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}$$</div>
+<p class="note">⚠️ <strong>最常見混淆點：</strong>假設檢定的分母用「混合」 $\hat{p}$；信賴區間的分母用「各自」的 $\hat{p}_1$、$\hat{p}_2$。邏輯與 §12.3 相同——$H_0$ 假設兩比例相等故可混合，信賴區間則無此假設。</p>
+</div>
+
+<!-- ── 主範例 E：兩比例 ── -->
+<div class="example-block">
+<h3>📝 主範例 E　線上課程 vs. 面授課程通過率比較（兩比例 z 檢定 ＋ 信賴區間）</h3>
+<canvas id="canvasE" width="620" height="220" style="display:block;margin:14px auto;border-radius:6px;background:#fff;border:1px solid #ddd;"></canvas>
+<div class="scenario">
+<strong>情境：</strong>某大學評估兩種課程形式的學習成效。線上課程組 <strong>$n_1 = 200$ 人</strong>中有 <strong>136 人</strong>通過期末考；面授課程組 <strong>$n_2 = 250$ 人</strong>中有 <strong>145 人</strong>通過。在 $\alpha = 0.05$ 下，兩種課程形式的通過率是否有顯著差異？並建立 95% 信賴區間。
+</div>
+
+<p><strong>步驟 1　設定假設（雙尾）</strong></p>
+<div class="math-block">$$\hat{p}_1 = \frac{136}{200} = 0.680,\quad \hat{p}_2 = \frac{145}{250} = 0.580$$</div>
+<div class="math-block">$$H_0: p_1 - p_2 = 0 \qquad H_1: p_1 - p_2 \neq 0 \qquad \alpha = 0.05$$</div>
+
+<p><strong>步驟 2　計算 z 統計量（混合比例）</strong></p>
+<div class="math-block">$$\hat{p} = \frac{136+145}{200+250} = \frac{281}{450} = 0.624$$</div>
+<div class="math-block">$$z = \frac{(0.680-0.580)-0}{\sqrt{0.624\times0.376\times\left(\dfrac{1}{200}+\dfrac{1}{250}\right)}} = \frac{0.100}{\sqrt{0.2347\times0.009}} = \frac{0.100}{\sqrt{0.002112}} = \frac{0.100}{0.04596} \approx 2.176$$</div>
+
+<p><strong>步驟 3　臨界值法 ＋ p 值</strong></p>
+<p>雙尾 $|z| > z_{0.025} = 1.96$；$2.176 > 1.96$ → <strong>拒絕 $H_0$</strong></p>
+<p>p 值 $= 2 \times P(Z > 2.176) \approx 0.030 < 0.05$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>步驟 4　95% 信賴區間（各自 $\hat{p}$）</strong></p>
+<div class="math-block">$$(0.680 - 0.580) \pm 1.96\sqrt{\frac{0.680\times0.320}{200}+\frac{0.580\times0.420}{250}}$$</div>
+<div class="math-block">$$= 0.100 \pm 1.96\sqrt{0.001088+0.000974} = 0.100 \pm 1.96\times0.04537 = 0.100 \pm 0.089 \implies [1.1\%,\; 18.9\%]$$</div>
+
+<div class="note">✅ 在 5% 的顯著水準下，有足夠的統計證據推論線上課程與面授課程的通過率有顯著差異（線上高約 10%）。95% 信賴區間 [1.1%, 18.9%] 完全高於 0，與拒絕結論一致。</div>
+</div>
+
+<hr>
+
+<!-- ══ 計算機 ══ -->
+<h2 id="calc">🔢 互動計算機</h2>
+
+<div class="calc-box">
+<h3>🔢 計算機 A　獨立樣本 t 檢定（均值差異）</h3>
+<div class="inputs-row">
+    <label>$\bar{X}_1$<br><input type="number" id="c-x1" value="66.02" step="any"></label>
+    <label>$\bar{X}_2$<br><input type="number" id="c-x2" value="70.34" step="any"></label>
+    <label>$s_1$<br><input type="number" id="c-s1" value="10.68" step="any" min="0.001"></label>
+    <label>$s_2$<br><input type="number" id="c-s2" value="11.93" step="any" min="0.001"></label>
+    <label>$n_1$<br><input type="number" id="c-n1" value="46" min="2"></label>
+    <label>$n_2$<br><input type="number" id="c-n2" value="50" min="2"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="c-alpha">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>假設方向<br>
+        <select id="c-tail">
+            <option value="two" selected>雙尾（μ₁≠μ₂）</option>
+            <option value="right">右尾（μ₁>μ₂）</option>
+            <option value="left">左尾（μ₁&lt;μ₂）</option>
+        </select>
+    </label>
+    <label>變異數假設<br>
+        <select id="c-eqvar">
+            <option value="equal" selected>相等（Pooled）</option>
+            <option value="unequal">不等（Welch）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcTwoMeans()">計算</button>
+<div class="calc-result" id="two-means-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 計算機 B　成對樣本 t 檢定</h3>
+<div class="inputs-row">
+    <label>$\bar{D}$（差值平均）<br><input type="number" id="p-dbar" value="3.0" step="any"></label>
+    <label>$s_D$（差值標準差）<br><input type="number" id="p-sd" value="3.347" step="any" min="0.001"></label>
+    <label>$n_D$（成對數）<br><input type="number" id="p-nd" value="6" min="2"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="p-alpha">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>假設方向<br>
+        <select id="p-tail">
+            <option value="two">雙尾（μD≠0）</option>
+            <option value="right" selected>右尾（μD>0）</option>
+            <option value="left">左尾（μD&lt;0）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcPaired()">計算</button>
+<div class="calc-result" id="paired-result"></div>
+</div>
+
+<div class="calc-box">
+<h3>🔢 計算機 C　兩比例差異 z 檢定</h3>
+<div class="inputs-row">
+    <label>$x_1$（成功數）<br><input type="number" id="z-x1" value="136" min="0"></label>
+    <label>$n_1$<br><input type="number" id="z-n1" value="200" min="1"></label>
+    <label>$x_2$（成功數）<br><input type="number" id="z-x2" value="145" min="0"></label>
+    <label>$n_2$<br><input type="number" id="z-n2" value="250" min="1"></label>
+    <label>顯著水準 $\alpha$<br>
+        <select id="z-alpha">
+            <option value="0.10">0.10</option>
+            <option value="0.05" selected>0.05</option>
+            <option value="0.01">0.01</option>
+        </select>
+    </label>
+    <label>假設方向<br>
+        <select id="z-tail">
+            <option value="two" selected>雙尾（p₁≠p₂）</option>
+            <option value="right">右尾（p₁>p₂）</option>
+            <option value="left">左尾（p₁&lt;p₂）</option>
+        </select>
+    </label>
+</div>
+<button onclick="calcTwoProps()">計算</button>
+<div class="calc-result" id="two-props-result"></div>
+</div>
+
+<hr>
+<!-- ══ Quiz ══ -->
+<div class="quiz-box" id="quiz">
+<h3>🧠 Quick Quiz</h3>
+
+<div class="quiz-q">
+    <p>Q1. 在進行兩樣本 t 檢定之前，為什麼要先做 F 檢定？</p>
+    <label><input type="radio" name="q1" value="a"> A. 確認兩組樣本大小是否相等</label>
+    <label><input type="radio" name="q1" value="b"> B. 確認兩母體變異數是否相等，以決定使用 Pooled t 或 Welch t</label>
+    <label><input type="radio" name="q1" value="c"> C. 確認兩組樣本平均數是否相等</label>
+    <label><input type="radio" name="q1" value="d"> D. F 檢定可以直接比較兩組均值，不需要再做 t 檢定</label>
+    <button onclick="checkQ('q1','b','✅ 正確！F 檢定的目的是判斷兩母體變異數是否相等。若相等（F 不顯著），使用 Pooled t（自由度 $n_1+n_2-2$）；若不等（F 顯著），改用 Welch t（Satterthwaite 自由度）。')">Submit</button>
+    <div class="quiz-feedback" id="q1-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q2. 下列哪個研究設計適合使用<strong>成對樣本 t 檢定</strong>？</p>
+    <label><input type="radio" name="q2" value="a"> A. 比較台北與高雄兩個城市隨機各抽 100 人的月收入</label>
+    <label><input type="radio" name="q2" value="b"> B. 比較兩種教學法，A 班用傳統教法、B 班用翻轉教室</label>
+    <label><input type="radio" name="q2" value="c"> C. 同一批 50 位員工，分別測量訓練前與訓練後的績效分數</label>
+    <label><input type="radio" name="q2" value="d"> D. 比較男女生在大學入學考試的平均成績</label>
+    <button onclick="checkQ('q2','c','✅ 正確！選項 C 是「前後測」設計——同一批人的兩次測量，具有自然的配對關係，應使用成對樣本 t。其他選項都是兩組不同的獨立個體，應使用獨立樣本 t。')">Submit</button>
+    <div class="quiz-feedback" id="q2-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q3. 主範例 A（Pooled t）的 95% 信賴區間為 [−8.92, 0.28]，包含 0。這代表什麼？</p>
+    <label><input type="radio" name="q3" value="a"> A. 兩組均值一定相等</label>
+    <label><input type="radio" name="q3" value="b"> B. 在 5% 的顯著水準下，不拒絕「兩組均值無差異」的 $H_0$，與雙尾 t 檢定結論一致</label>
+    <label><input type="radio" name="q3" value="c"> C. 信賴區間計算有誤</label>
+    <label><input type="radio" name="q3" value="d"> D. 應改用 $\alpha = 0.01$ 重新檢定</label>
+    <button onclick="checkQ('q3','b','✅ 正確！信賴區間包含 0，代表「$\mu_1 - \mu_2 = 0$ 是合理的」，與雙尾 t 不拒絕 $H_0$ 的結論完全一致。雙尾假設檢定與同信心水準的信賴區間永遠給出相同結論。')">Submit</button>
+    <div class="quiz-feedback" id="q3-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q4. 兩比例差異的假設檢定（$H_0: p_1-p_2=0$）與信賴區間，分母使用的標準誤公式有何不同？原因是什麼？</p>
+    <label><input type="radio" name="q4" value="a"> A. 沒有差別，兩者都用混合比例 $\hat{p}$</label>
+    <label><input type="radio" name="q4" value="b"> B. 沒有差別，兩者都用各自的 $\hat{p}_1$、$\hat{p}_2$</label>
+    <label><input type="radio" name="q4" value="c"> C. 假設檢定用混合 $\hat{p}$（因 $H_0$ 假設兩者相等）；信賴區間用各自 $\hat{p}_1$、$\hat{p}_2$（因無 $H_0$ 假設）</label>
+    <label><input type="radio" name="q4" value="d"> D. 假設檢定用各自 $\hat{p}_1$、$\hat{p}_2$；信賴區間用混合 $\hat{p}$</label>
+    <button onclick="checkQ('q4','c','✅ 正確！假設檢定在「$H_0: p_1=p_2$」的前提下，最佳估計量是混合 $\\hat{p}$；信賴區間不預設任何關係，各用自己的 $\\hat{p}_1$、$\\hat{p}_2$ 估計各自的標準誤。與 §12.3 單一比例的邏輯一致。')">Submit</button>
+    <div class="quiz-feedback" id="q4-fb"></div>
+</div>
+
+<div class="quiz-q">
+    <p>Q5. 主範例 D（F 檢定，$F = 2.400$，$\nu_1 = \nu_2 = 24$）在 $\alpha = 0.05$ 下拒絕了 $H_0$，95% 信賴區間為 [1.057, 5.448]。若研究者改用 $\alpha = 0.01$（$F_{0.005,24,24} \approx 3.09$），結論如何？</p>
+    <label><input type="radio" name="q5" value="a"> A. 仍然拒絕，因為 $F = 2.400 > 1$</label>
+    <label><input type="radio" name="q5" value="b"> B. 不拒絕，因為 $F = 2.400 < 3.09 = F_{0.005}$</label>
+    <label><input type="radio" name="q5" value="c"> C. 不影響，F 檢定不受顯著水準影響</label>
+    <label><input type="radio" name="q5" value="d"> D. 需要重新計算 F 統計量</label>
+    <button onclick="checkQ('q5','b','✅ 正確！改用 $\\alpha=0.01$ 時，雙尾臨界值為 $F_{0.005,24,24} \\approx 3.09$。$F=2.400 < 3.09$，不落入拒絕域，不拒絕 $H_0$。這說明在更嚴格的標準下，兩系成績變異數的差異不再達到顯著水準。')">Submit</button>
+    <div class="quiz-feedback" id="q5-fb"></div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- ══ Exercises ══ -->
+<h2 id="exercises">📚 綜合練習</h2>
+<p>以下題目涵蓋本章五大主題，請先獨立作答，再展開解答確認。</p>
+
+<h3>I. 概念複習</h3>
+<ol class="exercises-list">
+    <li>
+        <p>Pooled t-test 與 Welch t-test 在公式上有何差異？在什麼情況下兩者的結論可能不同？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <ul>
+                <li><strong>Pooled：</strong>假設 $\sigma_1^2 = \sigma_2^2$，以加權平均 $s_p^2$ 估計共同變異數，自由度 $= n_1+n_2-2$（較大）。</li>
+                <li><strong>Welch：</strong>不假設相等，各自用 $s_1^2/n_1 + s_2^2/n_2$ 估計，自由度由 Satterthwaite 公式決定（通常較小）。</li>
+                <li>兩者差異最大的情況：樣本大小不等 <strong>且</strong> 較小組的變異數較大時（如 $n_1=10, s_1^2=100$；$n_2=50, s_2^2=5$），Pooled 會嚴重低估標準誤，可能做出錯誤拒絕。</li>
+            </ul>
+        </div></details>
+    </li>
+    <li>
+        <p>為什麼成對樣本設計通常比獨立樣本設計更有效率（更高的 Power）？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>成對設計消除了「個體間差異」這一大雜訊來源。例如比較減肥藥效果：人與人之間的體重本來就差很多（60 kg 到 100 kg），這個差異會讓獨立樣本的標準誤很大；但成對設計只看每人自己的「前後差距 $D_i$」，個體間的基礎體重差異被完全消除，$s_D$ 通常遠小於獨立樣本的 $s$，使 t 統計量更大、更容易達到顯著。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>II. 獨立樣本 t 檢定</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>13.1　早班 vs. 晚班生產效率（Pooled t 檢定）</strong>
+        <p>某工廠比較早班與晚班的產品合格率（每百件中合格數）。隨機抽取早班 <strong>$n_1 = 15$ 天</strong>的資料，得 $\bar{X}_1 = 88.3$，$s_1 = 4.2$；晚班 <strong>$n_2 = 15$ 天</strong>得 $\bar{X}_2 = 85.6$，$s_2 = 4.8$。已知 F 檢定結果不顯著（使用 Pooled t）。在 $\alpha = 0.05$ 下，兩班合格率是否有顯著差異？並建立 95% 信賴區間。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$H_0: \mu_1-\mu_2=0$；$H_1: \mu_1-\mu_2 \neq 0$（雙尾），$\nu=28$</p>
+            <div class="math-block">$$s_p^2 = \frac{14\times4.2^2+14\times4.8^2}{28} = \frac{246.96+322.56}{28} = 20.34, \quad s_p = 4.510$$</div>
+            <div class="math-block">$$t = \frac{88.3-85.6}{4.510\sqrt{2/15}} = \frac{2.7}{4.510\times0.3651} = \frac{2.7}{1.647} \approx 1.640$$</div>
+            <p>$t_{0.025,28} = 2.048$；$|1.640| < 2.048$ → <strong>不拒絕 $H_0$</strong></p>
+            <p>95% CI：$2.7 \pm 2.048 \times 1.647 = 2.7 \pm 3.37 \implies [-0.67, 6.07]$（包含 0，一致）</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">❌ 在 5% 顯著水準下，沒有足夠的統計證據推論早班與晚班合格率有顯著差異（p ≈ 0.112）。</p>
+        </div></details>
+    </li>
+
+    <li>
+        <strong>13.2　兩種施肥法的農作物產量（Welch t 檢定）</strong>
+        <p>農業研究員比較傳統施肥法（A）與新型施肥法（B）的每公頃產量（公斤）。$n_A = 12$，$\bar{X}_A = 4850$，$s_A = 320$；$n_B = 10$，$\bar{X}_B = 5120$，$s_B = 95$。F 檢定顯示 $F = (320/95)^2 = 11.35$，$p < 0.05$，拒絕相等變異數 → 使用 Welch。在 $\alpha = 0.05$ 下，新施肥法的產量是否顯著高於傳統法？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$H_0: \mu_A - \mu_B \geq 0$；$H_1: \mu_A - \mu_B < 0$（左尾，或等價地 $H_1: \mu_B > \mu_A$）</p>
+            <div class="math-block">$$t = \frac{4850-5120}{\sqrt{320^2/12+95^2/10}} = \frac{-270}{\sqrt{8533+902.5}} = \frac{-270}{\sqrt{9435.5}} = \frac{-270}{97.13} \approx -2.78$$</div>
+            <p>Satterthwaite 自由度：$\nu \approx 11.2 \approx 11$（向下取整）</p>
+            <p>左尾 $t_{0.05,11} = 1.796$；$-2.78 < -1.796$ → <strong>拒絕 $H_0$</strong></p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 5% 顯著水準下，有足夠的統計證據推論新施肥法的產量顯著高於傳統施肥法。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>III. 成對樣本 t 檢定</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>13.3　前後測學習效果評估（成對樣本）</strong>
+        <p>某補習班對 8 位學生進行為期一個月的衝刺課程，記錄課程前後的模擬考成績：</p>
+        <table style="max-width:520px;margin:10px auto;">
+            <thead><tr><th>學生</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+            <tbody>
+                <tr><td>課程前</td><td>55</td><td>62</td><td>70</td><td>48</td><td>75</td><td>58</td><td>66</td><td>72</td></tr>
+                <tr><td>課程後</td><td>61</td><td>68</td><td>74</td><td>55</td><td>80</td><td>60</td><td>72</td><td>79</td></tr>
+            </tbody>
+        </table>
+        <p>在 $\alpha = 0.05$ 下，課程是否有顯著提升成績的效果？建立 95% 信賴區間估計平均進步幅度。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>差值 $D_i$（後 − 前）：$6, 6, 4, 7, 5, 2, 6, 7$</p>
+            <div class="math-block">$$\bar{D} = \frac{43}{8} = 5.375, \quad s_D = \sqrt{\frac{\sum(D_i-5.375)^2}{7}} \approx 1.685$$</div>
+            <p>$H_0: \mu_D \leq 0$；$H_1: \mu_D > 0$（右尾），$\nu=7$</p>
+            <div class="math-block">$$t = \frac{5.375}{1.685/\sqrt{8}} = \frac{5.375}{0.5957} \approx 9.02$$</div>
+            <p>右尾 $t_{0.05,7} = 1.895$；$9.02 \gg 1.895$ → <strong>拒絕 $H_0$</strong>（p 值 $\approx 0.00002$）</p>
+            <p>95% CI（$t_{0.025,7}=2.365$）：$5.375 \pm 2.365 \times 0.5957 = 5.375 \pm 1.409 \implies [3.97, 6.78]$</p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 5% 顯著水準下，有壓倒性的統計證據推論補習課程顯著提升成績，平均進步約 5.4 分，95% CI 為 [3.97, 6.78] 分。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>IV. F 檢定</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>13.4　兩個品管人員評分一致性（F 檢定）</strong>
+        <p>某工廠擔心兩位品管人員對產品品質的評分波動差異太大，影響標準一致性。品管員 A 抽查了 $n_1 = 21$ 件產品，評分標準差 $s_1 = 8.6$；品管員 B 抽查了 $n_2 = 16$ 件，評分標準差 $s_2 = 5.2$。在 $\alpha = 0.10$ 下，兩人的評分變異數是否顯著不同（雙尾）？</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$H_0: \sigma_1^2/\sigma_2^2 = 1$；$H_1: \sigma_1^2/\sigma_2^2 \neq 1$，$\nu_1=20, \nu_2=15$</p>
+            <div class="math-block">$$F = \frac{8.6^2}{5.2^2} = \frac{73.96}{27.04} \approx 2.735$$</div>
+            <p>雙尾 $\alpha=0.10$，查 $F_{0.05,20,15}$（右尾面積 0.05）$\approx 2.33$</p>
+            <p>$F = 2.735 > 2.33$ → <strong>拒絕 $H_0$</strong></p>
+            <p class="note" style="background:#e6f7e6;border-left:3px solid #27ae60;padding:8px 12px;border-radius:0 4px 4px 0;">✅ 在 10% 顯著水準下，有足夠的統計證據推論兩位品管員的評分一致性（波動）有顯著差異，工廠應考慮統一評分標準或加強校準訓練。</p>
+        </div></details>
+    </li>
+</ol>
+
+<h3>V. 兩比例差異</h3>
+<ol class="exercises-list">
+    <li>
+        <strong>13.5　兩地區消費者使用信用卡比例差異（信賴區間）</strong>
+        <p>調查員在兩個城市各抽取樣本，了解消費者是否使用信用卡付款。城市甲：$n_1 = 400$，$x_1 = 252$；城市乙：$n_2 = 350$，$x_2 = 196$。在 $\alpha = 0.05$ 下，兩城市使用信用卡的比例是否有顯著差異？並建立 95% 信賴區間。</p>
+        <details><summary>▶ 點此展開解答</summary><div>
+            <p>$\hat{p}_1 = 252/400 = 0.630$；$\hat{p}_2 = 196/350 = 0.560$</p>
+            <p>$H_0: p_1-p_2=0$；$H_1: p_1-p_2 \neq 0$（雙尾）</p>
+            <div class="math-block">$$\hat{p} = \frac{252+196}{400+350} = \frac{448}{750} = 0.597$$</div>
+            <div class="math-block">$$z = \frac{0.630-0.560}{\sqrt{0.597\times0.403\times(1/400+1/350)}} = \frac{0.070}{\sqrt{0.2406\times0.005357}} = \frac{0.070}{0.03588} \approx 1.951$$</div>
+            <p>雙尾 $z_{0.025}=1.96$；$1.951 < 1.96$ → <strong>不拒絕 $H_0$</strong>（極其接近邊界！）</p>
+            <p>95% CI：</p>
+            <div class="math-block">$$0.070 \pm 1.96\sqrt{\frac{0.630\times0.370}{400}+\frac{0.560\times0.440}{350}} = 0.070 \pm 1.96\times0.03617 = 0.070 \pm 0.071 \implies [-0.001,\;0.141]$$</div>
+            <p class="note" style="background:#fff3cd;border-left:3px solid #d4a017;padding:8px 12px;border-radius:0 4px 4px 0;">⚠️ 在 5% 顯著水準下，剛好不拒絕 $H_0$（z=1.951，極靠近臨界值 1.96）。95% CI 幾乎完全高於 0 卻勉強包含 0（−0.001）。此邊界結果應謹慎解讀，可考慮增加樣本或使用 $\alpha=0.10$。</p>
+        </div></details>
+    </li>
+</ol>
+
+<hr>
+
+<div class="summary" id="summary">
+<h2>📌 Chapter Summary</h2>
+<ul>
+    <li><strong>獨立樣本均值差（§13.1–13.2）：</strong>先做 F 檢定判斷變異數相等性。F 不顯著 → Pooled t（$s_p^2$，$\nu=n_1+n_2-2$）；F 顯著 → Welch t（Satterthwaite $\nu$）。信賴區間估計均值差。</li>
+    <li><strong>成對樣本（§13.3）：</strong>計算差值 $D_i$，對 $\bar{D}$ 做單一樣本 t 推論。成對設計消除個體間變異，Power 高於獨立樣本設計。</li>
+    <li><strong>兩母體變異數（§13.4）：</strong>$F = s_1^2/s_2^2$，慣例令較大 $s^2$ 為分子，所有問題轉換為右尾查表。F 分配不對稱，有兩個自由度參數 $(\nu_1, \nu_2)$。</li>
+    <li><strong>兩比例差異（§13.5）：</strong>假設檢定分母用混合 $\hat{p}$（因 $H_0$ 假設相等）；信賴區間分母用各自 $\hat{p}_1, \hat{p}_2$（與 §12.3 邏輯一致）。</li>
+    <li><strong>方法對照：</strong>均值 → t 分配；比例 → Z 分配；變異數 → $\chi^2$（單一）或 F（兩個）。</li>
+</ul>
+</div>
+
+<script>
+// ─── Distributions ───
+function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+function normCDF(z){
+    const t=1/(1+0.2316419*Math.abs(z));
+    const p=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+    const c=1-normPDF(z)*p; return z>=0?c:1-c;
+}
+function normInv(p){const m={0.10:1.282,0.05:1.645,0.025:1.960,0.01:2.326,0.005:2.576};return m[p]||1.96;}
+
+function lgamma(z){
+    const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+    let y=z,x=z,tmp=x+5.5;tmp-=(x+0.5)*Math.log(tmp);let ser=1.000000000190015;
+    for(let j=0;j<6;j++){y+=1;ser+=c[j]/y;}
+    return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function tPDF(x,df){
+    if(df>=200)return normPDF(x);
+    return Math.exp(lgamma((df+1)/2)-lgamma(df/2))*Math.pow(1+x*x/df,-(df+1)/2)/Math.sqrt(df*Math.PI);
+}
+function tCDF(t,df){
+    if(df>=200)return normCDF(t);
+    const x=df/(df+t*t);
+    const bt=Math.exp((df/2)*Math.log(x)+0.5*Math.log(1-x)-lbeta(df/2,0.5));
+    const ix=x<(df/2+1)/(df/2+0.5+2)?bt*betacf(x,df/2,0.5)/(df/2):1-bt*betacf(1-x,0.5,df/2)/0.5;
+    return t>=0?1-ix/2:ix/2;
+}
+function lbeta(a,b){return lgamma(a)+lgamma(b)-lgamma(a+b);}
+function betacf(x,a,b){
+    const MAXIT=200,EPS=3e-7;let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+    if(Math.abs(d)<1e-30)d=1e-30;d=1/d;let h=d;
+    for(let m=1;m<=MAXIT;m++){
+        const m2=2*m;let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+        d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;h*=d*c;
+        aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+        d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;const del=d*c;h*=del;
+        if(Math.abs(del-1)<EPS)break;
+    }return h;
+}
+function tCritical(alpha,df){
+    if(df>=200)return normInv(alpha);
+    const table={
+        0.10:[3.078,1.886,1.638,1.533,1.476,1.440,1.415,1.397,1.383,1.372,1.363,1.356,1.350,1.345,1.341,1.337,1.333,1.330,1.328,1.325,1.323,1.321,1.319,1.318,1.316,1.315,1.314,1.313,1.311,1.310],
+        0.05:[6.314,2.920,2.353,2.132,2.015,1.943,1.895,1.860,1.833,1.812,1.796,1.782,1.771,1.761,1.753,1.746,1.740,1.734,1.729,1.725,1.721,1.717,1.714,1.711,1.708,1.706,1.703,1.701,1.699,1.697],
+        0.025:[12.706,4.303,3.182,2.776,2.571,2.447,2.365,2.306,2.262,2.228,2.201,2.179,2.160,2.145,2.131,2.120,2.110,2.101,2.093,2.086,2.080,2.074,2.069,2.064,2.060,2.056,2.052,2.048,2.045,2.042],
+        0.01:[31.821,6.965,4.541,3.747,3.365,3.143,2.998,2.896,2.821,2.764,2.718,2.681,2.650,2.624,2.602,2.583,2.567,2.552,2.539,2.528,2.518,2.508,2.500,2.492,2.485,2.479,2.473,2.467,2.462,2.457]
+    };
+    const alpha_key = alpha<=0.01?0.01:alpha<=0.025?0.025:alpha<=0.05?0.05:0.10;
+    const row=table[alpha_key];
+    if(!row)return normInv(alpha);
+    return row[Math.min(df-1,29)];
+}
+
+// ─── Drawing ───
+function drawDist(id,stat,cv,tail,type,df){
+    const canvas=document.getElementById(id);if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=58,pR=28,pT=38,pB=58;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=-4.5,xMax=4.5,yMax=0.44;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    function pdf(x){return type==='z'?normPDF(x):tPDF(x,df);}
+    const axisY=py(0);
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+    function fillArea(x1,x2,col){
+        ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(px(x1),axisY);
+        for(let i=0;i<=300;i++){const x=x1+i/300*(x2-x1);ctx.lineTo(px(x),py(pdf(x)));}
+        ctx.lineTo(px(x2),axisY);ctx.closePath();ctx.fill();
+    }
+    if(tail==='right')fillArea(cv,xMax,'rgba(200,40,30,0.18)');
+    else if(tail==='left')fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');
+    else{fillArea(Math.abs(cv),xMax,'rgba(200,40,30,0.18)');fillArea(xMin,-Math.abs(cv),'rgba(200,40,30,0.18)');}
+    ctx.beginPath();ctx.strokeStyle='#1a4faa';ctx.lineWidth=2.2;
+    for(let i=0;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin);i===0?ctx.moveTo(px(x),py(pdf(x))):ctx.lineTo(px(x),py(pdf(x)));}
+    ctx.stroke();
+    ctx.strokeStyle='#888';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pL,axisY);ctx.lineTo(W-pR,axisY);ctx.stroke();
+    ctx.fillStyle='#555';ctx.font='12px sans-serif';ctx.textAlign='center';
+    [-4,-3,-2,-1,0,1,2,3,4].forEach(x=>{
+        ctx.beginPath();ctx.strokeStyle='#bbb';ctx.lineWidth=0.8;
+        ctx.moveTo(px(x),axisY);ctx.lineTo(px(x),axisY+5);ctx.stroke();
+        ctx.fillText(x,px(x),axisY+19);
+    });
+    function drawCV(v,labelStr){
+        const x0=px(v);
+        ctx.beginPath();ctx.strokeStyle='#c0392b';ctx.lineWidth=1.8;
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,axisY+9);ctx.stroke();
+        const yTop=py(pdf(v)),yHint=axisY-(axisY-yTop)*0.28;
+        ctx.beginPath();ctx.strokeStyle='rgba(192,57,43,0.35)';ctx.lineWidth=0.9;ctx.setLineDash([3,3]);
+        ctx.moveTo(x0,axisY);ctx.lineTo(x0,yHint);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#c0392b';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+        ctx.fillText(labelStr,x0,axisY+36);
+    }
+    if(tail==='right')drawCV(cv,''+cv);
+    else if(tail==='left')drawCV(-Math.abs(cv),'−'+Math.abs(cv));
+    else{drawCV(Math.abs(cv),''+cv);drawCV(-Math.abs(cv),'−'+cv);}
+    const sx=px(stat),dotY=axisY;
+    const curvY=py(pdf(stat)),labelY=curvY-18;
+    ctx.beginPath();ctx.strokeStyle='rgba(26,158,110,0.65)';ctx.lineWidth=1.2;ctx.setLineDash([3,2]);
+    ctx.moveTo(sx,dotY-6);ctx.lineTo(sx,labelY+4);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.fillStyle='#1a9e6e';
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;
+    ctx.arc(sx,dotY,5,0,2*Math.PI);ctx.stroke();
+    ctx.fillStyle='#0d7a52';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+    ctx.fillText('t = '+stat.toFixed(3),sx,labelY);
+}
+
+function drawFCanvas(id, Fstat, Fcv){
+    const canvas=document.getElementById(id);if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height,pL=52,pR=22,pT=26,pB=42;
+    const pW=W-pL-pR,pH=H-pT-pB,xMin=0,xMax=6,yMax=0.9;
+    function px(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+    function py(y){return pT+pH-y/yMax*pH;}
+    // F(24,24) PDF approximation using chi2/df ratio
+    function fPDF(x,d1,d2){
+        if(x<=0)return 0;
+        const lnum=(d1/2)*Math.log(d1)+(d2/2)*Math.log(d2)+(d1/2-1)*Math.log(x);
+        const lden=lbeta(d1/2,d2/2)+((d1+d2)/2)*Math.log(d1*x+d2);
+        return Math.exp(lnum-lden);
+    }
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#fafcff';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='#eee';ctx.lineWidth=1;
+    [0.2,0.4,0.6,0.8].forEach(y=>{ctx.beginPath();ctx.moveTo(pL,py(y));ctx.lineTo(W-pR,py(y));ctx.stroke();});
+    // rejection fill
+    ctx.fillStyle='rgba(192,57,43,0.15)';ctx.beginPath();ctx.moveTo(px(Fcv),py(0));
+    for(let i=0;i<=200;i++){const x=Fcv+i/200*(xMax-Fcv);ctx.lineTo(px(x),py(fPDF(x,24,24)));}
+    ctx.lineTo(px(xMax),py(0));ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='#2266cc';ctx.lineWidth=2.5;
+    for(let i=1;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin);const y=fPDF(x,24,24);i===1?ctx.moveTo(px(x),py(y)):ctx.lineTo(px(x),py(y));}
+    ctx.stroke();
+    ctx.setLineDash([5,3]);ctx.strokeStyle='#c0392b';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(px(Fcv),pT);ctx.lineTo(px(Fcv),pT+pH);ctx.stroke();ctx.setLineDash([]);
+    // F 統計量：翠綠圓點在 x 軸 + 引線
+    const fsx=px(Math.min(Fstat,xMax-0.1)),fdotY=pT+pH;
+    const fcurvY=pT+pH-fPDF(Math.min(Fstat,xMax-0.1),24,24)/0.9*pH,flabelY=fcurvY-18;
+    ctx.beginPath();ctx.strokeStyle='rgba(26,158,110,0.65)';ctx.lineWidth=1.2;ctx.setLineDash([3,2]);
+    ctx.moveTo(fsx,fdotY-6);ctx.lineTo(fsx,flabelY+4);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.fillStyle='#1a9e6e';ctx.arc(fsx,fdotY,5,0,2*Math.PI);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;ctx.arc(fsx,fdotY,5,0,2*Math.PI);ctx.stroke();
+    ctx.strokeStyle='#555';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pL,py(0));ctx.lineTo(W-pR,py(0));ctx.stroke();
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='center';
+    [0,1,2,3,4,5,6].forEach(x=>{ctx.fillText(x,px(x),py(0)+15);});
+    ctx.fillStyle='#0d7a52';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+    ctx.fillText('F = '+Fstat.toFixed(3),fsx,flabelY);
+    ctx.fillStyle='rgba(192,57,43,0.75)';ctx.font='10px sans-serif';
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+    drawDist('canvasA',-1.864,1.986,'two','t',94);
+    drawDist('canvasB',-2.113,1.984,'two','t',98);
+    drawDist('canvasC', 2.196,2.015,'right','t',5);
+    drawFCanvas('canvasD',2.400,2.27);
+    // canvasE: z distribution for two proportions
+    const ce=document.getElementById('canvasE');
+    if(ce){
+        const ctx2=ce.getContext('2d');
+        const W=ce.width,H=ce.height,pL=58,pR=28,pT=38,pB=58;
+        const pW=W-pL-pR,pH=H-pT-pB,xMin=-4.5,xMax=4.5,yMax=0.44;
+        function px2(x){return pL+(x-xMin)/(xMax-xMin)*pW;}
+        function py2(y){return pT+pH-y/yMax*pH;}
+        const axisY2=py2(0);
+        ctx2.clearRect(0,0,W,H);ctx2.fillStyle='#ffffff';ctx2.fillRect(0,0,W,H);
+        // 拒絕域陰影（雙尾）
+        function fill2(x1,x2,col){
+            ctx2.fillStyle=col;ctx2.beginPath();ctx2.moveTo(px2(x1),axisY2);
+            for(let i=0;i<=300;i++){const x=x1+i/300*(x2-x1);ctx2.lineTo(px2(x),py2(normPDF(x)));}
+            ctx2.lineTo(px2(x2),axisY2);ctx2.closePath();ctx2.fill();
+        }
+        fill2(1.96,xMax,'rgba(200,40,30,0.18)');
+        fill2(xMin,-1.96,'rgba(200,40,30,0.18)');
+        // 統計量右側 p 值深色陰影
+        fill2(2.176,xMax,'rgba(200,40,30,0.40)');
+        // 曲線
+        ctx2.beginPath();ctx2.strokeStyle='#1a4faa';ctx2.lineWidth=2.2;
+        for(let i=0;i<=pW;i++){const x=xMin+i/pW*(xMax-xMin);i===0?ctx2.moveTo(px2(x),py2(normPDF(x))):ctx2.lineTo(px2(x),py2(normPDF(x)));}ctx2.stroke();
+        // x 軸
+        ctx2.strokeStyle='#888';ctx2.lineWidth=1;
+        ctx2.beginPath();ctx2.moveTo(pL,axisY2);ctx2.lineTo(W-pR,axisY2);ctx2.stroke();
+        // 刻度
+        ctx2.fillStyle='#555';ctx2.font='12px sans-serif';ctx2.textAlign='center';
+        [-4,-3,-2,-1,0,1,2,3,4].forEach(x=>{
+            ctx2.beginPath();ctx2.strokeStyle='#bbb';ctx2.lineWidth=0.8;
+            ctx2.moveTo(px2(x),axisY2);ctx2.lineTo(px2(x),axisY2+5);ctx2.stroke();
+            ctx2.fillText(x,px2(x),axisY2+19);
+        });
+        // 臨界值（新風格：短刻度 + 淡虛線 + 16px）
+        function drawCV2(v,lbl){
+            const x0=px2(v);
+            ctx2.beginPath();ctx2.strokeStyle='#c0392b';ctx2.lineWidth=1.8;
+            ctx2.moveTo(x0,axisY2);ctx2.lineTo(x0,axisY2+9);ctx2.stroke();
+            const yHint=axisY2-(axisY2-py2(normPDF(v)))*0.28;
+            ctx2.beginPath();ctx2.strokeStyle='rgba(192,57,43,0.35)';ctx2.lineWidth=0.9;ctx2.setLineDash([3,3]);
+            ctx2.moveTo(x0,axisY2);ctx2.lineTo(x0,yHint);ctx2.stroke();ctx2.setLineDash([]);
+            ctx2.fillStyle='#c0392b';ctx2.font='bold 16px sans-serif';ctx2.textAlign='center';
+            ctx2.fillText(lbl,x0,axisY2+36);
+        }
+        drawCV2(1.96,'1.96');drawCV2(-1.96,'−1.96');
+        // 統計量（翠綠圓點在 x 軸 + 引線 + 16px 標籤）
+        const sx2=px2(2.176),dotY2=axisY2,curvY2=py2(normPDF(2.176)),labelY2=curvY2-18;
+        ctx2.beginPath();ctx2.strokeStyle='rgba(26,158,110,0.65)';ctx2.lineWidth=1.2;ctx2.setLineDash([3,2]);
+        ctx2.moveTo(sx2,dotY2-6);ctx2.lineTo(sx2,labelY2+4);ctx2.stroke();ctx2.setLineDash([]);
+        ctx2.beginPath();ctx2.fillStyle='#1a9e6e';ctx2.arc(sx2,dotY2,5,0,2*Math.PI);ctx2.fill();
+        ctx2.beginPath();ctx2.strokeStyle='#fff';ctx2.lineWidth=1.4;ctx2.arc(sx2,dotY2,5,0,2*Math.PI);ctx2.stroke();
+        ctx2.fillStyle='#0d7a52';ctx2.font='bold 16px sans-serif';ctx2.textAlign='center';
+        ctx2.fillText('z = 2.176',sx2,labelY2);
+        // 區域標示
+    }
+});
+
+// ─── Quiz ───
+function checkQ(qid,correct,msg){
+    const sel=document.querySelector(`input[name="${qid}"]:checked`);
+    const fb=document.getElementById(`${qid}-fb`);
+    if(!sel){fb.style.display='block';fb.className='quiz-feedback wrong';fb.textContent='請先選擇一個答案。';return;}
+    fb.style.display='block';
+    if(sel.value===correct){fb.className='quiz-feedback correct';fb.innerHTML=msg;}
+    else{fb.className='quiz-feedback wrong';fb.innerHTML='❌ 不正確，請再想想。提示：'+msg;}
+}
+
+// ─── Calculator A: Two Independent Means ───
+function calcTwoMeans(){
+    const x1=parseFloat(document.getElementById('c-x1').value);
+    const x2=parseFloat(document.getElementById('c-x2').value);
+    const s1=parseFloat(document.getElementById('c-s1').value);
+    const s2=parseFloat(document.getElementById('c-s2').value);
+    const n1=parseInt(document.getElementById('c-n1').value);
+    const n2=parseInt(document.getElementById('c-n2').value);
+    const alpha=parseFloat(document.getElementById('c-alpha').value);
+    const tail=document.getElementById('c-tail').value;
+    const eqvar=document.getElementById('c-eqvar').value;
+    let t,df,se;
+    if(eqvar==='equal'){
+        const sp2=((n1-1)*s1*s1+(n2-1)*s2*s2)/(n1+n2-2);
+        se=Math.sqrt(sp2*(1/n1+1/n2));df=n1+n2-2;
+        t=(x1-x2)/se;
+    } else {
+        se=Math.sqrt(s1*s1/n1+s2*s2/n2);
+        const num=Math.pow(s1*s1/n1+s2*s2/n2,2);
+        const den=Math.pow(s1*s1/n1,2)/(n1-1)+Math.pow(s2*s2/n2,2)/(n2-1);
+        df=Math.floor(num/den);
+        t=(x1-x2)/se;
+    }
+    const alphaKey=tail==='two'?alpha/2:alpha;
+    const cv=tCritical(alphaKey,df);
+    let decision,pval;
+    if(tail==='two'){decision=Math.abs(t)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=2*(1-tCDF(Math.abs(t),df));}
+    else if(tail==='right'){decision=t>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=1-tCDF(t,df);}
+    else{decision=t<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=tCDF(t,df);}
+    const ciCV=tCritical(alpha/2,df);
+    const ciLo=(x1-x2)-ciCV*se, ciHi=(x1-x2)+ciCV*se;
+    const F=Math.max(s1*s1,s2*s2)/Math.min(s1*s1,s2*s2);
+    const res=document.getElementById('two-means-result');
+    res.style.display='block';
+    res.innerHTML=`F 統計量（先做 F 檢定）= ${F.toFixed(4)}
+[${eqvar==='equal'?'Pooled t':'Welch t'}] SE = ${se.toFixed(4)}, 自由度 ν = ${df}
+t 統計量 = ${t.toFixed(4)}
+臨界值 = ${tail==='two'?'±':''}${cv.toFixed(4)}（${tail==='two'?'雙尾':tail==='right'?'右尾':'左尾'}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間（μ₁−μ₂）：[${ciLo.toFixed(4)}, ${ciHi.toFixed(4)}]`;
+}
+
+// ─── Calculator B: Paired t ───
+function calcPaired(){
+    const dbar=parseFloat(document.getElementById('p-dbar').value);
+    const sd=parseFloat(document.getElementById('p-sd').value);
+    const nd=parseInt(document.getElementById('p-nd').value);
+    const alpha=parseFloat(document.getElementById('p-alpha').value);
+    const tail=document.getElementById('p-tail').value;
+    const se=sd/Math.sqrt(nd), t=dbar/se, df=nd-1;
+    const alphaKey=tail==='two'?alpha/2:alpha;
+    const cv=tCritical(alphaKey,df);
+    let decision,pval;
+    if(tail==='two'){decision=Math.abs(t)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=2*(1-tCDF(Math.abs(t),df));}
+    else if(tail==='right'){decision=t>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=1-tCDF(t,df);}
+    else{decision=t<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=tCDF(t,df);}
+    const ciCV=tCritical(alpha/2,df);
+    const res=document.getElementById('paired-result');
+    res.style.display='block';
+    res.innerHTML=`SE = sD/√nD = ${se.toFixed(4)}, 自由度 ν = ${df}
+t 統計量 = ${t.toFixed(4)}
+臨界值 = ${tail==='two'?'±':''}${cv.toFixed(4)}（${tail==='two'?'雙尾':tail==='right'?'右尾':'左尾'}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間（μD）：[${(dbar-ciCV*se).toFixed(4)}, ${(dbar+ciCV*se).toFixed(4)}]`;
+}
+
+// ─── Calculator C: Two Proportions ───
+function calcTwoProps(){
+    const x1=parseInt(document.getElementById('z-x1').value);
+    const n1=parseInt(document.getElementById('z-n1').value);
+    const x2=parseInt(document.getElementById('z-x2').value);
+    const n2=parseInt(document.getElementById('z-n2').value);
+    const alpha=parseFloat(document.getElementById('z-alpha').value);
+    const tail=document.getElementById('z-tail').value;
+    const p1=x1/n1, p2=x2/n2;
+    const pPool=(x1+x2)/(n1+n2);
+    const se=Math.sqrt(pPool*(1-pPool)*(1/n1+1/n2));
+    const z=(p1-p2)/se;
+    const cv=normInv(tail==='two'?alpha/2:alpha);
+    let decision,pval;
+    if(tail==='two'){decision=Math.abs(z)>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=2*(1-normCDF(Math.abs(z)));}
+    else if(tail==='right'){decision=z>cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=1-normCDF(z);}
+    else{decision=z<-cv?'✅ 拒絕 H₀':'❌ 不拒絕 H₀';pval=normCDF(z);}
+    const seCi=Math.sqrt(p1*(1-p1)/n1+p2*(1-p2)/n2);
+    const ciCV=normInv(alpha/2);
+    const res=document.getElementById('two-props-result');
+    res.style.display='block';
+    res.innerHTML=`p̂₁ = ${p1.toFixed(4)}, p̂₂ = ${p2.toFixed(4)}
+混合比例 p̂ = ${pPool.toFixed(4)}
+z 統計量 = ${z.toFixed(4)}
+臨界值 = ${tail==='two'?'±':''}${cv.toFixed(4)}（${tail==='two'?'雙尾':tail==='right'?'右尾':'左尾'}，α = ${alpha}）
+p 值 ≈ ${pval.toFixed(4)}
+決策：${decision}
+${(1-alpha)*100}% 信賴區間（p₁−p₂）：[${((p1-p2)-ciCV*seCi).toFixed(4)}, ${((p1-p2)+ciCV*seCi).toFixed(4)}]`;
+}
+</script>
+</body>
+</html>
