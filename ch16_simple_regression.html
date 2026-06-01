@@ -283,6 +283,51 @@ $$\hat{y} = 91.867 - 5.280\, x$$
 </p>
 </div>
 
+<!-- ── 輔助範例：研發支出 OLS 計算（引入 ŷ = -1 + 7x） ── -->
+<div class="example-block">
+<h3>📝 輔助範例　研發支出 → 營收：OLS 估計迴歸式</h3>
+<div class="scenario">
+<strong>情境：</strong>以下是 5 間公司的研發支出（$X$，百萬元）與年營收（$Y$，百萬元）資料。請用 OLS 估計迴歸線。
+</div>
+
+<table class="reg-table">
+    <thead><tr><th>公司</th><th>研發支出 $x_i$</th><th>年營收 $y_i$</th></tr></thead>
+    <tbody>
+        <tr><td>A</td><td>1</td><td>10</td></tr>
+        <tr><td>B</td><td>2</td><td>10</td></tr>
+        <tr><td>C</td><td>3</td><td>20</td></tr>
+        <tr><td>D</td><td>4</td><td>20</td></tr>
+        <tr><td>E</td><td>5</td><td>40</td></tr>
+    </tbody>
+</table>
+
+<p><strong>Step 1 — 計算樣本平均數</strong></p>
+<div class="math-block">
+$$\bar{x} = \frac{1+2+3+4+5}{5} = 3, \quad \bar{y} = \frac{10+10+20+20+40}{5} = 20$$
+</div>
+
+<p><strong>Step 2 — 計算 $S_{xx}$ 與 $S_{xy}$</strong></p>
+<div class="math-block">
+$$S_{xx} = (1-3)^2+(2-3)^2+(3-3)^2+(4-3)^2+(5-3)^2 = 4+1+0+1+4 = 10$$
+</div>
+<div class="math-block">
+$$S_{xy} = (1-3)(10-20)+(2-3)(10-20)+(3-3)(20-20)+(4-3)(20-20)+(5-3)(40-20)$$
+$$= (-2)(-10)+(-1)(-10)+(0)(0)+(1)(0)+(2)(20) = 20+10+0+0+40 = 70$$
+</div>
+
+<p><strong>Step 3 — 計算 $b_1, b_0$</strong></p>
+<div class="math-block">
+$$b_1 = \frac{S_{xy}}{S_{xx}} = \frac{70}{10} = 7, \quad b_0 = \bar{y} - b_1\bar{x} = 20 - 7 \times 3 = -1$$
+</div>
+
+<p><strong>估計迴歸線：</strong></p>
+<div class="math-block">
+$$\hat{y} = -1 + 7x$$
+</div>
+
+<p class="note">✅ 研發支出每增加 1 百萬元，預期年營收平均增加 <strong>7 百萬元</strong>。此迴歸式將在後續 16.3 的變異分解中繼續使用。</p>
+</div>
+
 <hr>
 
 <!-- ══════════════ 16.3 σ 估計與 R² ══════════════ -->
@@ -316,9 +361,9 @@ $s_e$ 是母體誤差標準差 $\sigma$ 的估計，自由度為 $n-2$（估計�
 </div>
 
 <div class="example-block">
-<h3>📝 輔助範例　研發支出 → 營收（變異分解示意）</h3>
+<h3>📝 輔助範例（續）　研發支出 → 營收：變異分解（SST = SSR + SSE）</h3>
 <div class="scenario">
-<strong>資料：</strong>5 間公司的研發支出（$X$，百萬元）與年營收（$Y$，百萬元）如下：
+<strong>接續 16.2 估計結果 $\hat{y} = -1 + 7x$，</strong>以下計算各平方和與 $R^2$：
 </div>
 <table class="reg-table">
     <thead><tr><th>$x_i$</th><th>$y_i$</th><th>$\hat{y}_i = -1+7x_i$</th><th>$y_i - \bar{y}$</th><th>$\hat{y}_i - \bar{y}$</th><th>$y_i - \hat{y}_i$（殘差）</th></tr></thead>
@@ -405,6 +450,35 @@ $$-5.280 \pm 2.160 \times 0.329 = -5.280 \pm 0.711 = (-5.991,\; -4.569)$$
 </p>
 </div>
 
+<div class="example-block">
+<h3>📝 輔助範例（續）　研發支出 → 營收：對 $\beta_1$ 進行 t 檢定（$\alpha = 0.05$）</h3>
+
+<p>沿用 16.2、16.3 的結果：$b_1 = 7$，$S_{xx} = 10$，$\text{SSE} = 110$，$n = 5$。</p>
+
+<p><strong>Step 1 — 假設</strong>：$H_0: \beta_1 = 0$；$H_1: \beta_1 \neq 0$</p>
+
+<p><strong>Step 2 — 計算</strong></p>
+<div class="math-block">
+$$\text{MSE} = \frac{\text{SSE}}{n-2} = \frac{110}{3} = 36.667, \quad s_e = \sqrt{36.667} = 6.055$$
+</div>
+<div class="math-block">
+$$s_{b_1} = \sqrt{\frac{\text{MSE}}{S_{xx}}} = \sqrt{\frac{36.667}{10}} = 1.915$$
+</div>
+<div class="math-block">
+$$t = \frac{b_1}{s_{b_1}} = \frac{7}{1.915} = 3.656$$
+</div>
+
+<p><strong>Step 3 — 決策</strong>：$df = n - 2 = 3$，$t_{0.025,\, 3} = 3.182$</p>
+<p>$|t| = 3.656 > 3.182$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>$\beta_1$ 的 95% 信賴區間：</strong></p>
+<div class="math-block">
+$$7 \pm 3.182 \times 1.915 = 7 \pm 6.093 = (0.907,\; 13.093)$$
+</div>
+
+<p class="note">✅ 研發支出對營收有<strong>顯著的正向線性影響</strong>（$\alpha = 0.05$）。但注意此範例 $n = 5$ 極小，$df = 3$ 使得臨界值高達 3.182，信賴區間也相當寬（0.907 到 13.093）——樣本數不足時，即使結果顯著，估計精度仍然有限。</p>
+</div>
+
 <hr>
 
 <!-- ══════════════ 16.5 F 檢定 ══════════════ -->
@@ -412,23 +486,52 @@ $$-5.280 \pm 2.160 \times 0.329 = -5.280 \pm 0.711 = (-5.991,\; -4.569)$$
 
 <p>除了 t 檢定，迴歸模型的整體顯著性也可以用 <strong>F 檢定</strong>（透過迴歸 ANOVA 表）來驗證。</p>
 
+<h3>F 檢定的假設：從「模型解釋力」出發</h3>
+
+<p>F 檢定的出發點與 t 檢定不同。t 檢定問的是「<strong>某個係數是否為零</strong>」；F 檢定問的是「<strong>這個迴歸模型整體上對 Y 有沒有解釋能力</strong>」——也就是說，把 X 納入模型之後，能不能顯著地減少 Y 的預測誤差？</p>
+
+<div class="highlight">
+<strong>F 檢定假設：</strong><br>
+$H_0$：迴歸模型對 $Y$ <strong>不具有</strong>解釋能力（X 無法解釋 Y 的變異）<br>
+$H_1$：迴歸模型對 $Y$ <strong>具有</strong>解釋能力（X 能顯著解釋 Y 的變異）<br><br>
+<strong>在簡單線性迴歸中的等價關係：</strong><br>
+「模型無解釋能力」等價於「唯一的解釋變數斜率為零」，因此 $H_0$ 等價於 $\beta_1 = 0$。<br>
+然而到了<strong>複迴歸</strong>（Chapter 17），F 檢定的 $H_0$ 是「<em>所有</em>係數 $\beta_1 = \beta_2 = \cdots = 0$」，而 t 檢定則分別針對每個係數——兩者不再等價，各有獨立的檢定目的。
+</div>
+
+<h3>F 統計量的直覺：解釋的變異 vs 未解釋的變異</h3>
+
+<p>F 統計量的核心邏輯是比較兩種變異的比值：</p>
+
 <div class="formula-card">
-<h3>📐 迴歸 ANOVA 表</h3>
+<h3>📐 迴歸 ANOVA 表與 F 統計量</h3>
 <table class="anova-reg">
     <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr></thead>
     <tbody>
-        <tr><td>迴歸（Regression）</td><td>SSR</td><td>1</td><td>MSR = SSR/1</td><td>$F = \text{MSR}/\text{MSE}$</td></tr>
-        <tr><td>誤差（Error）</td><td>SSE</td><td>$n-2$</td><td>MSE = SSE/$(n-2)$</td><td></td></tr>
+        <tr><td>迴歸（Regression）</td><td>SSR</td><td>1</td><td>MSR = SSR/1</td><td rowspan="2" style="vertical-align:middle;">$F = \dfrac{\text{MSR}}{\text{MSE}}$</td></tr>
+        <tr><td>誤差（Error）</td><td>SSE</td><td>$n-2$</td><td>MSE = SSE/$(n-2)$</td></tr>
         <tr><td><strong>總計（Total）</strong></td><td>SST</td><td>$n-1$</td><td></td><td></td></tr>
     </tbody>
 </table>
+<p>直覺上：$F$ 越大，表示「迴歸能解釋的變異（MSR）」相對於「殘餘誤差（MSE）」越大，模型的解釋力越強。若 $H_0$ 為真（模型毫無解釋力），則 MSR 與 MSE 應相近，$F \approx 1$。</p>
 <p class="note">
-<strong>在簡單線性迴歸中，F = t²：</strong>F 檢定與 t 檢定等價——兩者都在檢定 $H_0: \beta_1 = 0$，且 $F = t^2$。到了<strong>複迴歸</strong>，這兩種檢定就不再相同：t 檢定針對個別係數，F 檢定針對「至少有一個 $\beta_j \neq 0$」，這是兩者最重要的區別。
+<strong>拒絕域：</strong>$F$ 檢定為<strong>右尾檢定</strong>（解釋力過強才拒絕 $H_0$），拒絕域為 $F > F_{\alpha,\, 1,\, n-2}$。<br>
+<strong>簡單迴歸中的等價性：</strong>可以數學上證明 $F = t^2$，因此 F 檢定與 t 檢定的結論完全一致。但此等價性在複迴歸中消失。
 </p>
 </div>
 
 <div class="example-block">
-<h3>📝 主範例（續）　迴歸 ANOVA 表</h3>
+<h3>📝 主範例（續）　缺席次數 → 出席成績：F 檢定（$\alpha = 0.05$）</h3>
+
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：迴歸模型對出席成績不具有解釋能力（缺席次數無法解釋成績變異；等價於 $\beta_1 = 0$）<br>
+$H_1$：迴歸模型對出席成績具有解釋能力（缺席次數能顯著解釋成績變異；等價於 $\beta_1 \neq 0$）</p>
+
+<p><strong>Step 2 — 建立拒絕域</strong></p>
+<p>$df_1 = 1$，$df_2 = n - 2 = 13$，查表得 $F_{0.05,\, 1,\, 13} = 4.667$。<br>
+拒絕域：$F > 4.667$</p>
+
+<p><strong>Step 3 — 計算 ANOVA 表與 F 統計量</strong></p>
 <table class="anova-reg">
     <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p 值</th></tr></thead>
     <tbody>
@@ -438,9 +541,60 @@ $$-5.280 \pm 2.160 \times 0.329 = -5.280 \pm 0.711 = (-5.991,\; -4.569)$$
     </tbody>
 </table>
 <div class="math-block">
-$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{2156.07}{8.374} = 257.47 = (-16.046)^2 = t^2 \checkmark$$
+$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{2156.07}{8.374} = 257.47$$
 </div>
-<p class="note">✅ 驗證 $F = t^2$：$257.47 \approx 16.046^2 = 257.47$ ✓。在簡單迴歸中，t 檢定與 F 檢定完全等價。這個等價關係在複迴歸中將不再成立，屆時 F 檢定會有更獨特的角色。</p>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$F = 257.47$ 落在拒絕域（$> 4.667$），p 值 $\approx 0.000$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>Step 5 — 驗證等價性</strong></p>
+<div class="math-block">
+$$F = 257.47 = (-16.046)^2 = t^2 \checkmark$$
+</div>
+
+<p class="note">✅ <strong>結論：</strong>缺席次數對出席成績具有顯著的解釋能力（$p \approx 0$）。迴歸模型解釋了 95.2% 的成績變異（$R^2 = 0.952$）。<br><br>
+💡 <strong>與 t 檢定的比較：</strong>t 檢定從「$\beta_1$ 是否為零」的角度切入，F 檢定從「模型整體解釋力」的角度切入——在簡單迴歸中兩者得出完全相同的結論（$F = t^2 = 257.47$）。這個等價性在 Chapter 17 複迴歸中將不再成立。</p>
+</div>
+
+<div class="example-block">
+<h3>📝 輔助範例（續）　研發支出 → 營收：F 檢定（$\alpha = 0.05$）</h3>
+
+<p>沿用前各節結果：$\text{SSR} = 490$，$\text{SSE} = 110$，$\text{SST} = 600$，$n = 5$。</p>
+
+<p><strong>Step 1 — 假設</strong></p>
+<p>$H_0$：迴歸模型對年營收不具有解釋能力（研發支出無法解釋營收變異；等價於 $\beta_1 = 0$）<br>
+$H_1$：迴歸模型對年營收具有解釋能力（研發支出能顯著解釋營收變異；等價於 $\beta_1 \neq 0$）</p>
+
+<p><strong>Step 2 — 建立拒絕域</strong></p>
+<p>$df_1 = 1$，$df_2 = n - 2 = 3$，查表得 $F_{0.05,\, 1,\, 3} = 10.128$。<br>
+拒絕域：$F > 10.128$</p>
+
+<p><strong>Step 3 — 計算 ANOVA 表與 F 統計量</strong></p>
+<table class="anova-reg">
+    <thead><tr><th>來源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p 值</th></tr></thead>
+    <tbody>
+        <tr><td>迴歸</td><td>490</td><td>1</td><td>490</td><td>13.364</td><td>≈ 0.035</td></tr>
+        <tr><td>誤差</td><td>110</td><td>3</td><td>36.667</td><td></td><td></td></tr>
+        <tr><td><strong>總計</strong></td><td>600</td><td>4</td><td></td><td></td><td></td></tr>
+    </tbody>
+</table>
+<div class="math-block">
+$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{490}{36.667} = 13.364$$
+</div>
+
+<p><strong>Step 4 — 決策</strong></p>
+<p>$F = 13.364$ 落在拒絕域（$> 10.128$），p 值 $\approx 0.035$ → <strong>拒絕 $H_0$</strong></p>
+
+<p><strong>Step 5 — 驗證等價性</strong></p>
+<div class="math-block">
+$$F = 13.364 \approx 3.656^2 = t^2 \checkmark$$
+</div>
+
+<p class="note">✅ <strong>結論：</strong>研發支出對年營收具有顯著的解釋能力（$\alpha = 0.05$）。<br><br>
+💡 <strong>t 檢定 vs F 檢定的切入角度：</strong><br>
+・t 檢定（16.4）：「研發支出的斜率係數 $\beta_1$ 是否顯著不為零？」→ $t = 3.656 > t_{0.025,3} = 3.182$，拒絕 $H_0$。<br>
+・F 檢定（16.5）：「這個模型整體上對營收有沒有解釋能力？」→ $F = 13.364 > F_{0.05,1,3} = 10.128$，拒絕 $H_0$。<br>
+・兩者結論一致，且 $F = t^2$（$13.364 \approx 3.656^2$）。在簡單迴歸中「某個係數不為零」與「模型有解釋力」是同一件事；但在 Chapter 17 的複迴歸中，這兩個問題將是獨立的——屆時 F 檢定成為驗證「整體模型是否有意義」的專屬工具。</p>
 </div>
 
 <hr>
