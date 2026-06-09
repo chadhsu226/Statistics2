@@ -57,6 +57,19 @@
     align-items: end;
     gap: 24px;
   }
+  .back-home {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto 22px;
+    font-size: 0.82rem;
+    color: var(--blue-light);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+  .back-home:hover { opacity: 1; text-decoration: underline; }
   .course-tag {
     display: inline-flex;
     align-items: center;
@@ -270,6 +283,7 @@
 <body>
 
 <header>
+  <a href="https://chadhsu226.github.io/" class="back-home">← 返回首頁</a>
   <div class="header-inner">
     <div>
       <div class="course-tag">Statistics · 統計學</div>
